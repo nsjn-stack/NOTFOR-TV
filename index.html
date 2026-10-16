@@ -1,43 +1,55 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#000000"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><title>CINE NOTFOR</title>
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#000000"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><title>CINE NOTFOR</title>
 <style>
-:root{--r:#E10600;--g:#9a9a9a;--c:#0c0c0c;--l:#2a1010}
+:root{--r:#E10600;--g:#9a9a9a;--c:#0c0c0c;--l:#2a1010;--cw:120px;--hh:260px;--ww:190px;--bs:1}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:#000;color:#fff;font:15px/1.4 system-ui,Roboto,sans-serif;padding-bottom:76px}
+html{background:#000}
+body{margin:0;background:transparent;color:#fff;font:15px/1.4 system-ui,Roboto,sans-serif;padding-bottom:96px}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:#000 url(fundo.jpg) center/cover no-repeat}
 a{color:inherit;text-decoration:none}
 button,input,select,textarea{font:inherit;color:#fff}
 button{cursor:pointer;border:0;background:none}
 input,select,textarea{width:100%;background:#141414;border:1px solid #2b2b2b;border-radius:10px;padding:11px;margin:4px 0}
 textarea{min-height:70px}
 #app{max-width:720px;margin:auto}
-.top{display:flex;align-items:center;justify-content:space-between;padding:calc(8px + env(safe-area-inset-top)) 14px 8px;border-bottom:1px solid var(--l);background:linear-gradient(#1a0000,#000);position:sticky;top:0;z-index:5}
-.top img{height:42px}
-.ib{width:40px;height:40px;display:grid;place-items:center;border-radius:50%}
+.top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:calc(8px + env(safe-area-inset-top)) 14px 6px;background:linear-gradient(rgba(0,0,0,.85),rgba(0,0,0,0));position:sticky;top:0;z-index:5}
+.top>img{height:56px;grid-column:2;justify-self:center}
+.top>:last-child{grid-column:3;justify-self:end}
+.top>:first-child:not(img){grid-column:1;justify-self:start}
+.ib{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:rgba(0,0,0,.55);border:1px solid #3a1212}
 .ic{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.hero{margin:12px;border:1px solid #4a0a0a;border-radius:14px;padding:18px 16px;min-height:240px;background:linear-gradient(90deg,#000 30%,rgba(0,0,0,.15)),var(--bg) center/cover,#150000;display:flex;flex-direction:column;justify-content:flex-end;gap:8px}
+.hero{margin:10px 14px;border:1px solid #6a0a0a;border-radius:16px;padding:16px;height:var(--hh);overflow:hidden;background:linear-gradient(90deg,#000 30%,rgba(0,0,0,.15)),var(--bg) center/cover,#150000;display:flex;flex-direction:column;justify-content:flex-end;gap:8px}
 .tag{align-self:flex-start;background:rgba(0,0,0,.6);border:1px solid #5a1010;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700}
-.hero h1{margin:0;font-size:32px;font-style:italic;font-weight:900;line-height:1}
+.hero h1{margin:0;font-size:clamp(24px,calc(var(--hh)*.12),40px);font-style:italic;font-weight:900;line-height:1}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{border:1px solid #5a1010;border-radius:6px;padding:2px 8px;font-size:12px;background:#140000}
 .chip.r{color:#ff4040}
-.btn{display:inline-block;text-align:center;background:linear-gradient(#ff1a0f,#b00500);border-radius:10px;padding:12px 16px;font-weight:700}
-.btn.o{background:#000;border:1px solid #777}
-.btn.s{padding:7px 12px;font-size:13px}
+.btn{display:inline-block;text-align:center;background:linear-gradient(#ff1a0f,#b00500);border-radius:10px;padding:12px 16px;font-weight:700;font-size:calc(14px*var(--bs))}
+.hero .btn,.hero .btn.o{padding:8px 0;width:calc(128px*var(--bs));font-size:calc(13px*var(--bs));white-space:nowrap}
+.btn.o{background:rgba(0,0,0,.6);border:1px solid #777}
+.btn.s{padding:7px 12px;font-size:calc(13px*var(--bs))}
 .row{display:flex;gap:8px;flex-wrap:wrap}
 h2{font-size:18px;margin:18px 14px 8px;padding-left:10px;border-left:4px solid var(--r);display:flex;justify-content:space-between;align-items:center}
 h2 a{font-size:13px;color:var(--g);font-weight:400}
 .sc{display:flex;gap:10px;overflow-x:auto;padding:0 14px;scrollbar-width:none}
-.cd{flex:0 0 112px;font-size:12px}
-.cd.w{flex-basis:170px}
+.cd{flex:0 0 var(--cw);width:var(--cw);font-size:12px;position:relative;min-width:0}
+.cd.w{flex-basis:var(--ww);width:var(--ww)}
 .cd i{display:block;aspect-ratio:2/3;border-radius:8px;border:1px solid #3a1212;background:#1a1a1a var(--bg) center/cover}
 .cd.w i{aspect-ratio:16/9}
-.cd b{display:block;margin-top:4px;font-weight:600;font-size:13px}
+.cd b{display:block;margin-top:4px;font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cd small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pg{height:3px;background:#333;border-radius:2px;margin-top:5px}.pg u{display:block;height:100%;background:var(--r);border-radius:2px}
+.cd .pl2{position:absolute;top:calc(var(--cw)*1.5 - 38px);right:6px;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--r);background:rgba(0,0,0,.55);display:grid;place-items:center;font-size:12px;color:#fff}
+.cd.w .pl2{display:none}
 .cd small{color:var(--g)}
-.gr{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 14px}
-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#050000;border-top:1px solid var(--l);padding:6px 0 calc(6px + env(safe-area-inset-bottom));z-index:9}
-nav button{flex:1;color:var(--g);font-size:11px;display:grid;gap:2px;justify-items:center}
+.gr{display:grid;grid-template-columns:repeat(auto-fill,var(--cw));justify-content:space-between;gap:12px 10px;padding:0 14px}
+nav{position:fixed;bottom:calc(8px + env(safe-area-inset-bottom));left:10px;right:10px;max-width:700px;margin:auto;display:flex;background:rgba(8,0,0,.88);border:1px solid #4a0a0a;border-radius:18px;padding:8px 0 6px;z-index:9;backdrop-filter:blur(8px)}
+nav button{flex:1;color:var(--g);font-size:11px;display:grid;gap:3px;justify-items:center;position:relative}
 nav button.on{color:var(--r)}
-nav b{font-size:20px;line-height:1}
-.box{margin:10px 14px;padding:12px;background:var(--c);border:1px solid #2a1212;border-radius:12px}
+nav button.on::after{content:'';position:absolute;bottom:-6px;width:36px;height:3px;border-radius:2px;background:var(--r)}
+nav .ic{stroke:currentColor;width:24px;height:24px}
+.box{margin:10px 14px;padding:12px;background:rgba(10,10,10,.82);border:1px solid #2a1212;border-radius:12px}
+.rg{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 10px;margin:10px 0}
+.rg input[type=range]{grid-column:1/3;margin:0;padding:0;accent-color:var(--r);background:none;border:0}
 .pw{position:relative;aspect-ratio:16/9;background:#000;border:1px solid #3a1212;border-radius:12px;overflow:hidden;margin:12px}
 .pw iframe,.pw video{width:100%;height:100%;border:0;display:block;background:#000}
 .pw:fullscreen{aspect-ratio:auto;border:0;border-radius:0;margin:0}
@@ -57,14 +69,14 @@ nav b{font-size:20px;line-height:1}
 .cm .mu{padding:4px 12px 0 0}
 .bd{background:#FFD600;color:#000;font-size:10px;font-weight:800;padding:1px 5px;border-radius:4px;margin-left:5px}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 14px;scrollbar-width:none}
-.tabs button{padding:8px 14px;border-radius:20px;background:#141414;border:1px solid #2b2b2b;white-space:nowrap}
+.tabs button{padding:8px 14px;border-radius:20px;background:rgba(20,20,20,.85);border:1px solid #2b2b2b;white-space:nowrap}
 .tabs button.on{background:var(--r);border-color:var(--r)}
 .lg{text-align:center;padding:30px 20px}
 .lg img{width:210px;max-width:60%}
 label.k{display:flex;align-items:center;gap:8px;margin:8px 0}
 label.k input{width:auto}
 .qr{background:#fff;padding:8px;border-radius:8px;display:inline-block}
-.ep{flex:0 0 130px;background:#111;border:1px solid #2a1212;border-radius:10px;padding:10px;text-align:left;font-size:12px}
+.ep{flex:0 0 130px;background:rgba(17,17,17,.85);border:1px solid #2a1212;border-radius:10px;padding:10px;text-align:left;font-size:12px}
 .ep.on{border-color:var(--r)}
 </style></head><body><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -91,7 +103,7 @@ async function boot(){
  const{data:{session}}=await sb.auth.getSession();S.me=session?.user||null;
  const[st,sc]=await Promise.all([sb.from('settings').select('*'),sb.from('sections').select('*').order('pos')]);
  S.set={};(st.data||[]).forEach(x=>S.set[x.key]=x.value);S.secs=sc.data||[];
- S.kind=(S.secs.find(s=>s.enabled)||{}).key;
+ S.kind=(S.secs.find(s=>s.enabled)||{}).key;applyUI();
  if(S.me){await prof();await load();go('home')}
  else if(localStorage.cn_guest&&gOn()){S.guest=true;await load();go('home')}
  else login();
@@ -128,17 +140,20 @@ function draw(){
  A.innerHTML=hdr()+b+nav();
  if(t=='play'){wire();loadC()}if(t=='admin')ad();
 }
-const hdr=()=>S.tab=='play'?`<div class="top"><button class="ib" onclick="go(S.prev||'home')">${ic(I.b)}</button><img src="logo-topo.png" alt="CINE NOTFOR">${dl()||'<span class="ib"></span>'}</div>`:`<div class="top"><img src="logo-topo.png" alt="CINE NOTFOR"><div class="row" style="flex-wrap:nowrap"><button class="ib" onclick="go('search')">${ic(I.s)}</button><button class="ib" onclick="go('me')">${ic(I.u)}</button></div></div>`;
-const nav=()=>`<nav>${[['home','⌂','Início'],['fav','♥','Favoritos'],['me','☺','Perfil'],...(adm()?[['admin','⚙','Admin']]:[])].map(([k,g,n])=>`<button class="${S.tab==k?'on':''}" onclick="go('${k}')"><b>${g}</b>${n}</button>`).join('')}</nav>`;
-const card=t=>`<div class="cd" onclick="play(${t.id})"><i ${bg(t.cover||t.banner)}></i><b>${esc(t.name)}</b><small>${t.year||''}</small></div>`;
+const hdr=()=>S.tab=='play'?`<div class="top"><button class="ib" onclick="go(S.prev||'home')">${ic(I.b)}</button><img src="logo-topo.png" alt="CINE NOTFOR">${dl()||'<span class="ib" style="visibility:hidden"></span>'}</div>`:`<div class="top"><span></span><img src="logo-topo.png" alt="CINE NOTFOR"><div class="row" style="flex-wrap:nowrap"><button class="ib" onclick="go('search')">${ic(I.s)}</button><button class="ib" onclick="go('me')">${ic(I.u)}</button></div></div>`;
+const NI={home:'M3 11l9-8 9 8v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z',fav:'M12 21s-8-5.2-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.8-8 11-8 11z',me:'M12 12a4 4 0 100-8 4 4 0 000 8zM4 21c0-4 4-6 8-6s8 2 8 6',admin:'M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z'};
+const nav=()=>`<nav>${[['home','Início'],['fav','Favoritos'],['me','Perfil'],...(adm()?[['admin','Admin']]:[])].map(([k,n])=>`<button class="${S.tab==k?'on':''}" onclick="go('${k}')">${ic(NI[k])}${n}</button>`).join('')}</nav>`;
+const card=t=>`<div class="cd" onclick="play(${t.id})"><i ${bg(t.cover||t.banner)}></i><span class="pl2">▶</span><b>${esc(t.name)}</b><small>${esc(t.genres||t.year||'')}</small></div>`;
+const prog=()=>JSON.parse(localStorage.cn_prog||'{}');
+function applyUI(){const s=S.set,r=document.documentElement.style,m={ui_cw:['--cw','px'],ui_hh:['--hh','px'],ui_ww:['--ww','px'],ui_bs:['--bs','']};for(const k in m){const v=parseFloat(s[k]);v?r.setProperty(m[k][0],v+m[k][1]):r.removeProperty(m[k][0])}}
 
 function pHome(){
  const L=S.T;
  if(!L.length)return `<p class="mu">Nenhum título ainda.${adm()?' Cadastre no painel Admin.':''}</p>`;
  const h=L.find(t=>t.featured)||L[0];
- let o=`<div class="hero" ${bg(h.banner||h.cover)}><span class="tag">♛ DESTAQUE DA SEMANA</span><h1>${esc(h.name)}</h1><div>${esc((h.synopsis||'').slice(0,90))}</div><div class="chips"><span class="chip">${esc(lab(h.section).toUpperCase())}</span>${h.genres?`<span class="chip">${esc(h.genres)}</span>`:''}<span class="chip">HD</span></div><div class="row"><button class="btn" onclick="play(${h.id})">▶ Assistir agora</button><button class="btn o" onclick="fv(${h.id})">+ Minha lista</button></div></div>`;
+ let o=`<div class="hero" ${bg(h.banner||h.cover)}><span class="tag">♛ DESTAQUE DA SEMANA</span><h1>${esc(h.name)}</h1><div class="chips"><span class="chip">${esc(lab(h.section).toUpperCase())}</span>${h.genres?`<span class="chip">${esc(h.genres)}</span>`:''}<span class="chip">HD</span></div><div class="row"><button class="btn" onclick="play(${h.id})">▶ Assistir agora</button><button class="btn o" onclick="fv(${h.id})">+ Minha lista</button></div></div>`;
  const c=last().map(x=>({t:T(x.t),e:S.E.find(e=>e.id==x.e)})).filter(x=>x.t);
- if(c.length)o+=`<h2>Continue assistindo</h2><div class="sc">${c.map(x=>`<div class="cd w" onclick="play(${x.t.id}${x.e?','+x.e.id:''})"><i ${bg(x.t.banner||x.t.cover)}></i><b>${esc(x.t.name)}</b><small>${x.e?'T'+x.e.season+' • E'+x.e.num:''}</small></div>`).join('')}</div>`;
+ if(c.length)o+=`<h2>Continue assistindo</h2><div class="sc">${c.map(x=>`<div class="cd w" onclick="play(${x.t.id}${x.e?','+x.e.id:''})"><i ${bg(x.t.banner||x.t.cover)}></i><b>${esc(x.t.name)}</b><small>${x.e?'T'+x.e.season+' • E'+x.e.num:''}</small>${(p=>p?`<div class="pg"><u style="width:${Math.round(p*100)}%"></u></div>`:'')(prog()[x.t.id+'_'+(x.e?x.e.id:0)])}</div>`).join('')}</div>`;
  for(const s of S.secs)if(s.enabled){const l=L.filter(t=>t.section==s.key);if(l.length)o+=`<h2>${esc(TT[s.key]||s.label)}<a onclick="go('list','${s.key}')">Ver todos ›</a></h2><div class="sc">${l.slice(0,12).map(card).join('')}</div>`}
  return o;
 }
@@ -203,7 +218,7 @@ function wire(){
  const bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),f=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
  const up=()=>bp.style.display=v.paused?'':'none';
  v.onplay=v.onpause=up;
- v.ontimeupdate=()=>{sk.value=v.currentTime/(v.duration||1)*1000;tm.textContent=f(v.currentTime)+' / '+f(v.duration)};
+ let lp=0;v.ontimeupdate=()=>{if(v.duration&&Date.now()-lp>3000){lp=Date.now();const p=prog(),c=S.cur;p[c.t.id+'_'+(c.e?c.e.id:0)]=Math.min(1,v.currentTime/v.duration);localStorage.cn_prog=JSON.stringify(p)}sk.value=v.currentTime/(v.duration||1)*1000;tm.textContent=f(v.currentTime)+' / '+f(v.duration)};
  sk.oninput=()=>v.currentTime=sk.value/1000*(v.duration||0);
  bp.onclick=v.onclick=()=>v.paused?v.play():v.pause();
  $('#mu').onclick=()=>{v.muted=!v.muted;$('#mu').style.opacity=v.muted?.4:1};
@@ -241,7 +256,7 @@ async function ad(){
  }
  if(a=='s'){const s=S.set,sw=(k,n)=>`<label class="k"><input type="checkbox" ${on(k)?'checked':''} onchange="cf('${k}',this.checked)"> ${n}</label>`;
   const{data:ol}=await sb.from('profiles').select('name,session_start,last_seen').gt('last_seen',new Date(Date.now()-120000).toISOString());
-  d.innerHTML=`<div class="box"><b>Online agora: ${(ol||[]).length}</b><div class="mu" style="padding:4px 0">${(ol||[]).map(u=>`${esc(u.name)} — ${Math.max(1,Math.round((new Date(u.last_seen)-new Date(u.session_start))/60000))} min`).join('<br>')||'—'}</div></div><div class="box"><b>Seções visíveis</b>${S.secs.map(x=>`<label class="k"><input type="checkbox" ${x.enabled?'checked':''} onchange="tSec('${x.key}',this.checked)"> ${esc(x.label)}</label>`).join('')}</div><div class="box"><b>Download</b>${sw('downloads_on','Permitir download (só links .mp4)')}</div><div class="box"><b>Visitante</b><p class="mu" style="padding:4px 0">${gOn()?'Ativo'+(s.guest_until?' até '+new Date(s.guest_until).toLocaleString('pt-BR'):' sem prazo'):'Desativado'}</p><div class="row"><input id="g_n" type="number" min="0" placeholder="Duração (0 = sem prazo)" style="flex:1"><select id="g_u" style="flex:1"><option value="3600000">horas</option><option value="86400000">dias</option></select></div><div class="row"><button class="btn s" onclick="gv(1)">Ativar visitante</button><button class="btn o s" onclick="gv(0)">Desativar</button></div></div><div class="box"><b>Apoie (aparece no Perfil)</b>${sw('support_on','Mostrar card de apoio')}<input id="s_support_title" placeholder="Título do card" value="${esc(s.support_title)}"><textarea id="s_pix_info" placeholder="Texto (ex.: Pix: sua chave)">${esc(s.pix_info)}</textarea><input id="s_instagram" placeholder="Instagram (@usuario ou link)" value="${esc(s.instagram)}"><input id="s_whatsapp" placeholder="WhatsApp (número com DDD ou link)" value="${esc(s.whatsapp)}"><input id="s_qr_text" placeholder="Texto ou link do QR code" value="${esc(s.qr_text)}"><button class="btn" onclick="svS()">Salvar</button></div>`;
+  d.innerHTML=`<div class="box"><b>Online agora: ${(ol||[]).length}</b><div class="mu" style="padding:4px 0">${(ol||[]).map(u=>`${esc(u.name)} — ${Math.max(1,Math.round((new Date(u.last_seen)-new Date(u.session_start))/60000))} min`).join('<br>')||'—'}</div></div><div class="box"><b>Seções visíveis</b>${S.secs.map(x=>`<label class="k"><input type="checkbox" ${x.enabled?'checked':''} onchange="tSec('${x.key}',this.checked)"> ${esc(x.label)}</label>`).join('')}</div><div class="box"><b>Aparência (tamanhos)</b>${[['ui_cw','Tamanho das capas',90,220,120,'px'],['ui_hh','Altura do Destaque da semana',180,460,260,'px'],['ui_ww','Largura do Continue assistindo',140,320,190,'px'],['ui_bs','Tamanho dos botões',.8,1.4,1,'x']].map(([k,n,a,b,d,u])=>`<div class="rg"><span>${n}</span><span class="mu" id="o_${k}" style="padding:0">${parseFloat(s[k])||d}${u}</span><input type="range" min="${a}" max="${b}" step="${u=='x'?.05:2}" value="${parseFloat(s[k])||d}" oninput="ui('${k}',this.value,'${u}')"></div>`).join('')}<div class="row"><button class="btn s" onclick="svUI()">Salvar tamanhos</button><button class="btn o s" onclick="rsUI()">Restaurar padrão</button></div></div><div class="box"><b>Download</b>${sw('downloads_on','Permitir download (só links .mp4)')}</div><div class="box"><b>Visitante</b><p class="mu" style="padding:4px 0">${gOn()?'Ativo'+(s.guest_until?' até '+new Date(s.guest_until).toLocaleString('pt-BR'):' sem prazo'):'Desativado'}</p><div class="row"><input id="g_n" type="number" min="0" placeholder="Duração (0 = sem prazo)" style="flex:1"><select id="g_u" style="flex:1"><option value="3600000">horas</option><option value="86400000">dias</option></select></div><div class="row"><button class="btn s" onclick="gv(1)">Ativar visitante</button><button class="btn o s" onclick="gv(0)">Desativar</button></div></div><div class="box"><b>Apoie (aparece no Perfil)</b>${sw('support_on','Mostrar card de apoio')}<input id="s_support_title" placeholder="Título do card" value="${esc(s.support_title)}"><textarea id="s_pix_info" placeholder="Texto (ex.: Pix: sua chave)">${esc(s.pix_info)}</textarea><input id="s_instagram" placeholder="Instagram (@usuario ou link)" value="${esc(s.instagram)}"><input id="s_whatsapp" placeholder="WhatsApp (número com DDD ou link)" value="${esc(s.whatsapp)}"><input id="s_qr_text" placeholder="Texto ou link do QR code" value="${esc(s.qr_text)}"><button class="btn" onclick="svS()">Salvar</button></div>`;
  }
 }
 async function svT(){
@@ -263,6 +278,10 @@ async function dE(id){if(confirm('Apagar episódio?')){await sb.from('episodes')
 async function dL(id){if(confirm('Apagar link?')){await sb.from('links').delete().eq('id',id);await load();ad()}}
 async function tSec(k,v){if(ok(await sb.from('sections').update({enabled:v}).eq('key',k)))S.secs.find(s=>s.key==k).enabled=v}
 async function cf(k,v){if(ok(await sb.from('settings').upsert({key:k,value:String(v)})))S.set[k]=String(v)}
+const UK=['ui_cw','ui_hh','ui_ww','ui_bs'];
+function ui(k,v,u){S.set[k]=String(v);$('#o_'+k).textContent=v+u;applyUI()}
+async function svUI(){if(ok(await sb.from('settings').upsert(UK.filter(k=>S.set[k]).map(k=>({key:k,value:S.set[k]})))))alert('Tamanhos salvos para todos.')}
+async function rsUI(){const d={ui_cw:'120',ui_hh:'260',ui_ww:'190',ui_bs:'1'};if(ok(await sb.from('settings').upsert(UK.map(k=>({key:k,value:d[k]}))))){UK.forEach(k=>S.set[k]=d[k]);applyUI();ad()}}
 async function svS(){
  const rows=['support_title','pix_info','instagram','whatsapp','qr_text'].map(k=>({key:k,value:$('#s_'+k).value.trim()}));
  if(ok(await sb.from('settings').upsert(rows))){rows.forEach(r=>S.set[r.key]=r.value);alert('Salvo.')}
