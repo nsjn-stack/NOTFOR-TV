@@ -125,10 +125,10 @@ async function out(){await sb.auth.signOut();localStorage.removeItem('cn_guest')
 function go(t,k){S.tab=t;if(k)S.kind=k;if(S.guest&&!gOn())return out();scrollTo(0,0);draw()}
 function draw(){
  const t=S.tab,b={home:pHome,list:pList,search:pSearch,fav:pFav,me:pMe,admin:pAdmin,play:pPlay}[t]();
- A.innerHTML=top()+b+nav();
+ A.innerHTML=hdr()+b+nav();
  if(t=='play'){wire();loadC()}if(t=='admin')ad();
 }
-const top=()=>S.tab=='play'?`<div class="top"><button class="ib" onclick="go(S.prev||'home')">${ic(I.b)}</button><img src="logo-topo.png" alt="CINE NOTFOR">${dl()||'<span class="ib"></span>'}</div>`:`<div class="top"><img src="logo-topo.png" alt="CINE NOTFOR"><div class="row" style="flex-wrap:nowrap"><button class="ib" onclick="go('search')">${ic(I.s)}</button><button class="ib" onclick="go('me')">${ic(I.u)}</button></div></div>`;
+const hdr=()=>S.tab=='play'?`<div class="top"><button class="ib" onclick="go(S.prev||'home')">${ic(I.b)}</button><img src="logo-topo.png" alt="CINE NOTFOR">${dl()||'<span class="ib"></span>'}</div>`:`<div class="top"><img src="logo-topo.png" alt="CINE NOTFOR"><div class="row" style="flex-wrap:nowrap"><button class="ib" onclick="go('search')">${ic(I.s)}</button><button class="ib" onclick="go('me')">${ic(I.u)}</button></div></div>`;
 const nav=()=>`<nav>${[['home','⌂','Início'],['fav','♥','Favoritos'],['me','☺','Perfil'],...(adm()?[['admin','⚙','Admin']]:[])].map(([k,g,n])=>`<button class="${S.tab==k?'on':''}" onclick="go('${k}')"><b>${g}</b>${n}</button>`).join('')}</nav>`;
 const card=t=>`<div class="cd" onclick="play(${t.id})"><i ${bg(t.cover||t.banner)}></i><b>${esc(t.name)}</b><small>${t.year||''}</small></div>`;
 
