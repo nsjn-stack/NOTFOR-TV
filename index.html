@@ -27,7 +27,7 @@ button.b{background:#8E24AA;border:0;font-weight:700}button.s{background:#222}bu
 <div id="pl"><button class="x" onclick="stop_()">✕ Fechar player</button><div id="plb" style="flex:1;display:flex;align-items:center"><div style="width:100%" id="plin"></div></div><p class="muted" style="text-align:center;padding:8px">Não carregou? <a id="plx" style="color:#8E24AA" target="_blank" rel="noopener">Abrir em outra aba</a></p></div>
 <script>
 // ====== CONFIGURE AQUI (Supabase > Project Settings > API) ======
-const SUPABASE_URL="COLE_SUA_URL", SUPABASE_KEY="COLE_SUA_ANON_KEY";
+const SUPABASE_URL="https://ubksgsszfkeeodqxdayc.supabase.co", SUPABASE_KEY="sb_publishable_NE-b8nU0p5zvMdLcjA5dYg_4GPsFVU_";
 // ================================================================
 if(SUPABASE_URL.startsWith('COLE')){document.getElementById('v').innerHTML='<p style="color:#ff8">Configure SUPABASE_URL e SUPABASE_KEY no topo do index.html.</p>';throw new Error('config')}
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
