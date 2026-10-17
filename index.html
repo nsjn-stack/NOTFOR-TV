@@ -214,12 +214,14 @@ const ovn=(k,d)=>{const v=parseFloat(S.set[k]);return isNaN(v)?d:v};
 const ovp=(x,y)=>`left:${x}%;top:${y}%;transform:translate(-${x}%,-${y}%)`;
 const vids=t=>S.L.filter(l=>l.title_id==t.id);
 function play(id,eid,li){
+ const sc0=S.tab=='play'&&S.cur&&S.cur.t&&S.cur.t.id==id?document.querySelector('.sc'):null,keep=sc0?sc0.scrollLeft:null;
  const t=T(id),es=S.E.filter(e=>e.title_id==id),e=es.length?(es.find(x=>x.id==eid)||es[0]):null;
  if(S.tab!='play')S.prev=S.tab;
  S.cur={t,e,es,li:li||0};
  S.vw=S.vw||new Set();if(!S.vw.has(id)){S.vw.add(id);sb.rpc('add_view',{tid:id}).then(()=>{t.views=(t.views||0)+1})}
  localStorage.cn_last=JSON.stringify([{t:id,e:e?.id},...last().filter(x=>x.t!=id)].slice(0,10));
  S.tab='play';scrollTo(0,0);draw();
+ {const sc=document.querySelector('.sc'),a=sc&&sc.querySelector('.ep.on');if(sc&&a){if(keep!=null)sc.scrollLeft=keep;const sr=sc.getBoundingClientRect(),ar=a.getBoundingClientRect();if(keep==null||ar.left<sr.left||ar.right>sr.right)sc.scrollLeft+=(ar.left-sr.left)-(sc.clientWidth-a.offsetWidth)/2}}
  if(ovn('ov_au',1)&&document.querySelector('#pw iframe,#pw video'))setTimeout(fkOn()?fkEnter:fsEnter,150);
 }
 const cu=()=>{const c=S.cur;return c.e?c.e.url:(vids(c.t)[c.li]||{}).url};
