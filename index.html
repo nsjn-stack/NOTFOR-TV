@@ -228,6 +228,8 @@ function embed(u){
  if(m=u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/))return{t:'if',s:'https://www.youtube.com/embed/'+m[1]+'?playsinline=1&rel=0&enablejsapi=1&fs=0'};
  if(m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]+)/))return{t:'if',s:'https://drive.google.com/file/d/'+m[1]+'/preview'};
  if(m=u.match(/archive\.org\/(?:details|embed)\/([^\/?#]+)(?:\/([^?#]+))?/))return{t:'if',s:'https://archive.org/embed/'+m[1]+(m[2]?'/'+m[2]:'')};
+ if(m=u.match(/vimeo\.com\/(?:[^?#]*\/)?(\d{6,})(?:\/([0-9a-f]{8,}))?/i)){const h=m[2]||(u.match(/[?&]h=([0-9a-f]+)/i)||[])[1];return{t:'if',s:'https://player.vimeo.com/video/'+m[1]+'?title=0&byline=0&portrait=0'+(h?'&h='+h:'')}}
+ if(m=u.match(/(?:dailymotion\.com\/(?:embed\/)?video\/|dai\.ly\/|dailymotion\.com\/player[^?]*\?[^#]*video=)([a-z0-9]+)/i))return{t:'if',s:'https://www.dailymotion.com/embed/video/'+m[1]};
  if(/\.(mp4|webm|m4v)(\?|$)/i.test(u))return{t:'v',s:u};
  return{t:'x',s:u};
 }
