@@ -297,7 +297,12 @@ function ovWire(){
  if(v)v.addEventListener('click',show);
  if(f){
   f.addEventListener('load',()=>{try{f.contentWindow.postMessage(JSON.stringify({event:'listening',id:1,channel:'widget'}),'*')}catch(x){}});
-  S.ovp=setInterval(()=>{if(!document.body.contains(w)){clearInterval(S.ovp);return}if(document.activeElement===f){show();f.blur();window.focus()}},250);
+  S.fa=0;
+  S.ovp=setInterval(()=>{if(!document.body.contains(w)){clearInterval(S.ovp);return}
+   if(document.activeElement===f){
+    if(!S.fa){S.fa=Date.now();show()}
+    else if(Date.now()-S.fa>(ovn('ov_t',4)+6)*1000){S.fa=0;f.blur();window.focus()}
+   }else S.fa=0},250);
  }
  show();
 }
