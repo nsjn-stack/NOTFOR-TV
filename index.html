@@ -522,11 +522,13 @@ const OEC={r:{n:'Botão girar',sel:'.ob.ls',K:[['ov_lx','Horizontal',0,100,97,'%
 function oeSty(w,k){const K=OEC[w].K,g=i=>ppo(K[i][0],k,K[i][4]);return ovp(g(0),g(1))+';--s:'+g(2)+';--o:'+g(3)/100+';--bo:'+g(4)/100+';--bf:'+g(5)/100+(w=='x'?';display:grid':'')}
 function oePaint(){const o=S.oved,el=o&&document.querySelector('#pw '+OEC[o.w].sel);if(el)el.style.cssText=oeSty(o.w,o.k)}
 function oeSet(b,v,u){const o=S.oved;S.set[b+'_'+o.k]=String(v);const l=document.getElementById('oel_'+b);if(l)l.textContent=v+u;oePaint()}
+async function oeAll(){const v=document.getElementById('oe_all').checked?'all':'';S.set.ov_titles=v;if(ok(await sb.from('settings').upsert([{key:'ov_titles',value:v}]))){const sc=window.scrollY;draw();if(S.oved)oEdWire();window.scrollTo(0,sc)}}
 function oeTg(){const k=S.oved.k;S.set['ov_tg_'+k]=document.getElementById('oe_tg').checked?'1':'0'}
 function oEdOpen(w,k){const r=blFind(k);if(!r)return;S.bled=null;S.oved={w,k};play(r[0],r[1]||undefined,r[2]);oEdPanel()}
 function oEdPanel(){const{w,k}=S.oved,d0=OEC[w],nm=(PK.find(x=>x[0]==k)||[0,k])[1];let d=document.getElementById('bled');if(d)d.remove();d=document.createElement('div');d.id='bled';d.className='bled';
  d.innerHTML=`<div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:center"><b>${d0.n} · ${nm}</b><button class="btn o s" onclick="oEdExit()">Sair</button></div><div class="mu" style="padding:2px 0 6px">Arraste o botão em cima do vídeo ou use os controles. Toque em Salvar ao terminar.${'fc'.includes(w)?' A posição só vale nos títulos com botões sobre o vídeo; nos demais valem tamanho, visibilidade, borda e fundo.':''}</div>`+
  d0.K.map(([b,n,a,z,df,u])=>{const v=ppo(b,k,df);return `<div class="rg"><span>${n}</span><span class="mu" id="oel_${b}" style="padding:0">${v}${u}</span><input type="range" id="oer_${b}" min="${a}" max="${z}" step="${u=='x'?.05:1}" value="${v}" oninput="oeSet('${b}',this.value,'${u}')"></div>`}).join('')+
+ ('fc'.includes(w)?`<label class="k"><input type="checkbox" id="oe_all" ${ovList()=='all'?'checked':''} onchange="oeAll()"> Mostrar os botões sobre o vídeo em todos os títulos</label>`:'')+
  (w=='r'?`<label class="k"><input type="checkbox" id="oe_tg" ${ppo('ov_tg',k,0)?'checked':''} onchange="oeTg()"> Tocar na tela deste player mostra o botão e tocar de novo esconde</label>`:'')+
  `<div class="row"><button class="btn s" onclick="oeSave()">Salvar neste player</button><button class="btn o s" onclick="oeReset()">Voltar ao padrão</button></div>`;document.body.appendChild(d)}
 function oEdWire(){const o=S.oved,el=o&&document.querySelector('#pw '+OEC[o.w].sel);if(!el)return;el.style.cssText=oeSty(o.w,o.k);el.style.touchAction='none';el.onclick=e=>{e.preventDefault();e.stopPropagation()};
