@@ -99,7 +99,7 @@ label.k input{width:auto}
 .ipg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}.ipb{background:#111;border:1px solid #333;color:#fff;border-radius:10px;padding:8px 4px;display:grid;place-items:center;gap:4px;font-size:11px;font-weight:600;min-height:64px}.ipb.on{border-color:var(--r);background:#2a0d0d}.ipb .ic{width:26px;height:26px}.ipb .tx{font-size:20px;line-height:26px}
 .bl{position:absolute;z-index:90;touch-action:manipulation}.bl.adm{outline:2px dashed #ff4040;color:#fff;font:700 12px system-ui;display:grid;place-items:center;cursor:pointer}.bl.adm.on{outline:3px solid #fff}
 .ob.ls,.ob.ex{background:rgba(0,0,0,calc(.75*var(--bf,1)));border-color:rgba(136,136,136,var(--bo,1))}
-.bled{position:fixed;left:8px;right:8px;bottom:78px;max-height:46vh;overflow:auto;background:rgba(10,10,10,.96);border:1px solid #444;border-radius:14px;padding:10px 12px;z-index:200}.bl.adm.ed{pointer-events:auto;touch-action:none;cursor:grab}
+.bled{position:fixed;left:8px;right:8px;bottom:78px;max-height:46vh;overflow:auto;overscroll-behavior:contain;background:rgba(10,10,10,.96);border:1px solid #444;border-radius:14px;padding:10px 12px;z-index:200}.bl.adm.ed{pointer-events:auto;touch-action:none;cursor:grab}.bh{touch-action:none;cursor:move;user-select:none;-webkit-user-select:none}.bh b{flex:1;min-width:0}.bh .btn{min-width:38px;text-align:center}
 .pl{--f:1;position:relative;display:flex;align-items:center;gap:calc(10px*var(--f)*var(--s,1));box-sizing:border-box;width:100%;height:calc(58px*var(--f)*var(--s,1));padding:0 calc(14px*var(--f)*var(--s,1)) 0 calc(9px*var(--f)*var(--s,1));border-radius:999px;color:#fff;text-align:left;overflow:hidden;background:linear-gradient(120deg,rgba(255,255,255,.08),rgba(255,255,255,0) 35%),rgba(6,0,0,calc(.92*var(--bf,1)));border:1.5px solid rgba(255,35,25,var(--bo,1));box-shadow:0 0 calc(14px*var(--bo,1)) rgba(255,30,20,calc(.5*var(--bo,1))),inset 0 0 calc(12px*var(--bo,1)) rgba(255,30,20,calc(.22*var(--bo,1)));opacity:var(--o,1);cursor:pointer;font-family:inherit}
 .ob.pl{--f:.8;position:absolute;width:calc(200px*var(--s,1));max-width:none;font-size:inherit}
 .ob.pl{opacity:0;pointer-events:none}
@@ -372,6 +372,7 @@ function fkApply(){
  w.classList.add('ff');w.classList.toggle('rot',S.ffL&&innerHeight>innerWidth);
  document.documentElement.style.overflow='hidden';
  if(S.showOv)S.showOv();
+ blSync();
 }
 function fkEnter(){
  const w=$('#pw');if(!w||S.ff)return;
@@ -382,6 +383,7 @@ function fkEnter(){
 function fkClose(){
  S.ff=0;const w=$('#pw');if(w)w.classList.remove('ff','rot');
  document.documentElement.style.overflow='';
+ blSync();
 }
 function fkToggle(){
  if(!S.ff)return fkEnter();
@@ -393,7 +395,7 @@ addEventListener('resize',fkApply);
 addEventListener('orientationchange',()=>setTimeout(fkApply,200));
 function fs(){return fkOn()?fkToggle():fsReal()}
 function fsExit(){return S.ff?fkExit():fsExitReal()}
-document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement){try{screen.orientation.unlock()}catch(x){}}});
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement){try{screen.orientation.unlock()}catch(x){}}setTimeout(blSync,250)});
 function wire(){
  const v=$('#vd');if(!v)return;
  const bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),f=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
@@ -499,8 +501,12 @@ function lsr(v){S.set.ov_ra=String(v);$('#o_ov_ra').textContent=v+'s'}
 async function svTG(){S.set.ov_tg=$('#tg_on').checked?'1':'0';if(ok(await sb.from('settings').upsert([{key:'ov_tg',value:S.set.ov_tg},{key:'ov_ra',value:String(ovn('ov_ra',2))}])))alert('Salvo para todos.')}
 const BLD={q:{s:'q',x:40,y:40,w:20,h:20,o:60},r:{s:'r',x:30,y:40,w:30,h:15,o:60},c:{s:'c',x:40,y:40,w:20,h:20,o:60}};
 const blCss=b=>`left:${b.x}%;top:${b.y}%;width:${b.w}%;${b.s=='r'?`height:${b.h}%`:'aspect-ratio:1'};border-radius:${b.s=='c'?'50%':'6px'};background:rgba(0,0,0,${b.o/100})`;
-const blh=k=>{let L=[];try{L=JSON.parse(S.set['ov_bl_'+k]||'[]')}catch(e){}return L.map(b=>`<div class="bl" style="${blCss(b)}"></div>`).join('')};
-function blGet(k){S.bl=S.bl||{};if(!S.bl[k]){try{S.bl[k]=JSON.parse(S.set['ov_bl_'+k]||'[]')}catch(e){S.bl[k]=[]}}return S.bl[k]}
+const blM=()=>{const w=document.getElementById('pw');if(!w||!(S.ff||document.fullscreenElement||document.webkitFullscreenElement))return 'n';return(w.classList.contains('rot')||innerWidth>innerHeight)?'h':'v'};
+const blMN={n:'Normal (na tela do app)',v:'Tela cheia em pé (retrato)',h:'Tela cheia deitada (horizontal)'};
+const blKey=(k,m)=>'ov_bl_'+k+(m=='n'?'':'_'+m);
+const blRaw=(k,m)=>{const a=S.set[blKey(k,m)];return a!=null&&a!==''?a:(S.set['ov_bl_'+k]||'[]')};
+const blh=k=>{let L=[];try{L=JSON.parse(blRaw(k,blM()))}catch(e){}return L.map(b=>`<div class="bl" style="${blCss(b)}"></div>`).join('')};
+function blGet(k,m){m=m||blM();S.bl=S.bl||{};const c=k+':'+m;if(!S.bl[c]){try{S.bl[c]=JSON.parse(blRaw(k,m))}catch(e){S.bl[c]=[]}}return S.bl[c]}
 const blK=()=>S.bled||($('#bls')||{}).value||PK[0][0];
 function blPrevH(k,ed){return blGet(k).map((x,i)=>`<div class="bl adm${ed?' ed':''}${i==S.bi?' on':''}" style="${blCss(x)}" ${ed?`onpointerdown="blDrag(event,${i})"`:`onclick="blPick(${i})"`}>${i+1}</div>`).join('')}
 function blInner(k,np){const L=blGet(k),b=L[S.bi],nm={q:'Quadrado',r:'Retângulo',c:'Bola'};
@@ -515,9 +521,9 @@ function blPick(i){S.bi=i;blRender()}
 function blAdd(t){const L=blGet(blK());L.push({...BLD[t]});S.bi=L.length-1;blRender()}
 function blDel(){const L=blGet(blK());L.splice(S.bi,1);S.bi=0;blRender()}
 function blSet(f,v){const b=blGet(blK())[S.bi];if(!b)return;b[f]=+v;const l=$('#o_bl'+f);if(l)l.textContent=v+'%';blPaint()}
-async function svBL(){const k=blK(),v=JSON.stringify(blGet(k));if(ok(await sb.from('settings').upsert([{key:'ov_bl_'+k,value:v}]))){S.set['ov_bl_'+k]=v;alert('Bloqueadores salvos para este player.')}}
-function blDrag(ev,i){ev.preventDefault();const k=blK(),b=blGet(k)[i],w=$('#pw').getBoundingClientRect(),el=ev.currentTarget,sx=ev.clientX,sy=ev.clientY,bx=b.x,by=b.y;S.bi=i;$('#bledb').innerHTML=blInner(k,1);document.querySelectorAll('#blEd .bl').forEach((d,j)=>d.classList.toggle('on',j==i));el.setPointerCapture(ev.pointerId);
- el.onpointermove=m=>{b.x=Math.max(-100,Math.min(100,Math.round(bx+(m.clientX-sx)/w.width*100)));b.y=Math.max(-100,Math.min(100,Math.round(by+(m.clientY-sy)/w.height*100)));el.style.left=b.x+'%';el.style.top=b.y+'%';['x','y'].forEach(f=>{const r=$('#blr_'+f),l=$('#o_bl'+f);if(r)r.value=b[f];if(l)l.textContent=b[f]+'%'})};
+async function svBL(){const k=blK(),m=blM(),v=JSON.stringify(blGet(k,m)),ky=blKey(k,m);if(ok(await sb.from('settings').upsert([{key:ky,value:v}]))){S.set[ky]=v;alert('Salvo: '+blMN[m]+'.')}}
+function blDrag(ev,i){ev.preventDefault();const k=blK(),b=blGet(k)[i],pe=$('#pw'),rt=pe.classList.contains('rot'),w0=pe.getBoundingClientRect(),w=rt?{width:w0.height,height:w0.width}:w0,el=ev.currentTarget,sx=ev.clientX,sy=ev.clientY,bx=b.x,by=b.y;S.bi=i;$('#bledb').innerHTML=blInner(k,1);document.querySelectorAll('#blEd .bl').forEach((d,j)=>d.classList.toggle('on',j==i));el.setPointerCapture(ev.pointerId);
+ el.onpointermove=m=>{const dx=rt?(m.clientY-sy):(m.clientX-sx),dy=rt?-(m.clientX-sx):(m.clientY-sy);b.x=Math.max(-100,Math.min(100,Math.round(bx+dx/w.width*100)));b.y=Math.max(-100,Math.min(100,Math.round(by+dy/w.height*100)));el.style.left=b.x+'%';el.style.top=b.y+'%';['x','y'].forEach(f=>{const r=$('#blr_'+f),l=$('#o_bl'+f);if(r)r.value=b[f];if(l)l.textContent=b[f]+'%'})};
  el.onpointerup=el.onpointercancel=()=>{el.onpointermove=null}}
 function blFind(k){let r=null;const kd=u=>u&&(embed(u).k||'ot')==k;
  for(const l of S.L){if(kd(l.url)){const t=T(l.title_id);if(t){r=[t.id,0,Math.max(0,vids(t).findIndex(x=>x.id==l.id))];break}}}
@@ -526,7 +532,19 @@ function blFind(k){let r=null;const kd=u=>u&&(embed(u).k||'ot')==k;
 function blEdOpen(k){const r=blFind(k);if(!r)return;S.oved=null;
  S.bled=k;S.bi=0;play(r[0],r[1]||undefined,r[2]);blEdPanel()}
 function blEdPanel(){const k=S.bled,nm=(PK.find(x=>x[0]==k)||[0,k])[1];let d=document.getElementById('bled');if(d)d.remove();d=document.createElement('div');d.id='bled';d.className='bled';
- d.innerHTML=`<div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:center"><b>Bloqueadores · ${nm}</b><button class="btn o s" onclick="blEdExit()">Sair</button></div><div class="mu" style="padding:2px 0 6px">Arraste o bloco em cima do vídeo ou use os controles. Toque em Salvar ao terminar.</div><div id="bledb">${blInner(k,1)}</div>`;document.body.appendChild(d)}
+ d.innerHTML=`<div class="bz"><div class="row bh" onpointerdown="blPD(event)" style="justify-content:space-between;flex-wrap:nowrap;align-items:center;gap:6px"><b>⠿ Bloqueadores · ${nm}</b><button class="btn o s" onclick="blPS(-.1)">−</button><button class="btn o s" onclick="blPS(.1)">＋</button><button class="btn o s" onclick="blPM()">▁</button><button class="btn o s" onclick="blEdExit()">Sair</button></div><div id="blmode" class="mu" style="padding:2px 0 0"></div><div id="bledw"><div class="mu" style="padding:2px 0 6px">Arraste o bloco em cima do vídeo ou use os controles. Para mover a gaveta, arraste o título. Toque em Salvar ao terminar.</div><div id="bledb">${blInner(k,1)}</div></div></div>`;document.body.appendChild(d);S.blm=blM();blPA();blLbl()}
+function blLbl(){const e=$('#blmode');if(e)e.textContent='Editando: '+blMN[blM()]+'. Gire a tela no vídeo para editar o outro modo.'}
+function blPA(){const d=document.getElementById('bled');if(!d)return;let p=S.bp;if(!p){try{p=JSON.parse(localStorage.getItem('bled_pos'))}catch(e){}p=S.bp=p||{s:1,x:null,y:null,m:0}}
+ const W=innerWidth,H=innerHeight,s=p.s;d.style.width=Math.round((W-16)*s)+'px';d.style.right='auto';d.style.left=(p.x==null?8:Math.max(0,Math.min(W-60,p.x)))+'px';
+ if(p.y==null){d.style.top='';d.style.bottom='78px'}else{d.style.bottom='auto';d.style.top=Math.max(0,Math.min(H-44,p.y))+'px'}
+ d.style.maxHeight=Math.round(H*(p.m?.2:.55))+'px';const z=d.querySelector('.bz');if(z)z.style.zoom=s;const b=d.querySelector('#bledw');if(b)b.style.display=p.m?'none':''}
+function blPSave(){try{localStorage.setItem('bled_pos',JSON.stringify(S.bp))}catch(e){}}
+function blPS(dv){const p=S.bp;p.s=Math.max(.5,Math.min(1.3,Math.round((p.s+dv)*10)/10));blPA();blPSave()}
+function blPM(){const p=S.bp;p.m=p.m?0:1;blPA();blPSave()}
+function blPD(ev){if(ev.target.closest('button'))return;const d=document.getElementById('bled');if(!d)return;const r=d.getBoundingClientRect(),sx=ev.clientX,sy=ev.clientY,p=S.bp;p.x=r.left;p.y=r.top;blPA();
+ const mv=m=>{p.x=r.left+m.clientX-sx;p.y=r.top+m.clientY-sy;blPA()},up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up);removeEventListener('pointercancel',up);blPSave()};
+ addEventListener('pointermove',mv);addEventListener('pointerup',up);addEventListener('pointercancel',up)}
+function blSync(){const m=blM();if(S.bled){if(S.blm!=m){S.blm=m;S.bi=0;blRender();blLbl()}}else{S.blm=m;const w=document.getElementById('pw');if(w&&S.cur&&S.cur.pk){w.querySelectorAll(':scope>.bl').forEach(x=>x.remove());w.insertAdjacentHTML('beforeend',blh(S.cur.pk))}}}
 const HP='M12 21s-8-5.2-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.8-8 11-8 11z',SP='M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z',CHV='<svg class="pc" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>';
 const mlIn=a=>`<span class="pi"><svg viewBox="0 0 24 24" fill="${a?'#ffd9d6':'rgba(255,255,255,.12)'}" stroke="${a?'#ff4a3a':'#ffd9d6'}" stroke-width="1.6" stroke-linejoin="round"><path d="${HP}"/></svg></span><i class="pd"></i><span class="pt2"><b>Minha <em>lista</em></b><small>${a?'Na sua lista':'Seus favoritos sempre aqui'}</small></span>${CHV}<svg class="pwm" viewBox="0 0 24 24"><path d="${HP}"/></svg>`;
 const rcIn=r=>`<span class="pi"><svg viewBox="0 0 24 24" fill="#ffd9d6" stroke="#ff4a3a" stroke-width="1" stroke-linejoin="round"><path d="${SP}"/></svg></span><i class="pd"></i><span class="pt2"><b><em>Re</em>comendado</b><small>${r?esc(r.name):'Descubra o que assistir agora'}</small></span>${CHV}<svg class="pwm" viewBox="0 0 24 24"><path d="M3 18L2 7l5 4 5-7 5 7 5-4-1 11z"/></svg>`;
