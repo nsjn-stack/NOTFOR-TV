@@ -155,7 +155,7 @@ label.k input{width:auto}
 const SUPABASE_URL="https://ubksgsszfkeeodqxdayc.supabase.co",SUPABASE_KEY="sb_publishable_NE-b8nU0p5zvMdLcjA5dYg_4GPsFVU_";
 const $=s=>document.querySelector(s),A=$('#app');
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const LG=Array.from({length:186},(_,i)=>'logos/l'+(i+1)+'.webp'),LA=()=>S.set.logo_app||'logo-topo.png';$('#sp img').src=localStorage.cn_lsp||'icon-512.png';
+const LG=Array.from({length:186},(_,i)=>'l'+(i+1)+'.webp'),LA=()=>S.set.logo_app||'logo-topo.png';$('#sp img').src=localStorage.cn_lsp||'icon-512.png';
 function applyLogo(){localStorage.cn_lsp=S.set.logo_sp||'';const l=document.querySelector('link[rel=icon]');if(l&&S.set.logo_app)l.href=S.set.logo_app}
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
 const TT={movies:'Filmes populares',series:'Séries em destaque',anime:'Animes populares',novela:'Novelas em alta'};
