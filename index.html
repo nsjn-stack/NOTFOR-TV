@@ -34,7 +34,7 @@ h2 a{font-size:13px;color:var(--g);font-weight:400}
 .sc{display:flex;gap:10px;overflow-x:auto;padding:0 14px;scrollbar-width:none}
 .cd{flex:0 0 var(--cw);width:var(--cw);font-size:12px;position:relative;min-width:0}
 .cd.w{flex-basis:var(--ww);width:var(--ww)}
-.cd i{display:block;aspect-ratio:2/3;border-radius:8px;border:1px solid #3a1212;background:#1a1a1a var(--bg) center/cover}
+.cd i{display:block;aspect-ratio:2/3;border-radius:8px;border:1px solid #3a1212;background:#1a1a1a;overflow:hidden}.cd i img,.ci i img{width:100%;height:100%;object-fit:cover;display:block}
 .cd.w i{aspect-ratio:16/9}
 .cd b{display:block;margin-top:4px;font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cd small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -157,7 +157,7 @@ label.k input{width:auto}
 .L2 .hero,.L3 .hero,.L5 .hero,.L7 .hero{margin:0 0 6px;border:0;border-radius:0;background:linear-gradient(transparent 30%,#000),var(--bg) center/cover,#150000}
 .L3 .hero{height:calc(var(--hh)*1.8);align-items:center;text-align:center}.L3 .chips,.L3 .row{justify-content:center}.L5 .hero{height:calc(var(--hh)*.9)}.L7 .hero{height:calc(var(--hh)*2.2)}.L8 .hero{height:calc(var(--hh)*.6)}
 .L4 .gr{grid-template-columns:repeat(3,1fr)}.L4 .cd{width:auto}
-.car{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:8px 18%;scrollbar-width:none}.ci{flex:0 0 100%;scroll-snap-align:center}.ci i{display:block;aspect-ratio:2/3;border-radius:16px;border:1px solid #6a0a0a;background:#1a1a1a var(--bg) center/cover}.ci b{display:block;text-align:center;margin-top:6px}
+.car{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:8px 18%;scrollbar-width:none}.ci{flex:0 0 100%;scroll-snap-align:center}.ci i{display:block;aspect-ratio:2/3;border-radius:16px;border:1px solid #6a0a0a;background:#1a1a1a;overflow:hidden}.ci b{display:block;text-align:center;margin-top:6px}
 .dots{display:flex;gap:6px;justify-content:center;margin:6px}.dots i{width:6px;height:6px;border-radius:50%;background:#555}.dots i.on{background:var(--r)}
 .sy{margin:0;color:#ddd;font-size:13px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .hero .btn.w{background:#fff;color:#000}.hero .btn.rd{width:calc(40px*var(--bs))}
@@ -180,8 +180,8 @@ const XI=[['x','✕ (atual)',''],['v1','Seta simples','M20 12H5M11 6l-6 6 6 6'],
 const rIc=()=>{const x=RI.find(a=>a[0]==S.set.ov_ir)||RI[0];return ic(x[2])};
 const xIc=()=>{const x=XI.find(a=>a[0]==S.set.ov_ix)||XI[0];return x[0]=='x'?'✕':ic(x[2],x[3])};
 let S={set:{},secs:[],T:[],E:[],L:[],F:new Set(),me:null,p:null,tab:'home',kind:'',at:'t',guest:false};
-const gd=u=>{const t=String(u||''),m=t.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=|thumbnail\?id=)([\w-]+)/)||t.match(/drive\.google\.com\/[^\s]*[?&]id=([\w-]+)/);return m?'https://lh3.googleusercontent.com/d/'+m[1]+'=w1000':u};
-const bg=u=>u?`style="--bg:url('${esc(gd(u))}')"`:'';
+const gd=(u,w)=>{const t=String(u||''),m=t.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=|thumbnail\?id=)([\w-]+)/)||t.match(/drive\.google\.com\/[^\s]*[?&]id=([\w-]+)/);if(m)return 'https://lh3.googleusercontent.com/d/'+m[1]+'=w'+({S:400,M:600,B:1000}[w]||1000);const k=t.match(/^(https:\/\/image\.tmdb\.org\/t\/p\/)(?:w\d+|original)(\/.+)$/);return k&&w?k[1]+({S:'w342',M:'w500',B:'w780'}[w])+k[2]:u};
+const bg=(u,w)=>u?`style="--bg:url('${esc(gd(u,w))}')"`:'';const im=(u,w,e)=>u?`<img ${e?'fetchpriority="high"':'loading="lazy"'} decoding="async" alt="" src="${esc(gd(u,w))}" onerror="this.remove()">`:'';
 const T=id=>S.T.find(t=>t.id==id),adm=()=>S.p?.role==='admin',on=k=>S.set[k]==='true';
 const last=()=>JSON.parse(localStorage.cn_last||'[]');
 const gOn=()=>on('guest_enabled')&&(!S.set.guest_until||new Date(S.set.guest_until)>new Date());
@@ -193,9 +193,9 @@ const now=()=>new Date().toISOString();
 const spOn=()=>$('#sp').classList.remove('off'),spOff=()=>$('#sp').classList.add('off');
 function ready(){
  const us=new Set(['fundo.jpg','logo-topo.png']);
- A.querySelectorAll('[style*="--bg"]').forEach(e=>{const m=/url\(['"]?([^'")]+)/.exec(e.getAttribute('style')||'');if(m)us.add(m[1])});
+ A.querySelectorAll('[style*="--bg"]').forEach(e=>{const m=/url\(['"]?([^'")]+)/.exec(e.getAttribute('style')||'');if(m)us.add(m[1])});A.querySelectorAll('img[fetchpriority="high"]').forEach((e,i)=>{if(i<4&&e.src)us.add(e.src)});
  const ld=u=>new Promise(r=>{const i=new Image();i.onload=()=>{(i.decode?i.decode():Promise.resolve()).then(r,r)};i.onerror=r;i.src=u});
- return Promise.race([Promise.all([...us].map(ld)),new Promise(r=>setTimeout(r,10000))]);
+ return Promise.race([Promise.all([...us].map(ld)),new Promise(r=>setTimeout(r,3000))]);
 }
 async function boot(){
  spOn();
@@ -246,7 +246,7 @@ const hdr=()=>S.tab=='play'?`<div class="top"><button class="ib" onclick="go(S.p
 const NI={home:'M3 11l9-8 9 8v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z',fav:'M12 21s-8-5.2-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.8-8 11-8 11z',me:'M12 12a4 4 0 100-8 4 4 0 000 8zM4 21c0-4 4-6 8-6s8 2 8 6',admin:'M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z'};
 const nav=()=>`<nav>${[['home','Início'],['fav','Favoritos'],['me','Perfil'],...(adm()?[['admin','Admin']]:[])].map(([k,n])=>`<button class="${S.tab==k?'on':''}" onclick="go('${k}')">${ic(NI[k])}${n}</button>`).join('')}</nav>`;
 const newOn=()=>S.set.new_on!=='false',newDays=()=>parseFloat(S.set.new_days)||7,isNew=t=>newOn()&&t.created_at&&Date.now()-new Date(t.created_at)<newDays()*864e5;
-const card=t=>`<div class="cd" onclick="play(${t.id})"><i ${bg(t.cover||t.banner)}></i>${isNew(t)?'<em class="nw">NOVO</em>':''}<span class="pl2">▶</span><b>${esc(t.name)}</b><small>${esc(t.genres||t.year||'')}</small></div>`;
+const card=t=>`<div class="cd" onclick="play(${t.id})"><i>${im(t.cover||t.banner,'S')}</i>${isNew(t)?'<em class="nw">NOVO</em>':''}<span class="pl2">▶</span><b>${esc(t.name)}</b><small>${esc(t.genres||t.year||'')}</small></div>`;
 const prog=()=>JSON.parse(localStorage.cn_prog||'{}');
 const pfo=()=>{try{return JSON.parse(localStorage.cn_pf||'{}')}catch(x){return{}}};
 const pf=k=>{const v=pfo()[k];return v===undefined?1:v};
@@ -281,18 +281,18 @@ function pHome1(){
  const L=S.T;
  if(!L.length)return `<p class="mu">Nenhum título ainda.${adm()?' Cadastre no painel Admin.':''}</p>`;
  const h=L.find(t=>t.featured)||L[0];
- let o=`<div class="hero" ${bg(h.banner||h.cover)}><span class="tag">♛ DESTAQUE DA SEMANA</span><h1>${esc(h.name)}</h1><div class="chips"><span class="chip">${esc(lab(h.section).toUpperCase())}</span>${h.genres?`<span class="chip">${esc(h.genres)}</span>`:''}<span class="chip">HD</span></div><div class="row"><button class="btn" onclick="play(${h.id})">▶ Assistir agora</button><button class="btn o" onclick="fv(${h.id})">+ Minha lista</button></div></div>`;
+ let o=`<div class="hero" ${bg(h.banner||h.cover,'B')}><span class="tag">♛ DESTAQUE DA SEMANA</span><h1>${esc(h.name)}</h1><div class="chips"><span class="chip">${esc(lab(h.section).toUpperCase())}</span>${h.genres?`<span class="chip">${esc(h.genres)}</span>`:''}<span class="chip">HD</span></div><div class="row"><button class="btn" onclick="play(${h.id})">▶ Assistir agora</button><button class="btn o" onclick="fv(${h.id})">+ Minha lista</button></div></div>`;
  const c=last().map(x=>({t:T(x.t),e:S.E.find(e=>e.id==x.e)})).filter(x=>x.t);
- if(c.length)o+=`<h2>Continue assistindo</h2><div class="sc">${c.map(x=>`<div class="cd w" onclick="play(${x.t.id}${x.e?','+x.e.id:''})"><i ${bg(x.t.banner||x.t.cover)}></i><b>${esc(x.t.name)}</b><small>${x.e?'T'+x.e.season+' • E'+x.e.num:''}</small>${(p=>p?`<div class="pg"><u style="width:${Math.round(p*100)}%"></u></div>`:'')(prog()[x.t.id+'_'+(x.e?x.e.id:0)])}</div>`).join('')}</div>`;
+ if(c.length)o+=`<h2>Continue assistindo</h2><div class="sc">${c.map(x=>`<div class="cd w" onclick="play(${x.t.id}${x.e?','+x.e.id:''})"><i>${im(x.t.banner||x.t.cover,'M')}</i><b>${esc(x.t.name)}</b><small>${x.e?'T'+x.e.season+' • E'+x.e.num:''}</small>${(p=>p?`<div class="pg"><u style="width:${Math.round(p*100)}%"></u></div>`:'')(prog()[x.t.id+'_'+(x.e?x.e.id:0)])}</div>`).join('')}</div>`;
  const nw=newOn()?L.filter(isNew).slice(0,12):[];if(nw.length)o+=`<h2>Recém-adicionados</h2><div class="sc">${nw.map(card).join('')}</div>`;
  const mv=L.filter(t=>t.views>0).sort((a,b)=>b.views-a.views).slice(0,10);
  if(mv.length)o+=`<h2>Mais assistidos</h2><div class="sc">${mv.map((t,i)=>card(t).replace('<span class="pl2">▶</span>',`<span class="rk">${i+1}</span>`)).join('')}</div>`;
- for(const s of S.secs)if(s.enabled){const l=L.filter(t=>t.section==s.key);if(l.length)o+=`<h2>${esc(hd(s))}<a onclick="go('list','${s.key}')">Ver todos ›</a></h2><div class="sc">${l.slice(0,12).map(card).join('')}</div>`}
+ for(const s of S.secs)if(s.enabled){const l=L.filter(t=>t.section==s.key);if(l.length)o+=`<h2>${esc(hd(s))}<a onclick="S.lim=36;go('list','${s.key}')">Ver todos ›</a></h2><div class="sc">${l.slice(0,12).map(card).join('')}</div>`}
  return o;
 }
-const pList=()=>`<div class="tabs">${S.secs.filter(s=>s.enabled).map(s=>`<button class="${S.kind==s.key?'on':''}" onclick="go('list','${s.key}')">${esc(s.label)}</button>`).join('')}</div>${S.kind=='anime'?`<div class="tabs">${[['','Todos'],['dublado','Dublado'],['legendado','Legendado']].map(([k,n])=>`<button class="${(S.aud||'')==k?'on':''}" onclick="S.aud='${k}';draw()">${n}</button>`).join('')}</div>`:''}<div class="gr">${S.T.filter(t=>t.section==S.kind&&(S.kind!='anime'||!S.aud||t.audio==S.aud)).map(card).join('')||'<p class="mu">Nada por aqui ainda.</p>'}</div>`;
+let pl0=[];const pList=()=>`<div class="tabs">${S.secs.filter(s=>s.enabled).map(s=>`<button class="${S.kind==s.key?'on':''}" onclick="S.lim=36;go('list','${s.key}')">${esc(s.label)}</button>`).join('')}</div>${S.kind=='anime'?`<div class="tabs">${[['','Todos'],['dublado','Dublado'],['legendado','Legendado']].map(([k,n])=>`<button class="${(S.aud||'')==k?'on':''}" onclick="S.aud='${k}';draw()">${n}</button>`).join('')}</div>`:''}<div class="gr">${(pl0=S.T.filter(t=>t.section==S.kind&&(S.kind!='anime'||!S.aud||t.audio==S.aud))).slice(0,S.lim||36).map(card).join('')||'<p class="mu">Nada por aqui ainda.</p>'}</div>${pl0.length>(S.lim||36)?'<div class="row" style="justify-content:center;margin:12px 0"><button class="btn o s" onclick="S.lim=(S.lim||36)+36;draw()">Ver mais</button></div>':''}`;
 const pSearch=()=>`<div class="box"><input id="q" placeholder="Pesquisar título ou gênero..." oninput="sq(this.value)"></div><div class="gr" id="sr"></div>`;
-function sq(v){v=v.toLowerCase().trim();$('#sr').innerHTML=v?S.T.filter(t=>(t.name+' '+(t.genres||'')).toLowerCase().includes(v)).map(card).join('')||'<p class="mu">Nada encontrado.</p>':''}
+function sq(v){v=v.toLowerCase().trim();$('#sr').innerHTML=v?S.T.filter(t=>(t.name+' '+(t.genres||'')).toLowerCase().includes(v)).slice(0,60).map(card).join('')||'<p class="mu">Nada encontrado.</p>':''}
 const pFav=()=>`<h2>Minha lista</h2><div class="gr">${S.T.filter(t=>S.F.has(t.id)).map(card).join('')||'<p class="mu">Nada salvo ainda. Toque em "+ Minha lista" dentro de um título.</p>'}</div>`;
 const fbt=id=>S.F.has(id)?'♥ Na minha lista':'♡ Minha lista';
 async function fv(id){
@@ -493,7 +493,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-10-19 · layouts, cores dos botões, ordem da Config, excluir logos';
+const APP_V='2026-10-19 · capas com carregamento sob demanda, abertura mais rápida';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -800,14 +800,14 @@ async function lySet(n){await cf('ui_layout',n);ad()}
 function pLy(n){
  const L=S.T,h=L.find(t=>t.featured)||L[0],bn=t=>t.banner||t.cover,sc=(a,c)=>a.length?`<div class="sc">${a.map(c).join('')}</div>`:'';
  const rw=(t,a,c,m)=>a.length?`<h2>${esc(t)}${m||''}</h2>${sc(a,c)}`:'';
- const wd=t=>`<div class="cd w" onclick="play(${t.id})"><i ${bg(bn(t))}></i><b>${esc(t.name)}</b><small>${esc(t.genres||t.year||'')}</small></div>`;
- const ct=()=>{const c=last().map(x=>({t:T(x.t),e:S.E.find(e=>e.id==x.e)})).filter(x=>x.t);return c.length?`<h2>Continue assistindo</h2><div class="sc">${c.map(x=>`<div class="cd w" onclick="play(${x.t.id}${x.e?','+x.e.id:''})"><i ${bg(bn(x.t))}></i><b>${esc(x.t.name)}</b><small>${x.e?'T'+x.e.season+' • E'+x.e.num:''}</small>${(p=>p?`<div class="pg"><u style="width:${Math.round(p*100)}%"></u></div>`:'')(prog()[x.t.id+'_'+(x.e?x.e.id:0)])}</div>`).join('')}</div>`:''};
+ const wd=t=>`<div class="cd w" onclick="play(${t.id})"><i>${im(bn(t),'M')}</i><b>${esc(t.name)}</b><small>${esc(t.genres||t.year||'')}</small></div>`;
+ const ct=()=>{const c=last().map(x=>({t:T(x.t),e:S.E.find(e=>e.id==x.e)})).filter(x=>x.t);return c.length?`<h2>Continue assistindo</h2><div class="sc">${c.map(x=>`<div class="cd w" onclick="play(${x.t.id}${x.e?','+x.e.id:''})"><i>${im(bn(x.t),'M')}</i><b>${esc(x.t.name)}</b><small>${x.e?'T'+x.e.season+' • E'+x.e.num:''}</small>${(p=>p?`<div class="pg"><u style="width:${Math.round(p*100)}%"></u></div>`:'')(prog()[x.t.id+'_'+(x.e?x.e.id:0)])}</div>`).join('')}</div>`:''};
  const nw=L.filter(isNew).slice(0,12),mv=L.filter(t=>t.views>0).sort((a,b)=>b.views-a.views).slice(0,10);
- const secs=c=>S.secs.filter(s=>s.enabled).map(s=>rw(hd(s),L.filter(t=>t.section==s.key).slice(0,12),c,`<a onclick="go('list','${s.key}')">Ver todos ›</a>`)).join('');
+ const secs=c=>S.secs.filter(s=>s.enabled).map(s=>rw(hd(s),L.filter(t=>t.section==s.key).slice(0,12),c,`<a onclick="S.lim=36;go('list','${s.key}')">Ver todos ›</a>`)).join('');
  const chips=`<div class="chips"><span class="chip">${esc(lab(h.section).toUpperCase())}</span>${h.genres?`<span class="chip">${esc(h.genres)}</span>`:''}</div>`;
  const b1=`<button class="btn" onclick="play(${h.id})">▶ Assistir</button>`,bw=`<button class="btn w" onclick="play(${h.id})">▶ Assistir</button>`;
  const b2=`<button class="btn o" onclick="fv(${h.id})">+ Minha lista</button>`,bp=`<button class="btn o rd" onclick="fv(${h.id})">+</button>`;
- const hero=(x,y)=>`<div class="hero" ${bg(bn(h))}><h1>${esc(h.name)}</h1>${chips}${x||''}<div class="row">${y}</div></div>`;
+ const hero=(x,y)=>`<div class="hero" ${bg(bn(h),'B')}><h1>${esc(h.name)}</h1>${chips}${x||''}<div class="row">${y}</div></div>`;
  const syn=h.synopsis?`<p class="sy">${esc(h.synopsis)}</p>`:'';
  let o='';
  if(n==2)o=`<div class="tabs">${[['Início',"go('home')"],['Séries',"go('list','series')"],['Filmes',"go('list','movies')"],['Minha lista',"go('fav')"]].map(([a,b],i)=>`<button class="${i?'':'on'}" onclick="${b}">${a}</button>`).join('')}</div>`+hero('',bw+bp)+ct()+rw('Em alta',mv.length?mv:L.slice(0,10),card)+rw('Novidades',nw,card)+secs(card);
@@ -815,7 +815,7 @@ function pLy(n){
  if(n==4){const gs=[...new Set(L.flatMap(t=>(t.genres||'').split(/[,/]/).map(x=>x.trim()).filter(Boolean)))].slice(0,10),f=(S.gf||'').toLowerCase(),a=L.filter(t=>!f||(t.genres||'').toLowerCase().includes(f));
   o=`<h2>Todos os títulos</h2><div class="tabs">${['',...gs].map(g=>`<button class="${(S.gf||'')==g?'on':''}" onclick="S.gf='${esc(g).replace(/'/g,'')}';draw()">${g||'Todos'}</button>`).join('')}</div><div class="gr">${a.map(card).join('')||'<p class="mu">Nada por aqui.</p>'}</div>`}
  if(n==5)o=hero('',b1)+ct()+rw('Novidades',nw,wd)+rw('Mais assistidos',mv,wd)+secs(wd);
- if(n==6){const a=L.slice(0,6);o=`<div class="car">${a.map(t=>`<div class="ci" onclick="play(${t.id})"><i ${bg(t.cover||t.banner)}></i><b>${esc(t.name)}</b></div>`).join('')}</div><div class="row" style="justify-content:center">${b1}</div><div class="dots">${a.map((x,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`+ct()+secs(card)}
+ if(n==6){const a=L.slice(0,6);o=`<div class="car">${a.map((t,i)=>`<div class="ci" onclick="play(${t.id})"><i>${im(t.cover||t.banner,'B',i<3)}</i><b>${esc(t.name)}</b></div>`).join('')}</div><div class="row" style="justify-content:center">${b1}</div><div class="dots">${a.map((x,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`+ct()+secs(card)}
  if(n==7)o=hero(syn,bw+bp)+rw('Mais como este',L.filter(t=>t.section==h.section&&t.id!=h.id).slice(0,12),wd)+ct()+secs(card);
  if(n==8)o=hero('',b1+bp)+rw('Lançamentos',nw.length?nw:L.slice(0,12),card,'<a onclick="go(\'search\')">Ver todos ›</a>')+ct()+rw('Mais assistidos',mv,card)+secs(card);
  return `<div class="L L${n}">${o}</div>`}
