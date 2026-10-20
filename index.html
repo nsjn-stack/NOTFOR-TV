@@ -66,6 +66,9 @@ nav button{flex:1;color:var(--g);font-size:11px;display:grid;gap:3px;justify-ite
 nav button.on{color:var(--r)}
 nav button.on::after{content:'';position:absolute;bottom:-6px;width:36px;height:3px;border-radius:2px;background:var(--r)}
 nav .ic{stroke:currentColor;width:24px;height:24px}
+.cfgbar{margin:10px 14px 0;display:flex;gap:8px}.cfgbar button.on{border-color:#ff4a3a;color:#ff4a3a}.cfgcol{display:none}
+#ad.cfggrid{display:grid;grid-template-columns:1fr 1fr;align-content:start}#ad.cfggrid>:not(.box){grid-column:1/-1}#ad.cfggrid .cfgcol{display:inline-block}
+#ad.cfggrid>.box:not(.open){cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;min-height:76px;font-weight:700;padding:10px 8px}#ad.cfggrid>.box:not(.open)>*{display:none}#ad.cfggrid>.box:not(.open)::before{content:attr(data-t)}#ad.cfggrid>.box.open{grid-column:1/-1}
 .box{margin:10px 14px;padding:12px;background:rgba(10,10,10,.82);border:1px solid #2a1212;border-radius:12px}
 .rg{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 10px;margin:10px 0}
 .rg input[type=range]{grid-column:1/3;margin:0;padding:0;accent-color:var(--r);background:none;border:0}
@@ -847,7 +850,11 @@ function pLy(n){
  if(n==8)o=hero('',b1+bp)+rw('Lançamentos',nw.length?nw:L.slice(0,12),card,'<a onclick="go(\'search\')">Ver todos ›</a>')+ct()+rw('Mais assistidos',mv,card)+secs(card);
  return `<div class="L L${n}">${o}</div>`}
 const cfgOrg=()=>{const d=$('#ad'),bx=[...d.children].filter(e=>e.classList.contains('box'));bx.forEach((e,i)=>e.dataset.k=i);const o=(S.set.cfg_order||'').split(',').filter(x=>x!=='').map(Number),k=e=>{const j=o.indexOf(+e.dataset.k);return j<0?1e3+ +e.dataset.k:j};
- bx.sort((a,b)=>k(a)-k(b)).forEach(e=>{d.appendChild(e);e.insertAdjacentHTML('afterbegin','<span class="mv"><button onclick="cfgMv(this,-2)">⤒</button><button onclick="cfgMv(this,-1)">▲</button><button onclick="cfgMv(this,1)">▼</button></span>')})};
+ bx.sort((a,b)=>k(a)-k(b)).forEach(e=>{d.appendChild(e);e.insertAdjacentHTML('afterbegin','<span class="mv"><button onclick="cfgMv(this,-2)">⤒</button><button onclick="cfgMv(this,-1)">▲</button><button onclick="cfgMv(this,1)">▼</button><button class="cfgcol" onclick="cfgCol(this)">▦</button></span>')});d.insertAdjacentHTML('afterbegin','<div class="cfgbar"><button class="btn o s" data-v="l" onclick="cfgView(\'l\')">☰ Lista</button><button class="btn o s" data-v="g" onclick="cfgView(\'g\')">▦ Grade</button></div>');cfgApplyView()};
+function cfgView(v){try{localStorage.setItem('cfg_view',v)}catch(e){}cfgApplyView()}
+function cfgApplyView(){const d=$('#ad');if(!d)return;let g='l';try{g=localStorage.getItem('cfg_view')||'l'}catch(e){}d.classList.toggle('cfggrid',g=='g');d.querySelectorAll(':scope>.box').forEach(e=>{if(g=='g'){if(!e.dataset.t){const b=e.querySelector('b');e.dataset.t=b?b.textContent.trim():'Ajustes'}}else e.classList.remove('open')});d.querySelectorAll('.cfgbar button').forEach(b=>b.classList.toggle('on',b.dataset.v==g))}
+function cfgCol(b){b.closest('.box').classList.remove('open')}
+document.addEventListener('click',e=>{const x=e.target.closest&&e.target.closest('#ad.cfggrid>.box:not(.open)');if(x){x.classList.add('open');x.scrollIntoView({block:'start'})}});
 function cfgMv(b,v){const e=b.closest('.box'),p=e.parentNode,x=v>0?e.nextElementSibling:e.previousElementSibling;if(v==-2)p.insertBefore(e,p.querySelector('.box'));else if(x&&x.classList.contains('box'))v>0?p.insertBefore(x,e):p.insertBefore(e,x);e.scrollIntoView({block:'center'});cf('cfg_order',[...p.children].filter(c=>c.dataset.k!==undefined).map(c=>c.dataset.k).join(','))}
 const lgH=()=>new Set((S.set.lg_hide||'').split(',').filter(Boolean));
 const lgEx=()=>`<div class="box"><b>Excluir logos</b><div class="mu" style="padding:4px 0">Toque nas logos que quer excluir (ficam apagadas com contorno vermelho) e depois em Salvar. Elas somem das listas de escolha.</div><div class="lgg" id="lgx">${LG.map((u,i)=>`<img loading="lazy" src="${u}" data-i="${i+1}" class="${lgH().has(''+(i+1))?'xd':''}" onclick="this.classList.toggle('xd')">`).join('')}</div><div class="row"><button class="btn s" onclick="lgSave()">Salvar exclusão</button><button class="btn o s" onclick="lgAll()">Restaurar todas</button></div></div>`;
