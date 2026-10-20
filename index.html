@@ -185,7 +185,7 @@ body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!im
  document.addEventListener('contextmenu',e=>{
   const n=e.target;if(n&&n.closest&&n.closest('input,textarea,[contenteditable]'))return;e.preventDefault()},true);
  document.addEventListener('dragstart',e=>e.preventDefault(),true);
- // duplo toque no player (topo/lateral direita do YouTube, ou no vídeo direto) alterna os botões girar e voltar
+ // duplo toque no player (topo/lateral direita do YouTube, ou no vídeo direto) esconde/mostra os botões girar e voltar
  let lt=0,lx=0,ly=0;
  document.addEventListener('pointerup',e=>{
   const n=e.target;
@@ -196,6 +196,18 @@ body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!im
    document.body.classList.toggle('hb');lt=0;
   }else{lt=now;lx=e.clientX;ly=e.clientY}
  },true);
+ // segurar girar/voltar: vibra e some
+ let pt=0,sup=0,px=0,py=0;
+ const clr=()=>{clearTimeout(pt);pt=0};
+ document.addEventListener('pointerdown',e=>{
+  const b=e.target.closest&&e.target.closest('.ob.ls,.ob.ex');if(!b)return;
+  clr();px=e.clientX;py=e.clientY;
+  pt=setTimeout(()=>{pt=0;try{navigator.vibrate&&navigator.vibrate(40)}catch(x){}
+   document.body.classList.add('hb');sup=1;setTimeout(()=>sup=0,800)},500);
+ },true);
+ document.addEventListener('pointermove',e=>{if(pt&&(Math.abs(e.clientX-px)>12||Math.abs(e.clientY-py)>12))clr()},true);
+ ['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,clr,true));
+ document.addEventListener('click',e=>{if(sup){sup=0;e.preventDefault();e.stopImmediatePropagation()}},true);
 })();
 </script></head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
