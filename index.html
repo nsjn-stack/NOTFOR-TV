@@ -164,9 +164,11 @@ label.k input{width:auto}
 .hero .btn.w{background:#fff;color:#000}.hero .btn.rd{width:calc(40px*var(--bs))}
 </style><style id="guard-css">
 img,video,picture{-webkit-touch-callout:none;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
-/* escudos invisíveis (só no YouTube) sobre as áreas do player com título, links e botões (coração, relógio, compartilhar, </>) */
-.pw:has(iframe[src*="youtube.com"])::before{content:"";position:absolute;top:0;left:0;right:0;height:22%;z-index:2}
-.pw:has(iframe[src*="youtube.com"])::after{content:"";position:absolute;top:0;right:0;width:20%;height:65%;z-index:2}
+/* escudos invisíveis (todos os players, menos o Internet Archive) sobre as áreas do player com título, links e botões (coração, relógio, compartilhar, </>) */
+.pw{touch-action:manipulation}
+.pw:has(iframe:not([src*="archive.org"]))::before{content:"";position:absolute;top:0;left:0;right:0;height:22%;z-index:2}
+.pw:has(iframe:not([src*="archive.org"]))::after{content:"";position:absolute;top:0;right:0;width:20%;height:65%;z-index:2}
+.pw:has(iframe[src*="archive.org"])::before{content:"";position:absolute;top:15%;left:0;width:15%;height:55%;z-index:2}
 /* duplo toque: esconde/mostra os botões girar e voltar */
 body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!important}
 </style>
