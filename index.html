@@ -164,9 +164,9 @@ label.k input{width:auto}
 .hero .btn.w{background:#fff;color:#000}.hero .btn.rd{width:calc(40px*var(--bs))}
 </style><style id="guard-css">
 img,video,picture{-webkit-touch-callout:none;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
-/* escudos invisíveis sobre as áreas do player do YouTube com título, links e botões (coração, relógio, compartilhar, </>) */
-.pw:has(iframe)::before{content:"";position:absolute;top:0;left:0;right:0;height:22%;z-index:2}
-.pw:has(iframe)::after{content:"";position:absolute;top:0;right:0;width:20%;height:65%;z-index:2}
+/* escudos invisíveis (só no YouTube) sobre as áreas do player com título, links e botões (coração, relógio, compartilhar, </>) */
+.pw:has(iframe[src*="youtube.com"])::before{content:"";position:absolute;top:0;left:0;right:0;height:22%;z-index:2}
+.pw:has(iframe[src*="youtube.com"])::after{content:"";position:absolute;top:0;right:0;width:20%;height:65%;z-index:2}
 /* duplo toque: esconde/mostra os botões girar e voltar */
 body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!important}
 </style>
@@ -208,6 +208,20 @@ body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!im
  document.addEventListener('pointermove',e=>{if(pt&&(Math.abs(e.clientX-px)>12||Math.abs(e.clientY-py)>12))clr()},true);
  ['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,clr,true));
  document.addEventListener('click',e=>{if(sup){sup=0;e.preventDefault();e.stopImmediatePropagation()}},true);
+ // Internet Archive: usa sempre o melhor arquivo de vídeo (em vez do derivado leve de 512Kb)
+ const AR={};
+ const best=id=>AR[id]||(AR[id]=fetch('https://archive.org/metadata/'+encodeURIComponent(id)).then(r=>r.json()).then(j=>{
+  const L=(j.files||[]).filter(f=>/\.(mp4|m4v|webm)$/i.test(f.name)&&!/\.ia\.mp4$/i.test(f.name)&&!/512kb/i.test(f.format||'')&&+f.size>0);
+  for(const re of [/^h\.264 hd$/i,/^h\.264$/i,/^mpeg4$/i,/./]){
+   const c=L.filter(f=>re.test(f.format||''));
+   if(c.length){c.sort((a,b)=>b.size-a.size);return c[0].name}}
+  return null}).catch(()=>null));
+ const arFix=f=>{
+  if(f.dataset.arq)return;
+  const m=(f.getAttribute('src')||'').match(/^https:\/\/archive\.org\/embed\/([^\/?#]+)\/?$/);
+  if(!m)return;f.dataset.arq=1;
+  best(decodeURIComponent(m[1])).then(n=>{if(n&&f.isConnected)f.src='https://archive.org/embed/'+m[1]+'/'+n.split('/').map(encodeURIComponent).join('/')})};
+ new MutationObserver(()=>document.querySelectorAll('iframe[src^="https://archive.org/embed/"]').forEach(arFix)).observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script></head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
