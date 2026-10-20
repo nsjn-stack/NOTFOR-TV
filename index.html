@@ -167,6 +167,8 @@ img,video,picture{-webkit-touch-callout:none;-webkit-user-drag:none;user-select:
 /* escudos invisíveis sobre as áreas do player do YouTube com título, links e botões (coração, relógio, compartilhar, </>) */
 .pw:has(iframe)::before{content:"";position:absolute;top:0;left:0;right:0;height:22%;z-index:2}
 .pw:has(iframe)::after{content:"";position:absolute;top:0;right:0;width:20%;height:65%;z-index:2}
+/* duplo toque: esconde/mostra os botões girar e voltar */
+body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!important}
 </style>
 <script id="guard-js">
 (()=>{
@@ -183,6 +185,17 @@ img,video,picture{-webkit-touch-callout:none;-webkit-user-drag:none;user-select:
  document.addEventListener('contextmenu',e=>{
   const n=e.target;if(n&&n.closest&&n.closest('input,textarea,[contenteditable]'))return;e.preventDefault()},true);
  document.addEventListener('dragstart',e=>e.preventDefault(),true);
+ // duplo toque no player (topo/lateral direita do YouTube, ou no vídeo direto) alterna os botões girar e voltar
+ let lt=0,lx=0,ly=0;
+ document.addEventListener('pointerup',e=>{
+  const n=e.target;
+  if(!n||!n.closest||n.closest('.ob,button,a,input'))return;
+  if(!(n.classList&&n.classList.contains('pw'))&&!(n.id==='vd'))return;
+  const now=Date.now();
+  if(now-lt<350&&Math.abs(e.clientX-lx)<45&&Math.abs(e.clientY-ly)<45){
+   document.body.classList.toggle('hb');lt=0;
+  }else{lt=now;lx=e.clientX;ly=e.clientY}
+ },true);
 })();
 </script></head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
