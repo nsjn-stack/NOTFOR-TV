@@ -172,8 +172,7 @@ img,video,picture{-webkit-touch-callout:none;-webkit-user-drag:none;user-select:
 /* Telegram: centraliza o player (normal, deitado e em pé) e acompanha os escudos de topo/rodapé */
 .pw.tgw{display:flex;align-items:center;justify-content:center}
 .pw.tgw iframe{flex:none;transform-origin:50% 50%}
-.pw.tgw.tgm::before{top:var(--tgt,0px);left:0;right:0;width:auto;height:var(--tgh,36px)}
-.pw.tgw.tgm::after{top:var(--tgb,0px);left:0;right:0;width:auto;height:var(--tgh,36px)}
+.pw.tgw.tgm::before,.pw.tgw.tgm::after{display:none}
 /* duplo toque: esconde/mostra os botões girar e voltar */
 body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!important}
 </style>
@@ -447,7 +446,7 @@ function pPlay(){
  ${es.length?`<h2>Em seguida</h2><div class="sc">${es.map(x=>`<button class="ep ${e&&x.id==e.id?'on':''}" onclick="play(${t.id},${x.id})"><b>T${x.season} • E${x.num}${pf('sn')&&isSeen(t.id,x.id)?' ✓':''}</b><br>${esc(x.name||'')}</button>`).join('')}</div>`:''}
  <h2>Comentários</h2><div class="box"><div id="cf"></div><div id="cm"></div></div>`;
 }
-function tgFit(){const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[data-tg]');if(!f||!S.tgh)return;const H=w.clientHeight,h=S.tgh,k=Math.min(1,H/h),t=(H-k*h)/2,b=36*k;f.style.height=h+'px';f.style.transform=k<1?'scale('+k.toFixed(4)+')':'';w.classList.add('tgm');w.style.setProperty('--tgt',t+'px');w.style.setProperty('--tgh',b+'px');w.style.setProperty('--tgb',(t+k*h-b)+'px')}
+function tgFit(){const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[data-tg]');if(!f||!S.tgh)return;const W=w.clientWidth,H=w.clientHeight,h=S.tgh,T=30,B=33,hv=Math.max(40,h-T-B),cw=Math.min(hv*16/9,268),k=Math.min(W/cw,H/hv)*.97;f.style.height=h+'px';f.style.clipPath='inset('+T+'px 0 '+B+'px 0)';f.style.transform='translate('+(-6*k).toFixed(1)+'px,'+(1.5*k).toFixed(1)+'px) scale('+k.toFixed(4)+')';w.classList.add('tgm')}
 window.addEventListener('message',e=>{
  if(e.origin=='https://t.me'||e.origin=='https://telegram.me'){try{const d=typeof e.data=='string'?JSON.parse(e.data):e.data,f=document.querySelector('#pw iframe[data-tg]');if(d&&d.event=='resize'&&+d.height>0&&f&&e.source===f.contentWindow){S.tgh=+d.height;tgFit();const w=f.parentNode;if(window.ResizeObserver&&S.tgw!==w){if(S.tgro)S.tgro.disconnect();S.tgw=w;S.tgro=new ResizeObserver(tgFit);S.tgro.observe(w)}}}catch(x){}return}
  if(e.origin=='https://player.vimeo.com'){try{const d=typeof e.data=='string'?JSON.parse(e.data):e.data;if(d.event=='ready')['timeupdate','pause'].forEach(v=>e.source.postMessage(JSON.stringify({method:'addEventListener',value:v}),'*'));else if(d.event=='timeupdate'&&S.sk)S.sk={p:d.data.seconds,at:Date.now(),run:1};else if(d.event=='pause'&&S.sk)S.sk.run=0}catch(x){}return}
