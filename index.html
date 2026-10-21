@@ -162,6 +162,18 @@ label.k input{width:auto}
 .dots{display:flex;gap:6px;justify-content:center;margin:6px}.dots i{width:6px;height:6px;border-radius:50%;background:#555}.dots i.on{background:var(--r)}
 .sy{margin:0;color:#ddd;font-size:13px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .hero .btn.w{background:#fff;color:#000}.hero .btn.rd{width:calc(40px*var(--bs))}
+.vms{position:absolute;left:0;right:0;top:22%;bottom:15%;z-index:3;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;background:transparent}
+
+.sbx{display:flex;align-items:center;gap:8px}.sbx input{margin:0;flex:1}.sbx span{font-size:18px}
+#fwb{position:fixed;right:14px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:119;width:50px;height:50px;border-radius:50%;background:linear-gradient(#ff1a0f,#b00500);color:#fff;font-size:28px;line-height:1;box-shadow:0 4px 14px rgba(0,0,0,.7)}
+#fw{position:fixed;z-index:120;right:8px;bottom:calc(144px + env(safe-area-inset-bottom));width:min(94vw,400px);max-height:72vh;display:flex;flex-direction:column;background:rgba(14,14,14,.97);border:1px solid #6a0a0a;border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.8)}
+#fw .fwh{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#2a0a0a;border-radius:13px 13px 0 0;touch-action:none;cursor:move;user-select:none}
+#fw .fwh button{width:34px;height:30px;font-size:15px;background:#111;border:1px solid #444;border-radius:8px;margin-left:6px}
+#fw .fwb{padding:10px;overflow-y:auto;overscroll-behavior:contain}#fw.mn .fwb{display:none}#fw.mn{max-height:none}
+#fw input,#fw select,#fw textarea{margin:3px 0;padding:9px}#fw textarea{min-height:56px}
+#fw .seg{display:flex;gap:6px;margin-bottom:6px}#fw .seg button{flex:1;padding:9px;border-radius:10px;border:1px solid #444;background:#151515;font-weight:700}#fw .seg .on{background:linear-gradient(#ff1a0f,#b00500);border-color:#ff1a0f}
+#fw .fwg{display:flex;gap:8px;align-items:flex-start}#fw .fwc{flex:0 0 88px}#fw .fwc div{width:88px;aspect-ratio:2/3;border-radius:8px;border:1px dashed #666;background:#1a1a1a center/cover;display:grid;place-items:center;color:#777;font-size:12px}#fw .fwr{flex:1;min-width:0}
+#fw .fwg2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 </style><style id="guard-css">
 img,video,picture{-webkit-touch-callout:none;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
 /* escudos invisíveis (todos os players, menos o Internet Archive) sobre as áreas do player com título, links e botões (coração, relógio, compartilhar, </>) */
@@ -170,7 +182,8 @@ img,video,picture{-webkit-touch-callout:none;-webkit-user-drag:none;user-select:
 .pw:has(iframe:not([src*="archive.org"]))::after{content:"";position:absolute;top:0;right:0;width:20%;height:65%;z-index:2}
 .pw:has(iframe[src*="archive.org"])::before{content:"";position:absolute;top:15%;left:0;width:15%;height:55%;z-index:2}
 /* Telegram: centraliza o player (normal, deitado e em pé) e acompanha os escudos de topo/rodapé */
-.pw.tgw{display:flex;align-items:center;justify-content:center}
+.pw.tgw{display:flex;align-items:center;justify-content:center;background:#000}
+.pw.tgw iframe{background:#000}
 .pw.tgw iframe{flex:none;transform-origin:50% 50%}
 .pw.tgw.tgm::before,.pw.tgw.tgm::after{display:none}
 /* duplo toque: esconde/mostra os botões girar e voltar */
@@ -236,6 +249,18 @@ body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!im
 const SUPABASE_URL="https://ubksgsszfkeeodqxdayc.supabase.co",SUPABASE_KEY="sb_publishable_NE-b8nU0p5zvMdLcjA5dYg_4GPsFVU_";
 const $=s=>document.querySelector(s),A=$('#app');
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+// Vimeo: escudo central. Segurar não abre o menu "Copiar link"; toque simples = play/pause; toque duplo = esconde/mostra botões
+(()=>{let tp=0,tm=0,sx=0,sy=0,st=0;
+ const pm=m=>{const f=document.querySelector('#pw iframe');if(f)try{f.contentWindow.postMessage(JSON.stringify({method:m}),'*')}catch(x){}};
+ document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('#vms'))e.preventDefault()},true);
+ document.addEventListener('pointerdown',e=>{if(e.target.id!='vms')return;sx=e.clientX;sy=e.clientY;st=Date.now()},true);
+ document.addEventListener('pointerup',e=>{if(e.target.id!='vms')return;
+  if(Date.now()-st>450||Math.abs(e.clientX-sx)>20||Math.abs(e.clientY-sy)>20)return;
+  const n=Date.now();
+  if(n-tp<350){clearTimeout(tm);tp=0;document.body.classList.toggle('hb');return}
+  tp=n;clearTimeout(tm);tm=setTimeout(()=>{pm(S.sk&&S.sk.run?'pause':'play')},330)},true);
+})();
+
 const LG=Array.from({length:186},(_,i)=>'l'+(i+1)+'.webp'),LA=()=>S.set.logo_app||'logo-topo.png';$('#sp img').src=localStorage.cn_lsp||'icon-512.png';
 function applyLogo(){localStorage.cn_lsp=S.set.logo_sp||'';const l=document.querySelector('link[rel=icon]');if(l&&S.set.logo_app)l.href=S.set.logo_app}
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
@@ -437,7 +462,7 @@ function pPlay(){
   ovh=(S.oved&&'fc'.includes(S.oved.w)?'':lsb)+(mf==1?pF(1):'')+(mc==1?pC(1):'')+ppbh+nbh,
   rw=ppo('pb_row',pk,1)==1&&mf==0&&mc==0,
   bar=mf==0||mc==0?`<div class="${rw?'bar2':''}" ${rw?'':'style="display:flex;flex-direction:column;gap:8px;margin:0 14px 8px"'}>${mf==0?pF(0):''}${mc==0?pC(0):''}</div>`:'';
- return `<div class="pw${S.cur.pk=='tg'?' tgw':''}" id="pw">${p}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div>${bar}<div id="sbc"></div>${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}
+ return `<div class="pw${S.cur.pk=='tg'?' tgw':''}" id="pw">${p}${S.cur.pk=='vm'&&/<iframe/.test(p)?'<div class="vms" id="vms"></div>':''}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div>${bar}<div id="sbc"></div>${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}
  ${!e&&vs.length>1?`<div class="tabs">${vs.map((l,i)=>`<button class="${i==li?'on':''}" onclick="play(${t.id},0,${i})">${esc(l.label||'Link '+(i+1))}</button>`).join('')}</div>`:''}
  <div class="pt"><h1>${esc(t.name)}</h1><p>${e?`Temporada ${e.season} • ${t.section=='novela'?'Capítulo':'Episódio'} ${e.num}${e.name?' — '+esc(e.name):''}`:esc([t.year,t.country,t.audio].filter(Boolean).join(' • '))}</p></div>
  <div class="chips" style="margin:10px 14px"><span class="chip">HD</span><span class="chip r">${esc(t.rating||'Livre')}</span>${t.genres?`<span class="chip">${esc(t.genres)}</span>`:''}</div>
@@ -446,7 +471,7 @@ function pPlay(){
  ${es.length?`<h2>Em seguida</h2><div class="sc">${es.map(x=>`<button class="ep ${e&&x.id==e.id?'on':''}" onclick="play(${t.id},${x.id})"><b>T${x.season} • E${x.num}${pf('sn')&&isSeen(t.id,x.id)?' ✓':''}</b><br>${esc(x.name||'')}</button>`).join('')}</div>`:''}
  <h2>Comentários</h2><div class="box"><div id="cf"></div><div id="cm"></div></div>`;
 }
-function tgFit(){const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[data-tg]');if(!f||!S.tgh)return;const FS=w.classList.contains('ff')||document.fullscreenElement===w||document.webkitFullscreenElement===w,FW=Math.max(260,Math.min(document.documentElement.clientWidth,720)-26);f.style.width=FS?FW+'px':'';const W=w.clientWidth,H=w.clientHeight,h=S.tgh,T=30,B=33,hv=Math.max(40,h-56),cw=hv*16/9,k=Math.min(W/cw,H/hv)*.97;f.style.height=h+'px';f.style.clipPath='inset('+T+'px 0 '+B+'px 0)';f.style.transform='translate('+(-8*k).toFixed(1)+'px,'+(1.5*k).toFixed(1)+'px) scale('+k.toFixed(4)+')';w.classList.add('tgm')}
+function tgFit(){const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[data-tg]');if(!f||!S.tgh)return;const FS=w.classList.contains('ff')||document.fullscreenElement===w||document.webkitFullscreenElement===w,FW=Math.max(260,Math.min(document.documentElement.clientWidth,720)-26);f.style.width=FS?FW+'px':'';const W=w.clientWidth,H=w.clientHeight,h=S.tgh,T=ovn('tg_t',44),B=ovn('tg_b',46),hv=Math.max(40,h-T-B),cw=hv*16/9,k=Math.min(W/cw,H/hv)*.99;f.style.height=h+'px';f.style.clipPath='inset('+T+'px 0 '+B+'px 0)';f.style.transform='translate('+(-8*k).toFixed(1)+'px,'+((B-T)/2*k).toFixed(1)+'px) scale('+k.toFixed(4)+')';w.classList.add('tgm')}
 window.addEventListener('message',e=>{
  if(e.origin=='https://t.me'||e.origin=='https://telegram.me'){try{const d=typeof e.data=='string'?JSON.parse(e.data):e.data,f=document.querySelector('#pw iframe[data-tg]');if(d&&d.event=='resize'&&+d.height>0&&f&&e.source===f.contentWindow){S.tgh=+d.height;tgFit();const w=f.parentNode;if(window.ResizeObserver&&S.tgw!==w){if(S.tgro)S.tgro.disconnect();S.tgw=w;S.tgro=new ResizeObserver(tgFit);S.tgro.observe(w)}}}catch(x){}return}
  if(e.origin=='https://player.vimeo.com'){try{const d=typeof e.data=='string'?JSON.parse(e.data):e.data;if(d.event=='ready')['timeupdate','pause'].forEach(v=>e.source.postMessage(JSON.stringify({method:'addEventListener',value:v}),'*'));else if(d.event=='timeupdate'&&S.sk)S.sk={p:d.data.seconds,at:Date.now(),run:1};else if(d.event=='pause'&&S.sk)S.sk.run=0}catch(x){}return}
@@ -576,10 +601,11 @@ async function ad(){
   const g={};(data||[]).forEach(r=>{const k=r.title_id+'_'+(r.episode_id||0);(g[k]=g[k]||{r,ids:[],who:new Set()}).ids.push(r.id);g[k].who.add(r.profiles?.name||'Usuário')});
   d.innerHTML=Object.values(g).map(({r,ids,who})=>{const t=T(r.title_id),x=r.episode_id?S.E.find(e=>e.id==r.episode_id):null;return `<div class="box"><b>${esc(t?t.name:'Título apagado')}</b>${x?` <small>T${x.season} • E${x.num}</small>`:''}<div class="mu" style="padding:2px 0">${ids.length} aviso(s) de: ${esc([...who].join(', '))}<br>Último: ${new Date(r.created_at).toLocaleString('pt-BR')}</div><div class="row" style="margin-top:6px">${t?`<button class="btn o s" onclick="play(${r.title_id}${r.episode_id?','+r.episode_id:''})">Abrir</button>`:''}<button class="btn s" onclick="rr('${ids.join(',')}')">Resolvido</button></div></div>`}).join('')||'<p class="mu">Nenhum aviso. Tudo carregando bem.</p>';return}
  if(a=='t'){const e=S.ed||{};
-  d.innerHTML=`<div class="box"><b>🔍 Buscar capa e informações</b><div class="mu" style="padding:4px 0">Digite o nome do filme, série ou anime (ou cole um link do themoviedb.org). Toque no resultado para preencher tudo; depois escolha a capa e o banner e toque em Adicionar/Salvar.</div><input id="tm_q" placeholder="Nome para buscar" value="${esc(e.name)}" onkeydown="if(event.key=='Enter')tmSearch()"><div class="row"><button class="btn s" onclick="tmSearch()">Buscar</button><button class="btn o s" onclick="tmG()">Google Imagens</button><button class="btn o s" onclick="tmKey()">🔑 Chave</button></div><div id="tm_r" style="margin-top:8px"></div></div><div class="box"><select id="f_section">${S.secs.map(s=>`<option value="${s.key}" ${e.section==s.key?'selected':''}>${esc(s.label)}</option>`).join('')}</select>${[['name','Nome'],['synopsis','Sinopse'],['year','Ano'],['genres','Gêneros (ação, drama)'],['country','País'],['cover','Link da capa (pode ser do Google Drive)'],['banner','Link do banner (pode ser do Google Drive)']].map(([k,n])=>`<input id="f_${k}" placeholder="${n}" value="${esc(e[k])}" ${k=='cover'||k=='banner'?'oninput="pvC()"':''}>`).join('')}<div class="row" style="align-items:flex-start;flex-wrap:nowrap"><img id="pv_cover" src="${esc(gd(e.cover))}" style="height:110px;border-radius:8px;${e.cover?'':'display:none'}" onerror="this.style.display='none'"><img id="pv_banner" src="${esc(gd(e.banner))}" style="height:110px;max-width:60%;border-radius:8px;${e.banner?'':'display:none'}" onerror="this.style.display='none'"></div><select id="f_audio"><option value="">Áudio (animes)</option>${['dublado','legendado'].map(x=>`<option ${e.audio==x?'selected':''}>${x}</option>`).join('')}</select><select id="f_rating">${['Livre','10+','12+','14+','16+','18+'].map(x=>`<option ${e.rating==x?'selected':''}>${x}</option>`).join('')}</select><label class="k"><input type="checkbox" id="f_featured" ${e.featured?'checked':''}> Destaque da semana</label><label class="k"><input type="checkbox" id="f_coff" ${e.comments_off?'checked':''}> Proibir comentários neste título</label><button class="btn" onclick="svT()">${S.ed?'Salvar alterações':'Adicionar título'}</button></div>`+S.T.map(t=>`<div class="box"><b>${esc(t.name)}</b> <small class="mu">${esc(lab(t.section))}</small><div class="row" style="margin-top:6px"><button class="btn o s" onclick="S.ed=T(${t.id});ad();scrollTo(0,0)">Editar</button><button class="btn o s" onclick="dT(${t.id})">Apagar</button></div></div>`).join('');
+  d.innerHTML=`<div class="box"><b>🔍 Buscar capa e informações</b><div class="mu" style="padding:4px 0">Digite o nome do filme, série ou anime (ou cole um link do themoviedb.org). Toque no resultado para preencher tudo; depois escolha a capa e o banner e toque em Adicionar/Salvar.</div><input id="tm_q" placeholder="Nome para buscar" value="${esc(e.name)}" onkeydown="if(event.key=='Enter')tmSearch()"><div class="row"><button class="btn s" onclick="tmSearch()">Buscar</button><button class="btn o s" onclick="tmG()">Google Imagens</button><button class="btn o s" onclick="tmKey()">🔑 Chave</button></div><div id="tm_r" style="margin-top:8px"></div></div><div class="box"><div class="row" style="align-items:flex-start;flex-wrap:nowrap"><img id="pv_cover" src="${esc(gd(e.cover))}" style="height:110px;border-radius:8px;${e.cover?'':'display:none'}" onerror="this.style.display='none'"><img id="pv_banner" src="${esc(gd(e.banner))}" style="height:110px;max-width:60%;border-radius:8px;${e.banner?'':'display:none'}" onerror="this.style.display='none'"></div>${[['cover','Link da capa (pode ser do Google Drive)'],['name','Nome'],['banner','Link do banner (pode ser do Google Drive)'],['synopsis','Sinopse'],['year','Ano'],['genres','Gêneros (ação, drama)'],['country','País']].map(([k,n])=>`<input id="f_${k}" placeholder="${n}" value="${esc(e[k])}" ${k=='cover'||k=='banner'?'oninput="pvC()"':''}>`).join('')}<select id="f_section">${secOrd().map(s=>`<option value="${s.key}" ${e.section==s.key?'selected':''}>${esc(s.label)}</option>`).join('')}</select><select id="f_audio"><option value="">Áudio</option>${['dublado','legendado'].map(x=>`<option ${(e.audio||(S.ed?'':'dublado'))==x?'selected':''}>${x}</option>`).join('')}</select><select id="f_rating">${['Livre','10+','12+','14+','16+','18+'].map(x=>`<option ${e.rating==x?'selected':''}>${x}</option>`).join('')}</select><label class="k"><input type="checkbox" id="f_featured" ${e.featured?'checked':''}> Destaque da semana</label><label class="k"><input type="checkbox" id="f_coff" ${e.comments_off?'checked':''}> Proibir comentários neste título</label><button class="btn" onclick="svT()">${S.ed?'Salvar alterações':'Adicionar título'}</button></div>`+`<div class="box sbx"><span>🔎</span><input id="t_q" placeholder="Pesquisar títulos cadastrados…" oninput="fq('t_q','.tbx')"></div>`+S.T.map(t=>`<div class="box tbx"><b>${esc(t.name)}</b> <small class="mu">${esc(lab(t.section))}</small><div class="row" style="margin-top:6px"><button class="btn o s" onclick="S.ed=T(${t.id});ad();scrollTo(0,0)">Editar</button><button class="btn o s" onclick="dT(${t.id})">Apagar</button></div></div>`).join('');
  }
  if(a=='v'){const et=S.et&&T(S.et)?S.et:S.T[0]?.id;S.et=et;
-  d.innerHTML=S.T.length?`<div class="box"><select id="v_t" onchange="S.et=+this.value;ad()">${S.T.map(t=>`<option value="${t.id}" ${et==t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></div><div class="box"><b>Episódio ou capítulo</b><input id="e_s" type="number" placeholder="Temporada" value="1"><input id="e_n" type="number" placeholder="Número"><input id="e_m" placeholder="Nome (opcional)"><input id="e_u" placeholder="Link do vídeo"><button class="btn" onclick="svE()">Adicionar episódio</button></div><div class="box"><b>Vários episódios de uma vez</b><div class="mu" style="padding:2px 0 6px">Cole os links, um por linha, na ordem dos episódios. Eles serão numerados em sequência.</div><input id="m_s" type="number" placeholder="Temporada" value="1"><input id="m_n" type="number" placeholder="Número do primeiro episódio" value="1"><textarea id="m_u" rows="6" placeholder="https://...&#10;https://...&#10;https://..."></textarea><button class="btn" onclick="svM()">Adicionar todos</button></div><div class="box"><b>Link do filme</b><input id="l_l" placeholder="Nome (ex.: Link 1)"><input id="l_u" placeholder="Link do vídeo"><button class="btn" onclick="svL()">Adicionar link</button></div>`+S.E.filter(x=>x.title_id==et).map(x=>`<div class="box">T${x.season} • E${x.num} ${esc(x.name||'')}<div class="row" style="margin-top:6px"><button class="btn o s" onclick="dE(${x.id})">Apagar</button></div></div>`).join('')+S.L.filter(x=>x.title_id==et).map(x=>`<div class="box">Link: ${esc(x.label||x.url)}<div class="row" style="margin-top:6px"><button class="btn o s" onclick="dL(${x.id})">Apagar</button></div></div>`).join(''):'<p class="mu">Cadastre um título primeiro.</p>';
+  const vq0=(S.vq||'').toLowerCase(),tl=vq0?S.T.filter(t=>t.name.toLowerCase().includes(vq0)):S.T;if(tl.length&&!tl.some(t=>t.id==S.et)){S.et=tl[0].id}const et2=S.et,qm=!vq0||(T(et2)&&T(et2).name.toLowerCase().includes(vq0));
+  d.innerHTML=S.T.length?`<div class="box sbx"><span>🔎</span><input id="v_q" placeholder="Pesquisar vídeos (título, episódio…)" value="${esc(S.vq||'')}" onkeydown="if(event.key=='Enter')vq()"><button class="btn s" onclick="vq()">Buscar</button></div><div class="box"><select id="v_t" onchange="S.et=+this.value;ad()">${tl.map(t=>`<option value="${t.id}" ${et2==t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></div><div class="box"><b>Episódio ou capítulo</b><input id="e_s" type="number" placeholder="Temporada" value="1"><input id="e_n" type="number" placeholder="Número"><input id="e_m" placeholder="Nome (opcional)"><input id="e_u" placeholder="Link do vídeo"><button class="btn" onclick="svE()">Adicionar episódio</button></div><div class="box"><b>Vários episódios de uma vez</b><div class="mu" style="padding:2px 0 6px">Cole os links, um por linha, na ordem dos episódios. Eles serão numerados em sequência.</div><input id="m_s" type="number" placeholder="Temporada" value="1"><input id="m_n" type="number" placeholder="Número do primeiro episódio" value="1"><textarea id="m_u" rows="6" placeholder="https://...&#10;https://...&#10;https://..."></textarea><button class="btn" onclick="svM()">Adicionar todos</button></div><div class="box"><b>Link do filme</b><input id="l_l" placeholder="Nome (ex.: Link 1)"><input id="l_u" placeholder="Link do vídeo"><button class="btn" onclick="svL()">Adicionar link</button></div>`+S.E.filter(x=>x.title_id==et2&&(qm||(`t${x.season} e${x.num} ${x.name||''}`).toLowerCase().includes(vq0))).map(x=>`<div class="box vbx">T${x.season} • E${x.num} ${esc(x.name||'')}<div class="row" style="margin-top:6px"><button class="btn o s" onclick="dE(${x.id})">Apagar</button></div></div>`).join('')+S.L.filter(x=>x.title_id==et2&&(qm||(x.label||x.url||'').toLowerCase().includes(vq0))).map(x=>`<div class="box vbx">Link: ${esc(x.label||x.url)}<div class="row" style="margin-top:6px"><button class="btn o s" onclick="dL(${x.id})">Apagar</button></div></div>`).join(''):'<p class="mu">Cadastre um título primeiro.</p>';
   if(S.T.length)subAdm();
  }
  if(a=='l'){d.innerHTML=lyAdm();return}
@@ -667,6 +693,101 @@ async function tmPick(t,id){
  }catch(e){o.innerHTML='<p class="mu" style="padding:0">'+esc(e.message)+'</p>'}
 }
 function tmSet(k,el){$('#f_'+k).value=el.dataset.u;el.parentNode.querySelectorAll('img').forEach(i=>i.classList.toggle('on',i===el));pvC()}
+
+const secOrd=()=>{const r=k=>k=='movies'?0:k=='series'?1:2;return S.secs.slice().sort((a,b)=>r(a.key)-r(b.key))};
+function fq(id,sel){const q=($('#'+id).value||'').toLowerCase().trim();document.querySelectorAll(sel).forEach(e=>e.style.display=!q||e.textContent.toLowerCase().includes(q)?'':'none')}
+function vq(){S.vq=($('#v_q').value||'').trim();ad()}
+function tgBox(){const d=$('#ad');if(!d||$('#tgbx'))return;d.insertAdjacentHTML('beforeend',`<div class="box" id="tgbx"><b>Telegram: cortar faixa branca</b><div class="mu" style="padding:4px 0">Se ainda sobrar faixa branca no player do Telegram, aumente o corte do topo ou do rodapé.</div>${[['tg_t','Corte do topo',20,80,44],['tg_b','Corte do rodapé',20,80,46]].map(([k,n,a,b,df])=>`<div class="rg"><span>${n}</span><span class="mu" id="o_${k}" style="padding:0">${ovn(k,df)}px</span><input type="range" min="${a}" max="${b}" value="${ovn(k,df)}" oninput="S.set['${k}']=this.value;$('#o_${k}').textContent=this.value+'px';tgFit()" onchange="cf('${k}',this.value)"></div>`).join('')}</div>`)}
+const _ad=ad;ad=async function(){await _ad.apply(this,arguments);if(S.at=='s')tgBox()};
+async function tmPickW(t,id){
+ const o=$('#fw_r');o.innerHTML='<p class="mu" style="padding:0">Carregando…</p>';
+ try{
+  const d=await tmF('/'+t+'/'+id,'&append_to_response='+(t=='tv'?'content_ratings':'release_dates')+',images&include_image_language=pt,en,null');
+  const set=(k,v)=>{const e=$('#fw_'+k);if(e&&v!==undefined&&v!==null&&v!=='')e.value=v};
+  set('name',d.title||d.name);set('synopsis',d.overview);
+  set('year',(d.release_date||d.first_air_date||'').slice(0,4));
+  set('genres',(d.genres||[]).map(g=>g.name.toLowerCase()).join(', '));
+  let cc=(d.production_countries||[])[0]?.iso_3166_1||(d.origin_country||[])[0],cn='';
+  try{cn=cc?new Intl.DisplayNames(['pt-BR'],{type:'region'}).of(cc):''}catch(_){cn=cc||''}
+  set('country',cn);
+  let c='';
+  if(t=='movie')c=((d.release_dates?.results||[]).find(r=>r.iso_3166_1=='BR')?.release_dates||[]).map(x=>x.certification).find(Boolean)||'';
+  else c=(d.content_ratings?.results||[]).find(r=>r.iso_3166_1=='BR')?.rating||'';
+  const rm={L:'Livre',10:'10+',12:'12+',14:'14+',16:'16+',18:'18+'};
+  if(rm[c])$('#fw_rating').value=rm[c];
+  const sec=t=='movie'?'movies':((d.genres||[]).some(g=>g.id==16)&&d.original_language=='ja'?'anime':'series');
+  const se=$('#fw_section');if([...se.options].some(x=>x.value==sec))se.value=sec;
+  const ps=[...new Set([d.poster_path,...(d.images?.posters||[]).map(x=>x.file_path)].filter(Boolean))].slice(0,15);
+  const bs=[...new Set([d.backdrop_path,...(d.images?.backdrops||[]).map(x=>x.file_path)].filter(Boolean))].slice(0,10);
+  if(ps[0])set('cover',TMI+'w500'+ps[0]);
+  if(bs[0])set('banner',TMI+'w780'+bs[0]);
+  pvW();
+  o.innerHTML=`<div class="mu" style="padding:0;color:#7CFC9A">✓ Preenchido: ${esc(d.title||d.name)}. Revise os campos abaixo.</div>`+
+   (ps.length?`<div class="mu" style="padding:6px 0 0">Escolha a capa:</div><div class="tmg">${ps.map((p,i)=>`<img src="${TMI}w185${p}" data-u="${TMI}w500${p}" class="${i?'':'on'}" onclick="tmSetW('cover',this)">`).join('')}</div>`:'')+
+   (bs.length?`<div class="mu" style="padding:0">Escolha o banner:</div><div class="tmg b">${bs.map((p,i)=>`<img src="${TMI}w300${p}" data-u="${TMI}w780${p}" class="${i?'':'on'}" onclick="tmSetW('banner',this)">`).join('')}</div>`:'');
+ }catch(e){o.innerHTML='<p class="mu" style="padding:0">'+esc(e.message)+'</p>'}
+}
+function tmSetW(k,el){$('#fw_'+k).value=el.dataset.u;el.parentNode.querySelectorAll('img').forEach(i=>i.classList.toggle('on',i===el));pvW()}
+
+function pvW(){['cover'].forEach(k=>{const i=$('#fw_pv'),f=$('#fw_'+k);if(!i||!f)return;const v=f.value.trim();i.style.backgroundImage=v?"url('"+gd(v).replace(/'/g,'%27')+"')":'';i.textContent=v?'':'Capa'});fwSave()}
+// ===== Janela flutuante (filmes e séries) =====
+const FWK='cn_fw',FWF=['cover','banner','name','url','synopsis','year','genres','country','audio','rating','section','season','ep','label'];
+function fwG(){try{return JSON.parse(localStorage[FWK]||'{}')}catch(x){return{}}}
+function fwSave(){const d=S.fwd=S.fwd||fwG();FWF.forEach(k=>{const e=$('#fw_'+k);if(e)d[k]=e.value});try{localStorage[FWK]=JSON.stringify(d)}catch(x){}}
+function fwSet(p){S.fwd=Object.assign(S.fwd||fwG(),p);try{localStorage[FWK]=JSON.stringify(S.fwd)}catch(x){}}
+function fwMount(){
+ if(!adm()){['fw','fwb'].forEach(i=>{const e=document.getElementById(i);if(e)e.remove()});return}
+ if(!document.getElementById('fwb')){const b=document.createElement('button');b.id='fwb';b.innerHTML='＋';b.setAttribute('aria-label','Adicionar filme ou série');b.onclick=fwTog;document.body.appendChild(b)}
+ const d=S.fwd=S.fwd||fwG();if(d.open&&!document.getElementById('fw'))fwOpen()}
+function fwTog(){const d=S.fwd=S.fwd||fwG();if(document.getElementById('fw')){fwSave();fwSet({open:0});document.getElementById('fw').remove()}else{fwSet({open:1,min:0});fwOpen()}}
+function fwOpen(){
+ const d=S.fwd||fwG(),ty=d.ty||'f',old=document.getElementById('fw');if(old)old.remove();
+ const x=document.createElement('div');x.id='fw';if(d.min)x.classList.add('mn');
+ const v=k=>esc(d[k]||''),so=secOrd(),sec=d.section||(ty=='f'?'movies':'series');
+ x.innerHTML=`<div class="fwh" id="fwh"><b>＋ Novo ${ty=='f'?'filme':'série'}</b><span><button onclick="fwMin()">${d.min?'▢':'—'}</button><button onclick="fwTog()">✕</button></span></div><div class="fwb">
+<div class="seg"><button class="${ty=='f'?'on':''}" onclick="fwTy('f')">Filme</button><button class="${ty=='s'?'on':''}" onclick="fwTy('s')">Série</button></div>
+<div class="fwg"><div class="fwc"><div id="fw_pv" onclick="$('#fw_cover').focus()" style="${d.cover?"background-image:url('"+esc(gd(d.cover))+"')":''}">${d.cover?'':'Capa'}</div></div>
+<div class="fwr"><input id="fw_cover" placeholder="Link da capa" value="${v('cover')}" oninput="pvW();fwSave()"><input id="fw_name" placeholder="Nome (digite para buscar a capa)" value="${v('name')}" oninput="fwSave();fwAuto()" onkeydown="if(event.key=='Enter')fwFind()"><input id="fw_url" placeholder="🎬 Link do vídeo" value="${v('url')}" oninput="fwSave()"></div></div>
+<div id="fw_r"></div>
+${ty=='s'?`<div class="fwg2"><input id="fw_season" type="number" placeholder="Temporada" value="${esc(d.season||1)}" oninput="fwSave()"><input id="fw_ep" type="number" placeholder="Episódio" value="${esc(d.ep||1)}" oninput="fwSave()"><input id="fw_label" style="display:none"></div>`:`<input id="fw_label" placeholder="Nome do link (ex.: Link 1)" value="${v('label')}" oninput="fwSave()">`}
+<input id="fw_banner" placeholder="Link do banner (opcional)" value="${v('banner')}" oninput="fwSave()"><textarea id="fw_synopsis" placeholder="Sinopse" oninput="fwSave()">${v('synopsis')}</textarea>
+<div class="fwg2"><input id="fw_year" placeholder="Ano" value="${v('year')}" oninput="fwSave()"><input id="fw_country" placeholder="País" value="${v('country')}" oninput="fwSave()"></div><input id="fw_genres" placeholder="Gêneros" value="${v('genres')}" oninput="fwSave()">
+<div class="fwg2"><select id="fw_section" onchange="fwSave()">${so.map(s=>`<option value="${s.key}" ${sec==s.key?'selected':''}>${esc(s.label)}</option>`).join('')}</select><select id="fw_rating" onchange="fwSave()">${['Livre','10+','12+','14+','16+','18+'].map(r=>`<option ${(d.rating||'Livre')==r?'selected':''}>${r}</option>`).join('')}</select></div>
+<select id="fw_audio" onchange="fwSave()">${['dublado','legendado'].map(a=>`<option ${(d.audio||'dublado')==a?'selected':''}>${a}</option>`).join('')}</select>
+<div class="row" style="margin-top:6px"><button class="btn" style="flex:1" onclick="svW()">${d.tid?'Adicionar episódio':'Salvar'}</button><button class="btn o" onclick="fwNew()">Limpar</button></div><div id="fw_m" class="mu" style="padding:6px 0 0"></div></div>`;
+ document.body.appendChild(x);fwPos(x);
+ const h=x.querySelector('#fwh');let dr=null;
+ h.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;const r=x.getBoundingClientRect();dr={dx:e.clientX-r.left,dy:e.clientY-r.top};h.setPointerCapture(e.pointerId)});
+ h.addEventListener('pointermove',e=>{if(!dr)return;const W=innerWidth,H=innerHeight,r=x.getBoundingClientRect();const l=Math.max(0,Math.min(W-r.width,e.clientX-dr.dx)),t=Math.max(0,Math.min(H-40,e.clientY-dr.dy));x.style.left=l+'px';x.style.top=t+'px';x.style.right='auto';x.style.bottom='auto'});
+ const end=()=>{if(!dr)return;dr=null;fwSet({x:parseFloat(x.style.left),y:parseFloat(x.style.top)})};h.addEventListener('pointerup',end);h.addEventListener('pointercancel',end)}
+function fwPos(x){const d=S.fwd||{};if(typeof d.x=='number'&&typeof d.y=='number'){x.style.left=Math.max(0,Math.min(innerWidth-120,d.x))+'px';x.style.top=Math.max(0,Math.min(innerHeight-60,d.y))+'px'}}
+function fwMin(){fwSave();fwSet({min:S.fwd.min?0:1});fwOpen()}
+function fwTy(t){fwSave();fwSet({ty:t,section:t=='f'?'movies':'series'});fwOpen()}
+function fwNew(){const k=S.fwd||{};S.fwd={ty:k.ty,open:1,x:k.x,y:k.y};try{localStorage[FWK]=JSON.stringify(S.fwd)}catch(e){}fwOpen()}
+let fwT=0;function fwAuto(){clearTimeout(fwT);const q=($('#fw_name')||{}).value;if(!q||q.trim().length<3||!TMK())return;fwT=setTimeout(fwFind,700)}
+async function fwFind(){const v=($('#fw_name')||{}).value.trim(),o=$('#fw_r');if(!o||v.length<3)return;
+ try{const d=await tmF('/search/multi','&include_adult=false&query='+encodeURIComponent(v));const l=(d.results||[]).filter(x=>x.media_type=='movie'||x.media_type=='tv').slice(0,12);
+ o.innerHTML=l.length?`<div class="sc" style="padding:0">${l.map(x=>`<div class="cd" style="cursor:pointer;--cw:84px" onclick="tmPickW('${x.media_type}',${x.id})"><i ${x.poster_path?`style="--bg:url('${TMI}w185${x.poster_path}')"`:''}>${x.poster_path?`<img src="${TMI}w185${x.poster_path}" alt="">`:''}</i><b>${esc(x.title||x.name)}</b><small>${(x.release_date||x.first_air_date||'').slice(0,4)} • ${x.media_type=='tv'?'Série':'Filme'}</small></div>`).join('')}</div>`:''}catch(e){o.innerHTML=''}}
+async function svW(){
+ const g=k=>(($('#fw_'+k)||{}).value||'').trim(),m=$('#fw_m'),d=S.fwd||{},ty=d.ty||'f',url=g('url');
+ fwSave();m.textContent='Salvando…';
+ try{let tid=d.tid;
+  if(!tid){const name=g('name');if(!name){m.textContent='Informe o nome.';return}
+   const o={section:g('section'),rating:g('rating'),audio:g('audio')||null,featured:false};
+   FL.forEach(k=>o[k]=g(k)||null);o.year=+o.year||null;o.cover=gd(o.cover);o.banner=gd(o.banner);
+   const r=await sb.from('titles').insert(o).select().single();if(r.error){m.textContent=r.error.message;return}tid=r.data.id;fwSet({tid})}
+  if(url){
+   if(ty=='f'){const r=await sb.from('links').insert({title_id:tid,label:g('label')||null,url});if(r.error){m.textContent=r.error.message;return}}
+   else{const sn=+g('season')||1,en=+g('ep')||1,{data:se,error}=await sb.from('seasons').upsert({title_id:tid,number:sn},{onConflict:'title_id,number'}).select().single();if(error){m.textContent=error.message;return}
+    const r=await sb.from('episodes').insert({season_id:se.id,number:en,name:null,url});if(r.error){m.textContent=r.error.message;return}
+    fwSet({ep:en+1,url:''})}}
+  await load();if(S.tab=='admin'||S.tab=='home')draw();
+  if(ty=='f'||!url){fwNew();setTimeout(()=>{const z=$('#fw_m');if(z)z.textContent='✓ Adicionado!'},50)}
+  else{fwOpen();setTimeout(()=>{const z=$('#fw_m');if(z)z.textContent='✓ Episódio salvo. Cole o link do próximo.'},50)}
+ }catch(e){m.textContent=e.message||'Erro ao salvar.'}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&document.getElementById('fw'))fwSave()});
+addEventListener('pagehide',()=>{if(document.getElementById('fw'))fwSave()});
+const _dr=draw;draw=function(){_dr.apply(this,arguments);fwMount()};
 async function svT(){
  const o={section:$('#f_section').value,rating:$('#f_rating').value,audio:$('#f_audio').value||null,featured:$('#f_featured').checked};
  if($('#f_coff').checked||(S.ed&&'comments_off' in S.ed))o.comments_off=$('#f_coff').checked;
