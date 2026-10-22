@@ -189,11 +189,6 @@ label.k input{width:auto}
 .nmw{display:flex;gap:6px;align-items:center}.nmw input{flex:1;min-width:0}.nmw button{flex:none;width:46px;height:44px;margin:3px 0;border-radius:10px;border:1px solid #ff1a0f;background:linear-gradient(#ff1a0f,#b00500);font-size:18px}
 
 </style><style id="gest-css">
-.gzs{position:absolute;top:12%;bottom:24%;width:22%;z-index:4;touch-action:none;background:transparent;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
-.gzs.l{left:0}.gzs.r{right:0}
-.gzi{position:absolute;left:50%;top:14%;transform:translateX(-50%);z-index:98;background:rgba(0,0,0,.75);color:#fff;border:1px solid #888;border-radius:20px;padding:6px 14px;font:700 14px system-ui;pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap}
-.gzi.on{opacity:1}
-html.gbo #pw iframe,html.gbo #pw video{filter:brightness(var(--gb,1))}
 .pw.vmo .ob.ex{opacity:var(--o,1);pointer-events:auto}
 body.hb .pw.vmo .ob.ex{opacity:0!important;pointer-events:none!important}
 </style>
@@ -493,7 +488,7 @@ function play(id,eid,li){
  localStorage.cn_last=JSON.stringify([{t:id,e:e?.id},...last().filter(x=>x.t!=id)].slice(0,10));
  S.tab='play';scrollTo(0,0);draw();
  {const sc=document.querySelector('.sc'),a=sc&&sc.querySelector('.ep.on');if(sc&&a){if(keep!=null)sc.scrollLeft=keep;const sr=sc.getBoundingClientRect(),ar=a.getBoundingClientRect();if(keep==null||ar.left<sr.left||ar.right>sr.right)sc.scrollLeft+=(ar.left-sr.left)-(sc.clientWidth-a.offsetWidth)/2}}
- if(!S.bled&&!S.oved&&ovn('ov_au',1)&&document.querySelector('#pw iframe,#pw video'))setTimeout(fkOn()?fkEnter:fsEnter,150);
+ if(!S.bled&&!S.oved&&(ovn('ov_au',1)||(ovn('ov_ar',1)&&(S.phL||arLand())))&&document.querySelector('#pw iframe,#pw video'))setTimeout(fkOn()?fkEnter:fsEnter,150);
 }
 const cu=()=>{const c=S.cur;return c.e?c.e.url:(vids(c.t)[c.li]||{}).url};
 const dl=()=>on('downloads_on')&&S.cur?.v?`<a class="ib" href="${esc(cu())}" download target="_blank">${ic(I.d)}</a>`:'';
@@ -631,14 +626,19 @@ function phApply(l){
  else if(isFs()){if(S.showOv)S.showOv()}
  else if(l)(fkOn()?fkEnter:fsEnter)();
 }
-S.phL=null;
+S.phL=null;S.phW=null;
+/* Posição física do celular pela gravidade (não só pelo gamma):
+   gamma muda de sinal conforme a tela esteja inclinada pra cima ou pra baixo, o que invertia o vídeo.
+   gx = quanto o lado direito do celular aponta pra baixo (+1 = lado direito embaixo, -1 = lado direito em cima). */
 addEventListener('deviceorientation',e=>{
- const g=e.gamma;if(typeof g!='number')return;
- const ag=Math.abs(g);let l=S.phL;
- if(ag>55){l=true;const d=g>0?1:-1;if(S.phD!==d){S.phD=d;if(S.ff)fkApply()}}else if(ag<30)l=false;
+ const b=e.beta,g=e.gamma;if(typeof b!='number'||typeof g!='number')return;
+ const r=Math.PI/180,gx=Math.cos(b*r)*Math.sin(g*r),ax=Math.abs(gx);
+ let l=S.phL===null?false:S.phL;
+ if(ax>.82){l=true;const d=gx>0?1:-1;if(S.phD!==d){S.phD=d;if(S.ff)fkApply()}}else if(ax<.5)l=false;
  if(S.phL===null){S.phL=l;return}
- if(l===S.phL)return;
- clearTimeout(S.pht);S.pht=setTimeout(()=>{S.phL=l;phApply(l)},250);
+ if(l===S.phL){clearTimeout(S.pht);S.phW=null;return}
+ if(S.phW===l)return; /* já agendado: não reinicia o tempo a cada leitura do sensor */
+ S.phW=l;clearTimeout(S.pht);S.pht=setTimeout(()=>{S.phW=null;S.phL=l;phApply(l)},250);
 });
 try{screen.orientation.addEventListener('change',arApply)}catch(x){}
 addEventListener('orientationchange',()=>setTimeout(arApply,120));
@@ -1213,47 +1213,10 @@ boot();
 </script>
 <script id="gest-js">
 (()=>{
- const LG=k=>{try{return localStorage.getItem(k)}catch(e){return null}},SV=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
- let gv=parseFloat(LG('cn_gv'));if(isNaN(gv))gv=1;
- let gb=parseFloat(LG('cn_gb'));if(isNaN(gb))gb=1;
- const root=document.documentElement,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
- const applyB=()=>{root.classList.toggle('gbo',Math.abs(gb-1)>.01);root.style.setProperty('--gb',gb)};applyB();
- let vSet=0;
- const post=(f,o)=>{try{f.contentWindow.postMessage(JSON.stringify(o),'*')}catch(e){}};
- const sendVol=()=>{const w=document.getElementById('pw');if(!w)return 0;
-  const v=w.querySelector('video'),f=w.querySelector('iframe');
-  if(v){v.volume=clamp(gv,0,1);v.muted=gv==0;return 1}
-  if(!f)return 0;const src=f.src||'';
-  if(/player\.vimeo\.com/.test(src)){post(f,{method:'setVolume',value:gv});return 1}
-  if(/youtube\.com/.test(src)){if(gv>0)post(f,{event:'command',func:'unMute',args:[]});post(f,{event:'command',func:'setVolume',args:[Math.round(gv*100)]});return 1}
-  return 0};
- // volta a aplicar o volume quando o Vimeo termina de carregar
- addEventListener('message',e=>{if(e.origin==='https://player.vimeo.com'&&vSet){try{const d=typeof e.data=='string'?JSON.parse(e.data):e.data;if(d&&d.event=='ready')setTimeout(sendVol,300)}catch(x){}}});
- let tipT=0;
- const tip=(w,txt)=>{let i=w.querySelector('.gzi');if(!i){i=document.createElement('div');i.className='gzi';w.appendChild(i)}i.textContent=txt;i.classList.add('on');clearTimeout(tipT);tipT=setTimeout(()=>i.classList.remove('on'),900)};
- const mk=(w,side)=>{
-  const z=document.createElement('div');z.className='gzs '+side;
-  let sx=0,sy=0,st=0,g0=0,mv=0,lt=0,ok=1;
-  z.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;st=Date.now();mv=0;g0=side=='r'?gv:gb;ok=side=='l'||sendVol()||1;try{z.setPointerCapture(e.pointerId)}catch(x){}});
-  z.addEventListener('pointermove',e=>{if(!st)return;
-   const rot=w.classList.contains('rot'),d=rot?(e.clientX-sx):-(e.clientY-sy),H=Math.max(100,w.clientHeight);
-   if(!mv&&Math.abs(d)<10&&Math.abs(rot?e.clientY-sy:e.clientX-sx)<10)return;
-   mv=1;const dv=d/(H*.6);
-   if(side=='r'){gv=clamp(g0+dv,0,1);vSet=1;const okv=sendVol();SV('cn_gv',gv);tip(w,okv?(gv==0?'🔇 0%':'🔊 '+Math.round(gv*100)+'%'):'🔊 Volume indisponível neste player')}
-   else{gb=clamp(g0+dv*1.3,.2,1.5);SV('cn_gb',gb);applyB();tip(w,'☀️ '+Math.round(gb*100)+'%')}
-  });
-  const up=e=>{if(!st)return;const dt=Date.now()-st;st=0;if(mv||dt>400)return;
-   const n=Date.now();
-   if(n-lt<350){lt=0;document.body.classList.toggle('hb');return}
-   lt=n;if(S.showOv)S.showOv()};
-  z.addEventListener('pointerup',up);z.addEventListener('pointercancel',()=>{st=0});
-  return z};
+ // Vimeo: enquanto o player está em uso (engrenagem aberta), o botão voltar fica visível
  setInterval(()=>{
   const w=document.getElementById('pw');if(!w)return;
-  const has=w.querySelector('iframe,video');
-  if(S.oved||S.bled||document.getElementById('vzp')||!has){w.querySelectorAll('.gzs').forEach(x=>x.remove());return}
-  if(!w.querySelector('.gzs')){w.appendChild(mk(w,'l'));w.appendChild(mk(w,'r'))}
-  // Vimeo: enquanto o player está em uso (engrenagem aberta), o botão voltar fica visível
+  if(S.oved||S.bled||document.getElementById('vzp'))return;
   const f=w.querySelector('iframe');
   w.classList.toggle('vmo',!!(f&&S.cur&&S.cur.pk=='vm'&&document.activeElement===f));
  },200);
