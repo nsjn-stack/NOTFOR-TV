@@ -44,6 +44,7 @@ h2 a{font-size:13px;color:var(--g);font-weight:400}
 .pw.sh .ob.ls,.pw.sh .ob.ex{opacity:var(--o,1)}
 .pw.ff{position:fixed;inset:0;z-index:100;margin:0;border:0;border-radius:0;aspect-ratio:auto;width:100vw;height:100vh;height:100dvh}
 .pw.ff.rot{inset:auto;top:0;left:0;width:100vh;width:100dvh;height:100vw;transform-origin:top left;transform:translateX(100vw) rotate(90deg)}
+.pw.ff.rot.rotn{transform:translateY(100vh) rotate(-90deg);transform:translateY(100dvh) rotate(-90deg)}
 .pw.ff .ob.ex{display:grid}
 .ob.bk{background:#000;border-color:#333}
 .ob.ex{--s:1;left:8px;top:8px;padding:0;width:calc(42px*var(--s));height:calc(42px*var(--s));display:none;place-items:center;font-size:calc(18px*var(--s))}
@@ -585,7 +586,7 @@ function fsExitReal(){try{screen.orientation.unlock()}catch(x){}(document.exitFu
 const fkOn=()=>ovn('ov_fm',1)==1;
 function fkApply(){
  const w=$('#pw');if(!w||!S.ff)return;
- w.classList.add('ff');w.classList.toggle('rot',S.ffL&&innerHeight>innerWidth);
+ w.classList.add('ff');w.classList.toggle('rot',S.ffL&&innerHeight>innerWidth);w.classList.toggle('rotn',S.phD>0&&!S.oved&&!S.bled);
  document.documentElement.style.overflow='hidden';
  if(S.showOv)S.showOv();
  blSync();
@@ -621,6 +622,24 @@ function arApply(){
  else if(S.ff){S.ffL=true;fkApply()}
  else if(isFs()){if(S.showOv)S.showOv()}
 }
+/* celular travado em retrato (ex.: app instalado): detecta a posição física pelo sensor de inclinação */
+function phApply(l){
+ if(!ovn('ov_ar',1)||!S.cur||S.tab!='play'||Date.now()-(S.fsT||0)<1500)return;
+ const w=document.getElementById('pw');
+ if(!w||S.oved||S.bled||document.getElementById('vzp')||!w.querySelector('iframe,video'))return;
+ if(S.ff){S.ffL=true;fkApply()}
+ else if(isFs()){if(S.showOv)S.showOv()}
+ else if(l)(fkOn()?fkEnter:fsEnter)();
+}
+S.phL=null;
+addEventListener('deviceorientation',e=>{
+ const g=e.gamma;if(typeof g!='number')return;
+ const ag=Math.abs(g);let l=S.phL;
+ if(ag>55){l=true;const d=g>0?1:-1;if(S.phD!==d){S.phD=d;if(S.ff)fkApply()}}else if(ag<30)l=false;
+ if(S.phL===null){S.phL=l;return}
+ if(l===S.phL)return;
+ clearTimeout(S.pht);S.pht=setTimeout(()=>{S.phL=l;phApply(l)},250);
+});
 try{screen.orientation.addEventListener('change',arApply)}catch(x){}
 addEventListener('orientationchange',()=>setTimeout(arApply,120));
 addEventListener('resize',()=>setTimeout(arApply,150));
