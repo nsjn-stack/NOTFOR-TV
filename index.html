@@ -373,14 +373,18 @@ async function auth(n){
 function guest(){localStorage.cn_guest=1;boot()}
 async function out(){await sb.auth.signOut();localStorage.removeItem('cn_guest');location.reload()}
 
-function go(t,k){S.tab=t;if(k)S.kind=k;if(S.guest&&!gOn())return out();scrollTo(0,0);draw()}
+function go(t,k){if(t=='home'&&S.tab=='home')S.adC={};S.keep=1;S.tab=t;if(k)S.kind=k;if(S.guest&&!gOn())return out();scrollTo(0,0);draw()}
 function draw(){
+ const kp=S.keep;S.keep=0;
+ {const o=document.getElementById('ad');if(o&&S.adShown){(S.adC=S.adC||{})[S.adShown]={n:o,y:window.scrollY};o.remove()}S.adShown=null}
  if(S.tab!='play')S.pbd=null;
  if((S.bled||S.oved)&&S.tab!='play'){blEdClose();oEdClose()}
  S.ff=0;document.documentElement.style.overflow='';
  const t=S.tab,b={home:pHome,list:pList,search:pSearch,fav:pFav,me:pMe,admin:pAdmin,play:pPlay}[t]();
  A.innerHTML=hdr()+b+nav();
- if(t=='play'){wire();ovWire();loadC();if(S.oved)oEdWire();sbInit()}if(t=='admin')ad();
+ if(t=='play'){wire();ovWire();loadC();if(S.oved)oEdWire();sbInit()}if(t=='admin'){const c=kp&&S.adC&&S.adC[S.at],nd=document.getElementById('ad');
+  if(c&&nd){nd.replaceWith(c.n);delete S.adC[S.at];S.adShown=S.at;const y=c.y;scrollTo(0,y);requestAnimationFrame(()=>scrollTo(0,y));setTimeout(()=>scrollTo(0,y),120)}
+  else{S.adShown=S.at;ad(1)}}
 }
 const hdr=()=>S.tab=='play'?`<div class="top"><button class="ib" onclick="go(S.prev||'home')">${ic(I.b)}</button><img src="${LA()}" alt="CINE NOTFOR">${dl()||'<span class="ib" style="visibility:hidden"></span>'}</div>`:`<div class="top"><span></span><img src="${LA()}" alt="CINE NOTFOR"><div class="row" style="flex-wrap:nowrap"><button class="ib" onclick="go('search')">${ic(I.s)}</button><button class="ib" onclick="go('me')">${ic(I.u)}</button></div></div>`;
 const NI={home:'M3 11l9-8 9 8v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z',fav:'M12 21s-8-5.2-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.8-8 11-8 11z',me:'M12 12a4 4 0 100-8 4 4 0 000 8zM4 21c0-4 4-6 8-6s8 2 8 6',admin:'M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z'};
@@ -637,12 +641,12 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
 
 /* ---------- painel admin ---------- */
 const APP_V='2026-10-19 · capas com carregamento sob demanda, abertura mais rápida';
-const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
+const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
 async function rr(ids){if(confirm('Marcar como resolvido?')&&ok(await sb.from('reports').delete().in('id',ids.split(',').map(Number))))ad()}
-async function ad(){
- const a=S.at,d=$('#ad');
+async function ad(f){
+ const a=S.at,d=$('#ad');if(!f&&S.adC)for(const k in S.adC)if(k!=a)delete S.adC[k];S.adShown=a;
  if(a=='r'){const{data,error}=await sb.from('reports').select('*,profiles(name)').order('created_at',{ascending:false}).limit(200);
   if(error){d.innerHTML='<p class="mu">Erro: '+esc(error.message)+'</p>';return}
   const g={};(data||[]).forEach(r=>{const k=r.title_id+'_'+(r.episode_id||0);(g[k]=g[k]||{r,ids:[],who:new Set()}).ids.push(r.id);g[k].who.add(r.profiles?.name||'Usuário')});
