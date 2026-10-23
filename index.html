@@ -531,13 +531,11 @@ function play(id,eid,li){
 const cu=()=>{const c=S.cur;return c.e?c.e.url:(vids(c.t)[c.li]||{}).url};
 const dl=()=>on('downloads_on')&&S.cur?.v?`<a class="ib" href="${esc(cu())}" download target="_blank">${ic(I.d)}</a>`:'';
 const dzv=k=>ovn('ov_dz_'+k,k=='dr'?ovn('ov_dz',2):1),dzs=z=>{return ` class="dz" style="width:${z*100}%;height:${z*100}%;transform:scale(${(1/z).toFixed(4)})"`};
-/* autoplay: ao escolher um vídeo ele já começa (não em modo de ajuste do admin) */
-const apQ=m=>S.oved||S.bled?'':m.k=='yt'||m.k=='vm'?'&autoplay=1':m.k=='dm'?'?autoplay=1':'';
 function pPlay(){
  const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.pk='ot';
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
  else{const m=embed(u);S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';
-  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+apQ(m)+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>`
+  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>`
   :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"></video><button class="big" id="bp">▶</button><div class="ov"><input id="sk" type="range" min="0" max="1000" value="0"><div class="pl"><span id="tm">0:00</span><div class="pill"><button id="mu">${ic(I.v)}</button><button id="sp">1x</button></div></div></div>`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
@@ -722,7 +720,6 @@ function wire(){
  const bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),f=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
  const up=()=>bp.style.display=v.paused?'':'none';
  v.onplay=v.onpause=up;
- if(!S.oved&&!S.bled){try{const pr=v.play();if(pr&&pr.catch)pr.catch(()=>{})}catch(x){}}
  if(pf('rs')){const sp=getPos(ckey());if(sp>10)v.addEventListener('loadedmetadata',()=>{if(v.duration&&sp<v.duration-15){v.currentTime=sp;const w=$('#pw'),m=document.createElement('div');m.className='nxb';m.style.cssText='top:12px;bottom:auto;padding:8px 14px';m.textContent='Continuando de '+f(sp);w.appendChild(m);setTimeout(()=>m.remove(),3000)}},{once:true})}
  v.onended=onEnd;
  let lp=0;v.ontimeupdate=()=>{if(v.duration&&Date.now()-lp>3000){lp=Date.now();const p=prog(),c=S.cur;p[c.t.id+'_'+(c.e?c.e.id:0)]=Math.min(1,v.currentTime/v.duration);localStorage.cn_prog=JSON.stringify(p);if(v.currentTime>5)setPos(ckey(),v.currentTime);if(v.currentTime/v.duration>.9&&pf('sn')&&!lj('cn_seen')[ckey()])setSeen(ckey(),1)}sk.value=v.currentTime/(v.duration||1)*1000;tm.textContent=f(v.currentTime)+' / '+f(v.duration)};
