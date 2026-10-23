@@ -393,6 +393,28 @@ function draw(){
   if(c&&nd){nd.replaceWith(c.n);delete S.adC[S.at];S.adShown=S.at;const y=c.y;scrollTo(0,y);requestAnimationFrame(()=>scrollTo(0,y));setTimeout(()=>scrollTo(0,y),120)}
   else{S.adShown=S.at;ad(1)}}
 }
+/* Botão voltar do celular: volta para a tela anterior do app (aba/player) em vez de sair.
+   Sai do app só quando já estiver na Início. */
+(function(){
+ try{history.replaceState({cnb:0},'');history.pushState({cnb:1},'')}catch(x){}
+ const _draw=draw;
+ draw=function(){
+  const t=S.tab,st=S.vs=S.vs||['home'];
+  if(t){const i=st.lastIndexOf(t);if(i>=0)st.length=i+1;else{st.push(t);if(st.length>30)st.shift()}}
+  if(t&&t!='home'){try{if(history.state&&history.state.cnb===0)history.pushState({cnb:1},'')}catch(x){}}
+  return _draw.apply(this,arguments)
+ };
+ addEventListener('popstate',()=>{
+  if(S.ff||(history.state&&history.state.ff))return;
+  if(!S.tab||S.tab=='home')return;
+  const st=S.vs=S.vs||['home'];
+  st.pop();
+  let tg=st.length?st[st.length-1]:'home';
+  if(tg=='play')tg=S.prev||'home';
+  try{history.pushState({cnb:1},'')}catch(x){}
+  go(tg)
+ });
+})();
 const hdr=()=>S.tab=='play'?`<div class="top"><button class="ib" onclick="go(S.prev||'home')">${ic(I.b)}</button><img src="${LA()}" alt="CINE NOTFOR">${dl()||'<span class="ib" style="visibility:hidden"></span>'}</div>`:`<div class="top"><span></span><img src="${LA()}" alt="CINE NOTFOR"><div class="row" style="flex-wrap:nowrap"><button class="ib" onclick="go('search')">${ic(I.s)}</button><button class="ib" onclick="go('me')">${ic(I.u)}</button></div></div>`;
 const NI={home:'M3 11l9-8 9 8v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z',fav:'M12 21s-8-5.2-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.8-8 11-8 11z',me:'M12 12a4 4 0 100-8 4 4 0 000 8zM4 21c0-4 4-6 8-6s8 2 8 6',admin:'M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z'};
 const nav=()=>`<nav>${[['home','Início'],['fav','Favoritos'],['me','Perfil'],...(adm()?[['admin','Admin']]:[])].map(([k,n])=>`<button class="${S.tab==k?'on':''}" onclick="go('${k}')">${ic(NI[k])}${n}</button>`).join('')}</nav>`;
