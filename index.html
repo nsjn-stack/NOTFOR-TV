@@ -527,11 +527,11 @@ function qr(){$('#qr').innerHTML='<div class="qr" id="qc"></div>';new QRCode($('
 const SKR=/#cnskip=(\d{1,2})\s*$/,skM=n=>{n=Math.max(0,Math.min(40,parseInt(n)||0));return n?'#cnskip='+n:''};
 function embed0(u){
  u=(u||'').trim();let m;
- if(m=u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/))return{t:'if',s:'https://www.youtube.com/embed/'+m[1]+'?playsinline=1&rel=0&enablejsapi=1&fs=0&modestbranding=1&iv_load_policy=3&disablekb=1',k:'yt'};
+ if(m=u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/))return{t:'if',s:'https://www.youtube.com/embed/'+m[1]+'?playsinline=1&rel=0&enablejsapi=1&fs=0&modestbranding=1&iv_load_policy=3&disablekb=1&autoplay=1',k:'yt'};
  if(m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]+)/))return{t:'if',s:'https://drive.google.com/file/d/'+m[1]+'/preview',k:'dr'};
  if(m=u.match(/archive\.org\/(?:details|embed)\/([^\/?#]+)(?:\/([^?#]+))?/))return{t:'if',s:'https://archive.org/embed/'+m[1]+(m[2]?'/'+m[2]:''),k:'ar'};
- if(m=u.match(/vimeo\.com\/(?:[^?#]*\/)?(\d{6,})(?:\/([0-9a-f]{8,}))?/i)){const h=m[2]||(u.match(/[?&]h=([0-9a-f]+)/i)||[])[1];return{t:'if',s:'https://player.vimeo.com/video/'+m[1]+'?api=1&title=0&byline=0&portrait=0'+(h?'&h='+h:''),k:'vm'}}
- if(m=u.match(/(?:dailymotion\.com\/(?:embed\/)?video\/|dai\.ly\/|dailymotion\.com\/player[^?]*\?[^#]*video=)([a-z0-9]+)/i))return{t:'if',s:'https://www.dailymotion.com/embed/video/'+m[1],k:'dm'};
+ if(m=u.match(/vimeo\.com\/(?:[^?#]*\/)?(\d{6,})(?:\/([0-9a-f]{8,}))?/i)){const h=m[2]||(u.match(/[?&]h=([0-9a-f]+)/i)||[])[1];return{t:'if',s:'https://player.vimeo.com/video/'+m[1]+'?api=1&autoplay=1&title=0&byline=0&portrait=0'+(h?'&h='+h:''),k:'vm'}}
+ if(m=u.match(/(?:dailymotion\.com\/(?:embed\/)?video\/|dai\.ly\/|dailymotion\.com\/player[^?]*\?[^#]*video=)([a-z0-9]+)/i))return{t:'if',s:'https://www.dailymotion.com/embed/video/'+m[1]+'?autoplay=1',k:'dm'};
  if(m=u.match(/(?:t\.me|telegram\.me)\/(?!c\/|\+|joinchat)([A-Za-z0-9_]{4,})\/(\d+)/i))return{t:'if',s:'https://t.me/'+m[1]+'/'+m[2]+'?embed=1&mode=tme',k:'tg'};
  if(/\.(mp4|webm|m4v)(\?|$)/i.test(u))return{t:'v',s:u,k:'mp'};
  return{t:'x',s:u,k:'ot'};
@@ -759,7 +759,7 @@ function wire(){
  const up=()=>bp.style.display=v.paused?'':'none';
  v.onplay=v.onpause=up;
  if(pf('rs')){const sp=getPos(ckey());if(sp>10)v.addEventListener('loadedmetadata',()=>{if(v.duration&&sp<v.duration-15){v.currentTime=sp;const w=$('#pw'),m=document.createElement('div');m.className='nxb';m.style.cssText='top:12px;bottom:auto;padding:8px 14px';m.textContent='Continuando de '+f(sp);w.appendChild(m);setTimeout(()=>m.remove(),3000)}},{once:true})}
- v.onended=onEnd;
+ v.onended=onEnd;v.play().catch(()=>{v.muted=true;v.play().catch(()=>{})});
  let lp=0;v.ontimeupdate=()=>{if(v.duration&&Date.now()-lp>3000){lp=Date.now();const p=prog(),c=S.cur;p[c.t.id+'_'+(c.e?c.e.id:0)]=Math.min(1,v.currentTime/v.duration);localStorage.cn_prog=JSON.stringify(p);if(v.currentTime>5)setPos(ckey(),v.currentTime);if(v.currentTime/v.duration>.9&&pf('sn')&&!lj('cn_seen')[ckey()])setSeen(ckey(),1)}sk.value=v.currentTime/(v.duration||1)*1000;tm.textContent=f(v.currentTime)+' / '+f(v.duration)};
  sk.oninput=()=>v.currentTime=sk.value/1000*(v.duration||0);
  bp.onclick=v.onclick=()=>v.paused?v.play():v.pause();
@@ -875,7 +875,7 @@ async function cvSave(){const tid=S.et,q=$('#cv_s').value,u=gd($('#cv_u').value.
 function cvDel(){$('#cv_u').value='';cvSave()}
 function cvYt(){const q=$('#cv_s').value,x=S.E.find(e=>e.id==q)||S.E.find(e=>e.title_id==S.et)||S.L.find(l=>l.title_id==S.et)||{},m=(x.url||'').match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/);if(!m)return alert('Escolha um episódio com link do YouTube.');const b='https://i.ytimg.com/vi/'+m[1]+'/',i=new Image();i.onload=()=>cvSet(b+(i.naturalWidth>200?'maxresdefault':'hqdefault')+'.jpg');i.onerror=()=>cvSet(b+'hqdefault.jpg');i.src=b+'maxresdefault.jpg'}
 /* ---------- trailer enquanto o vídeo não inicia ---------- */
-const trBox=tid=>{const cur=S.set['trl:'+tid]||'';return `<details class="box mf dt" ${S.tro?'open':''} ontoggle="S.tro=this.open"><summary>🎬 Trailer (toca enquanto o vídeo não inicia)</summary><div class="mu" style="padding:2px 0 6px">Link do trailer: YouTube, Telegram (canal público, ex.: https://t.me/canal/123) ou .mp4 direto. O trailer toca por cima assim que o vídeo abre, e o vídeo de baixo fica sem som. Quando o filme começa, o trailer some sozinho. YouTube e .mp4 avisam o início na hora; Drive, Telegram etc. não avisam, então o trailer sai alguns segundos depois do seu toque no play. Vale para todos os episódios deste título.</div><input id="tr_u" placeholder="Link do trailer (YouTube, Telegram ou .mp4)" value="${esc(cur)}"><div class="row"><button class="btn s" onclick="trSave()">Salvar trailer</button><button class="btn o s" onclick="trDel()">Remover trailer</button></div><div class="rg"><span>Trailer padrão: toca em todos os títulos que não têm trailer próprio</span></div><input id="tr_a" placeholder="Link do trailer padrão" value="${esc(S.set['trl:all']||'')}"><div class="row"><button class="btn s" onclick="trSave(1)">Salvar padrão</button></div><div class="rg"><span>Drive, Telegram etc. (não avisam o início): trailer sai depois do play em</span></div><select onchange="cf('trl_s',this.value)">${[3,4,5,6,8,10,15,20,30].map(x=>`<option value="${x}" ${ovn('trl_s',6)==x?'selected':''}>${x} s</option>`).join('')}</select><div class="rg"><span>Trailer do Telegram sai sozinho depois de</span></div><select onchange="cf('trl_a',this.value)">${[10,15,20,30,45,60,90].map(x=>`<option value="${x}" ${ovn('trl_a',20)==x?'selected':''}>${x} s</option>`).join('')}</select></details>`};
+const trBox=tid=>{const cur=S.set['trl:'+tid]||'';return `<details class="box mf dt" ${S.tro?'open':''} ontoggle="S.tro=this.open"><summary>🎬 Trailer (toca enquanto o vídeo não inicia)</summary><div class="mu" style="padding:2px 0 6px">O trailer só aparece em filmes e séries com link do YouTube. Se o filme não iniciar logo ao abrir, o trailer (YouTube, .mp4 ou Telegram) toca por cima e o filme continua carregando por baixo, sem som. Quando o filme inicia, o trailer some sozinho e o som volta. Se o filme já iniciar sozinho, o trailer não aparece. O trailer do Telegram não toca sozinho: precisa tocar no play dele. Vale para todos os episódios deste título.</div><input id="tr_u" placeholder="Link do trailer (YouTube, Telegram ou .mp4)" value="${esc(cur)}"><div class="row"><button class="btn s" onclick="trSave()">Salvar trailer</button><button class="btn o s" onclick="trDel()">Remover trailer</button></div><div class="rg"><span>Trailer padrão: toca em todos os títulos que não têm trailer próprio</span></div><input id="tr_a" placeholder="Link do trailer padrão" value="${esc(S.set['trl:all']||'')}"><div class="row"><button class="btn s" onclick="trSave(1)">Salvar padrão</button></div></details>`};
 async function trSave(all){const tid=S.et,u=$(all?'#tr_a':'#tr_u').value.trim();if(u&&!/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)[\w-]{11}|(?:t\.me|telegram\.me)\/(?!c\/|\+|joinchat)[A-Za-z0-9_]{4,}\/\d+|^https?:\/\/\S+\.(?:mp4|m4v|webm)/i.test(u))return alert('Use um link do YouTube, do Telegram (canal público, ex.: t.me/canal/123) ou um .mp4.');const k=all?'trl:all':'trl:'+tid;if(ok(await sb.from('settings').upsert([{key:k,value:u}]))){S.set[k]=u;S.tro=1;alert(u?'Trailer salvo!':'Trailer removido.');ad()}}
 function trDel(){$('#tr_u').value='';trSave()}
 /* ---------- ao girar o celular: botão girar e seta voltar ---------- */
@@ -1548,18 +1548,17 @@ boot();
 </style>
 <script id="trl-js">
 (()=>{
- /* Trailer por cima do vídeo enquanto ele não inicia. Aceita link do YouTube, do Telegram (canal público: t.me/canal/123) ou .mp4.
-    Dispara depois do 1º toque no player (ou do play do app) se o vídeo não começar em 2 s. */
- const TD=2000,YT=/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/,TG=/(?:t\.me|telegram\.me)\/(?!c\/|\+|joinchat)([A-Za-z0-9_]{4,})\/(\d+)/i,MP=/^https?:\/\/\S+\.(?:mp4|m4v|webm)(?:[?#]\S*)?$/i;
- let key='',started=0,att=0,n=0,th=0,mt=0,tp=0,op=0;
+ /* Trailer só nos vídeos do YouTube. Se o filme não iniciar logo, o trailer toca por cima e o filme continua carregando por baixo, sem som.
+    Quando o filme inicia, o trailer some e o som volta. Se o filme já iniciar sozinho, o trailer nem aparece. */
+ const TD=1500,YT=/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/,TG=/(?:t\.me|telegram\.me)\/(?!c\/|\+|joinchat)([A-Za-z0-9_]{4,})\/(\d+)/i,MP=/^https?:\/\/\S+\.(?:mp4|m4v|webm)(?:[?#]\S*)?$/i;
+ let key='',started=0,n=0,th=0,ot=0;
  const K=()=>{const c=S.cur;return c&&c.t?c.t.id+':'+(c.e?c.e.id:'')+':'+(c.li||0):''};
  const trl=()=>{const c=S.cur;return c&&c.t?(S.set['trl:'+c.t.id]||S.set['trl:all']||''):''};
  const kind=u=>{let m;if(m=u.match(TG))return{k:'tg',s:'https://t.me/'+m[1]+'/'+m[2]+'?embed=1&mode=tme'};if(MP.test(u))return{k:'mp',s:u};if(m=u.match(YT))return{k:'yt',s:'https://www.youtube.com/embed/'+m[1]+'?autoplay=1&playsinline=1&controls=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0&loop=1&playlist='+m[1]};return null};
- const mainF=w=>w?[...w.querySelectorAll('iframe')].find(f=>!f.closest('#ptr')):null;
- const isYT=f=>!!f&&/youtube\.com\/embed/.test(f.getAttribute('src')||'');
+ const mainF=w=>w?[...w.querySelectorAll('iframe')].find(f=>!f.closest('#ptr')&&/youtube\.com\/embed/.test(f.getAttribute('src')||'')):null;
  const cmd=(f,fn,a)=>{try{f.contentWindow.postMessage(JSON.stringify({event:'command',func:fn,args:a||[]}),'*')}catch(e){}};
+ const listen=f=>{try{f.contentWindow.postMessage(JSON.stringify({event:'listening',id:1,channel:'widget'}),'*')}catch(e){}};
  const rm=()=>{const o=document.getElementById('ptr');if(o)o.remove()};
- const mute=(f,v)=>{if(isYT(f))cmd(f,'mute');if(v&&!v.muted){v.muted=true;mt=1}};
  function fit(){
   const d=document.getElementById('ptr'),f=d&&d.querySelector('iframe');if(!f||!d.classList.contains('tg')||!th)return;
   const w=d.parentNode,FS=w.classList.contains('ff')||document.fullscreenElement===w||document.webkitFullscreenElement===w,W=d.clientWidth,H=d.clientHeight,T=ovn('tg_t',44),B=ovn('tg_b',46),hv=Math.max(40,th-T-B),k=Math.min(W/(hv*16/9),H/hv)*.99;
@@ -1567,37 +1566,33 @@ boot();
   f.style.clipPath='inset('+(T+6)+'px 0 '+(B+10)+'px 0)';
   f.style.transform='translate('+(-8*k).toFixed(1)+'px,'+((B-T)/2*k).toFixed(1)+'px) scale('+k.toFixed(4)+')';
   f.style.visibility='visible'}
- function show(w,f,v){
+ function show(w,f){
   if(w.querySelector('#ptr'))return;const t=kind(trl());if(!t)return;
   const d=document.createElement('div');d.id='ptr';d.className=t.k;th=0;
-  d.innerHTML=(t.k=='mp'?'<video class="ptrf" src="'+esc(t.s)+'" autoplay playsinline loop></video>':'<iframe class="ptrf" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms" src="'+esc(t.s)+'"'+(t.k=='tg'?' style="visibility:hidden"':'')+'></iframe>'); 
-  w.appendChild(d);mute(f,v);op=Date.now();
+  d.innerHTML=t.k=='mp'?'<video class="ptrf" src="'+esc(t.s)+'" autoplay playsinline loop></video>':'<iframe class="ptrf" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms" src="'+esc(t.s)+'"'+(t.k=='tg'?' style="visibility:hidden"':'')+'></iframe>';
+  w.appendChild(d);cmd(f,'mute');cmd(f,'playVideo');
   if(t.k=='mp'){const tv=d.querySelector('video');tv.play().catch(()=>{tv.muted=true;tv.play().catch(()=>{})})}
   if(t.k=='tg'){if(window.ResizeObserver)new ResizeObserver(fit).observe(d);setTimeout(()=>{if(!th&&document.getElementById('ptr')===d){th=400;fit()}},3000)}}
- function begin(){started=1;att=0;const w=document.getElementById('pw'),f=w&&mainF(w),v=w&&w.querySelector('#vd');rm();if(isYT(f)){cmd(f,'unMute');cmd(f,'setVolume',[100])}if(v&&mt)v.muted=false;mt=0}
+ function begin(){started=1;const w=document.getElementById('pw'),f=mainF(w);rm();if(f){cmd(f,'unMute');cmd(f,'setVolume',[100])}}
  setInterval(()=>{
   const w=document.getElementById('pw'),k=K();
-  if(k!==key){key=k;started=0;att=0;mt=0;tp=0;rm()}
-  if(S.tab!='play'||!S.cur){started=0;att=0;mt=0;tp=0;rm();return}
-  const ed=typeof S=='undefined'||S.oved||S.bled||document.getElementById('vzp'),f=w&&!ed&&S.tab=='play'&&S.cur?mainF(w):null,v=w&&!ed&&S.tab=='play'?w.querySelector('#vd'):null;
-  if((!f&&!v)||!trl()||!kind(trl())){rm();return}
+  if(k!==key){key=k;started=0;ot=0;rm()}
+  if(S.tab!='play'||!S.cur){started=0;ot=0;rm();return}
+  const ed=S.oved||S.bled||document.getElementById('vzp'),f=w&&!ed?mainF(w):null;
+  if(!f||!kind(trl())){rm();if(!f&&!ed)ot=0;return}
+  if(!ot)ot=Date.now();
   if(started)return;
-  if(v&&!v.paused){if(v.readyState>=3&&v.currentTime>.2){begin();return}if(!att)att=Date.now()}
-  const o=w.querySelector('#ptr');
-  if(o){if(++n%2==0)mute(f,v);const ex=!isYT(f)&&!v;if(ex&&((tp&&Date.now()-tp>ovn('trl_s',6)*1000)||(o.classList.contains('tg')&&Date.now()-op>ovn('trl_a',20)*1000)))begin();return}
-  show(w,f,v)},300);
- /* 1º toque dentro do player de qualquer site (Drive, Telegram, Archive...): o foco vai para o iframe */
- addEventListener('blur',()=>setTimeout(()=>{const w=document.getElementById('pw'),a=document.activeElement;if(!started&&!tp&&trl()&&w&&a&&a.tagName=='IFRAME'&&!a.closest('#ptr')&&w.contains(a))tp=Date.now()},0));
+  listen(f);
+  if(w.querySelector('#ptr')){cmd(f,'mute');if(++n%3==0)cmd(f,'playVideo');return}
+  if(Date.now()-ot>TD)show(w,f)},300);
  addEventListener('message',e=>{
   let h='';try{h=new URL(e.origin).hostname}catch(x){return}
   if(h=='t.me'||h=='telegram.me'){const o=document.querySelector('#ptr iframe');if(o&&e.source===o.contentWindow){try{const d=typeof e.data=='string'?JSON.parse(e.data):e.data;if(d&&d.event=='resize'&&+d.height>0){th=+d.height;fit()}}catch(x){}}return}
   if(!h.endsWith('youtube.com'))return;
-  const f=mainF(document.getElementById('pw'));if(!isYT(f)||e.source!==f.contentWindow)return;
+  const f=mainF(document.getElementById('pw'));if(!f||e.source!==f.contentWindow)return;
   let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}
-  const i=d&&d.info;if(!i||!('playerState' in i))return;
-  if(i.playerState===1){if(!started)begin()}
-  else if(i.playerState===3&&!started&&!att&&trl())att=Date.now()});
- const g=window.pbGo;if(typeof g=='function')window.pbGo=function(){if(!started&&!tp&&trl()&&S.cur)tp=Date.now();return g.apply(this,arguments)};
+  let st=null;if(d&&d.event=='onStateChange')st=d.info;else if(d&&d.info&&typeof d.info=='object'&&'playerState' in d.info)st=d.info.playerState;
+  if(st===1&&!started&&trl())begin()});
 })();
 </script>
 </body></html>
