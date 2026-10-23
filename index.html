@@ -188,6 +188,10 @@ label.k input{width:auto}
 #fw.mn{width:auto;min-width:170px;max-width:230px;height:auto;max-height:none}#fw.mn .fwh{border-radius:13px;gap:10px}
 .nmw{display:flex;gap:6px;align-items:center}.nmw input{flex:1;min-width:0}.nmw button{flex:none;width:46px;height:44px;margin:3px 0;border-radius:10px;border:1px solid #ff1a0f;background:linear-gradient(#ff1a0f,#b00500);font-size:18px}
 
+.pcv{position:absolute;inset:0;z-index:96;background:#000;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.pcv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
+.pcv .pcp{position:absolute;left:50%;top:50%;width:68px;height:48px;transform:translate(-50%,-50%);border-radius:14px;background:#e10600;display:grid;place-items:center;box-shadow:0 2px 14px rgba(0,0,0,.6);pointer-events:none}
+.pcv .pcp::after{content:"";border-left:20px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:5px}
 </style><style id="gest-css">
 .pw.vmo .ob.ex{opacity:var(--o,1);pointer-events:auto}
 body.hb .pw.vmo .ob.ex{opacity:0!important;pointer-events:none!important}
@@ -399,7 +403,7 @@ function draw(){
  S.ff=0;document.documentElement.style.overflow='';
  const t=S.tab,b={home:pHome,list:pList,search:pSearch,fav:pFav,me:pMe,admin:pAdmin,play:pPlay}[t]();
  A.innerHTML=hdr()+b+nav();
- if(t=='play'){wire();ovWire();pbInit();loadC();if(S.oved)oEdWire();sbInit()}if(t=='admin'){const c=kp&&S.adC&&S.adC[S.at],nd=document.getElementById('ad');
+ if(t=='play'){wire();ovWire();loadC();if(S.oved)oEdWire();sbInit()}if(t=='admin'){const c=kp&&S.adC&&S.adC[S.at],nd=document.getElementById('ad');
   if(c&&nd){nd.replaceWith(c.n);delete S.adC[S.at];S.adShown=S.at;const y=c.y;scrollTo(0,y);requestAnimationFrame(()=>scrollTo(0,y));setTimeout(()=>scrollTo(0,y),120)}
   else{S.adShown=S.at;ad(1)}}
 }
@@ -517,17 +521,20 @@ const ppb=(b,k,d)=>ovn(b+'_'+k,ovn(b,d)),mS=()=>{const m=blM();return m=='n'?'':
 const ovp=(x,y)=>`left:${x}%;top:${y}%;transform:translate(-${x}%,-${y}%)`;
 const vids=t=>S.L.filter(l=>l.title_id==t.id);
 function play(id,eid,li){
- clearInterval(S.nxT);clearTimeout(S.pbA);S.pbA=0;S.pbd=null;S.pbT=Date.now();
+ clearInterval(S.nxT);
  const sc0=S.tab=='play'&&S.cur&&S.cur.t&&S.cur.t.id==id?document.querySelector('.sc'):null,keep=sc0?sc0.scrollLeft:null;
  const t=T(id),es=S.E.filter(e=>e.title_id==id),e=es.length?(es.find(x=>x.id==eid)||es[0]):null;
  if(S.tab!='play')S.prev=S.tab;
  S.cur={t,e,es,li:li||0};
+ {const k=t.id+':'+(e?e.id:'')+':'+(li||0);if(S.cvd&&S.cvd!=k)S.cvd=null}
  S.vw=S.vw||new Set();if(!S.vw.has(id)){S.vw.add(id);sb.rpc('add_view',{tid:id}).then(()=>{t.views=(t.views||0)+1})}
  localStorage.cn_last=JSON.stringify([{t:id,e:e?.id},...last().filter(x=>x.t!=id)].slice(0,10));
  S.tab='play';scrollTo(0,0);draw();
  {const sc=document.querySelector('.sc'),a=sc&&sc.querySelector('.ep.on');if(sc&&a){if(keep!=null)sc.scrollLeft=keep;const sr=sc.getBoundingClientRect(),ar=a.getBoundingClientRect();if(keep==null||ar.left<sr.left||ar.right>sr.right)sc.scrollLeft+=(ar.left-sr.left)-(sc.clientWidth-a.offsetWidth)/2}}
  if(!S.bled&&!S.oved&&(ovn('ov_au',1)||(ovn('ov_ar',1)&&(S.phL||arLand())))&&document.querySelector('#pw iframe,#pw video'))setTimeout(fkOn()?fkEnter:fsEnter,150);
 }
+const cvU=(t,e)=>(e&&S.set['cov:'+t+':'+e])||S.set['cov_all:'+t]||'';
+function cvHide(){const c=document.getElementById('pcv');if(c)c.remove();const q=S.cur;if(q)S.cvd=q.t.id+':'+(q.e?q.e.id:'')+':'+q.li}
 const cu=()=>{const c=S.cur;return c.e?c.e.url:(vids(c.t)[c.li]||{}).url};
 const dl=()=>on('downloads_on')&&S.cur?.v?`<a class="ib" href="${esc(cu())}" download target="_blank">${ic(I.d)}</a>`:'';
 const dzv=k=>ovn('ov_dz_'+k,k=='dr'?ovn('ov_dz',2):1),dzs=z=>{return ` class="dz" style="width:${z*100}%;height:${z*100}%;transform:scale(${(1/z).toFixed(4)})"`};
@@ -549,12 +556,14 @@ function pPlay(){
   vk=t.id+':'+(e?e.id:'')+':'+li,edp=S.oved&&S.oved.w=='p',
   ppbh=hasV&&(edp||(ppo('pb_pm',pk,0)==1&&S.pbd!=vk))?`<button class="ob ppb" style="${ovp(ppo('ov_px',pk,50),ppo('ov_py',pk,50))};--s:${ppo('ov_sp',pk,1)};--o:${ppo('ov_po',pk,100)/100};--bw:${ppiW(pk)}px" onclick="pbGo()" aria-label="Reproduzir">${ppiHtml(ppiN(pk)[0])}</button>`:'',
   nbh=nbR('n',pk,hasV)+nbR('y',pk,hasV)+nbR('i',pk,hasV),
+  cvu=hasV&&!S.oved&&!S.bled?cvU(t.id,e?e.id:0):'',
+  cvh=cvu&&S.cvd!=vk?`<div class="pcv" id="pcv" onclick="pbGo()"><img src="${esc(gd(cvu,'B'))}" alt="" onerror="this.parentNode.remove()">${ppo('pb_pm',pk,0)==1?'':'<span class="pcp"></span>'}</div>`:'',
   tzh=hasV&&!S.bled&&(!S.oved||S.oved.w=='z')?`<div class="tz${S.oved?' ed':''}" style="${S.oved?oeSty('z',pk):tzSty(pk)}"></div>`:'',
   bzh=hasV&&!S.bled&&(!S.oved||S.oved.w=='bz')?`<div class="bkz${S.oved?' ed':''}" style="${S.oved?oeSty('bz',pk):bzSty(pk)}"></div>`:'',
   ovh=(S.oved&&'fc'.includes(S.oved.w)?'':lsb)+(mf==1?pF(1):'')+(mc==1?pC(1):'')+ppbh+nbh+tzh+bzh,
   rw=ppo('pb_row',pk,1)==1&&mf==0&&mc==0,
   bar=mf==0||mc==0?`<div class="${rw?'bar2':''}" ${rw?'':'style="display:flex;flex-direction:column;gap:8px;margin:0 14px 8px"'}>${mf==0?pF(0):''}${mc==0?pC(0):''}</div>`:'';
- return `<div class="pw${S.cur.pk=='tg'?' tgw':''}" id="pw">${p}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div>${bar}<div id="sbc"></div>${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}
+ return `<div class="pw${S.cur.pk=='tg'?' tgw':''}" id="pw">${p}${cvh}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div>${bar}<div id="sbc"></div>${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}
  ${!e&&vs.length>1?`<div class="tabs">${vs.map((l,i)=>`<button class="${i==li?'on':''}" onclick="play(${t.id},0,${i})">${esc(l.label||'Link '+(i+1))}</button>`).join('')}</div>`:''}
  <div class="pt"><h1>${esc(t.name)}</h1><p>${e?`Temporada ${e.season} • ${t.section=='novela'?'Capítulo':'Episódio'} ${e.num}${e.name?' — '+esc(e.name):''}`:esc([t.year,t.country,t.audio].filter(Boolean).join(' • '))}</p></div>
  <div class="chips" style="margin:10px 14px"><span class="chip">HD</span><span class="chip r">${esc(t.rating||'Livre')}</span>${t.genres?`<span class="chip">${esc(t.genres)}</span>`:''}</div>
@@ -613,12 +622,6 @@ function ovWire(){
  }
  show();
 }
-/* botão play: some ao girar a tela e sozinho depois de N segundos (padrão 2); só volta ao entrar na capa de novo */
-const pbKey=()=>{const c=S.cur;return c?c.t.id+':'+(c.e?c.e.id:'')+':'+c.li:''};
-function pbGone(){S.pbd=pbKey();clearTimeout(S.pbA);S.pbA=0;document.querySelectorAll('#pw .ob.ppb').forEach(b=>b.style.display='none')}
-function pbRot(){if(S.oved||S.bled||S.tab!='play'||!S.cur||Date.now()-(S.pbT||0)<1500)return;pbGone()}
-function pbInit(){if(S.pbA||S.oved||S.bled||!S.cur||!document.querySelector('#pw .ob.ppb'))return;const t=ppo('pb_ta',S.cur.pk,2);if(!(t>0))return;S.pbA=setTimeout(()=>{S.pbA=0;if(S.tab=='play'&&!S.oved&&!S.bled)pbGone()},t*1000)}
-function oePta(v){S.set['pb_ta_'+S.oved.k]=String(v);const l=document.getElementById('oel_pta');if(l)l.textContent=v+'s'}
 const isFs=()=>document.fullscreenElement||document.webkitFullscreenElement;
 async function fsEnter(){
  const w=$('#pw'),v=$('#vd');if(!w||isFs())return;
@@ -672,7 +675,7 @@ addEventListener('orientationchange',()=>setTimeout(fkApply,200));
 const arLand=()=>{const o=screen.orientation;if(o&&o.type)return o.type.startsWith('landscape');if(typeof window.orientation=='number')return Math.abs(window.orientation)==90;return innerWidth>innerHeight};
 S.arL=arLand();
 function arApply(){
- const l=arLand();if(l===S.arL)return;S.arL=l;pbRot();
+ const l=arLand();if(l===S.arL)return;S.arL=l;
  if(S.ff||isFs())mvShow();
  if(!ovn('ov_ar',1)||!S.cur||S.tab!='play'||Date.now()-(S.fsT||0)<1500)return;
  const w=document.getElementById('pw');
@@ -683,7 +686,6 @@ function arApply(){
 }
 /* celular travado em retrato (ex.: app instalado): detecta a posição física pelo sensor de inclinação */
 function phApply(l){
- pbRot();
  if(S.ff||isFs())mvShow();
  if(!ovn('ov_ar',1)||!S.cur||S.tab!='play'||Date.now()-(S.fsT||0)<1500)return;
  const w=document.getElementById('pw');
@@ -719,7 +721,7 @@ addEventListener('deviceorientation',e=>{
  if(Math.abs(b-r[0])>12||Math.abs(g-r[1])>12){S.mvB=[b,g];mvShow()}
 });
 addEventListener('resize',()=>setTimeout(arApply,150));
-function fs(){pbRot();return fkOn()?fkToggle():fsReal()}
+function fs(){return fkOn()?fkToggle():fsReal()}
 function fsExit(){return S.ff?fkExit():fsExitReal()}
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement){try{screen.orientation.unlock()}catch(x){}}setTimeout(blSync,250)});
 function wire(){
@@ -757,7 +759,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-10-19 · capas com carregamento sob demanda, abertura mais rápida';
+const APP_V='2026-10-23 · capa personalizada no player (única ou por episódio)';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -786,7 +788,7 @@ async function ad(f){
   const vq0=(S.vq||'').toLowerCase(),tl=vq0?S.T.filter(t=>t.name.toLowerCase().includes(vq0)):S.T;if(tl.length&&!tl.some(t=>t.id==S.et)){S.et=tl[0].id}const et2=S.et,qm=!vq0||(T(et2)&&T(et2).name.toLowerCase().includes(vq0));
   const mv=!!(T(et2)&&T(et2).section=='movies');
   d.innerHTML=S.T.length?`<div class="box mf"><div class="nmw"><input id="v_q" placeholder="Pesquisar vídeos…" value="${esc(S.vq||'')}" onkeydown="if(event.key=='Enter')vq()"><button type="button" onclick="vq()" aria-label="Buscar">🔍</button></div><select id="v_t" onchange="S.et=+this.value;ad()">${tl.map(t=>`<option value="${t.id}" ${et2==t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></div>
-<details class="box mf dt" ${mv?'':'open'}><summary>＋ Episódio</summary><div class="mfg2"><input id="e_s" type="number" placeholder="Temporada" value="1"><input id="e_n" type="number" placeholder="Episódio"></div><input id="e_m" placeholder="Nome (opcional)"><input id="e_u" placeholder="Link do vídeo"><button class="btn" style="width:100%;margin-top:4px" onclick="svE()">Adicionar episódio</button></details>
+${cvBox(et2)}<details class="box mf dt" ${mv?'':'open'}><summary>＋ Episódio</summary><div class="mfg2"><input id="e_s" type="number" placeholder="Temporada" value="1"><input id="e_n" type="number" placeholder="Episódio"></div><input id="e_m" placeholder="Nome (opcional)"><input id="e_u" placeholder="Link do vídeo"><button class="btn" style="width:100%;margin-top:4px" onclick="svE()">Adicionar episódio</button></details>
 <details class="box mf dt" ${mv?'open':''}><summary>＋ Link do filme</summary><input id="l_l" placeholder="Nome do link (ex.: Link 1)"><input id="l_u" placeholder="Link do vídeo"><button class="btn" style="width:100%;margin-top:4px" onclick="svL()">Adicionar link</button></details>
 <details class="box mf dt"><summary>＋ Vários episódios de uma vez</summary><div class="mu" style="padding:2px 0 4px">Um link por linha, em ordem.</div><div class="mfg2"><input id="m_s" type="number" placeholder="Temporada" value="1"><input id="m_n" type="number" placeholder="1º episódio" value="1"></div><textarea id="m_u" rows="5" placeholder="https://...&#10;https://..."></textarea><button class="btn" style="width:100%;margin-top:4px" onclick="svM()">Adicionar todos</button></details>`+S.E.filter(x=>x.title_id==et2&&(qm||(`t${x.season} e${x.num} ${x.name||''}`).toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>T${x.season} • E${x.num}</b><small class="mu">${esc(x.name||'')}</small></div><button class="btn o s" onclick="dE(${x.id})">Apagar</button></div>`).join('')+S.L.filter(x=>x.title_id==et2&&(qm||(x.label||x.url||'').toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>Link</b><small class="mu">${esc(x.label||x.url)}</small></div><button class="btn o s" onclick="dL(${x.id})">Apagar</button></div>`).join(''):'<p class="mu">Cadastre um título primeiro.</p>';
   if(S.T.length)subAdm();
@@ -834,6 +836,14 @@ async function tmF(p,q){
  const r=await fetch(u,{headers:h});
  if(!r.ok)throw new Error(r.status==401?'Chave do TMDB inválida.':'Erro '+r.status+' na busca.');
  return r.json()}
+/* ---------- capa do player (única ou por episódio) ---------- */
+const cvBox=tid=>{const es=S.E.filter(x=>x.title_id==tid),sel=(S.cvs&&es.some(x=>x.id==S.cvs))?S.cvs:'all',k=sel=='all'?'cov_all:'+tid:'cov:'+tid+':'+sel,cur=S.set[k]||'';
+ return `<details class="box mf dt" ${S.cvo?'open':''} ontoggle="S.cvo=this.open"><summary>🖼 Capa do player (antes de dar play)</summary><div class="mu" style="padding:2px 0 6px">Imagem que cobre o vídeo até a pessoa tocar nele. "Todos os episódios" é a capa única; escolher um episódio dá uma capa só para ele (vale mais que a única). Sem capa salva, o player aparece normal.</div><select id="cv_s" onchange="S.cvs=this.value=='all'?0:+this.value;S.cvo=1;ad()"><option value="all" ${sel=='all'?'selected':''}>Todos os episódios (capa única)${S.set['cov_all:'+tid]?' ✓':''}</option>${es.map(x=>`<option value="${x.id}" ${sel==x.id?'selected':''}>T${x.season} • E${x.num}${S.set['cov:'+tid+':'+x.id]?' ✓':''}</option>`).join('')}</select><input id="cv_u" placeholder="Link da capa (imagem)" value="${esc(cur)}" oninput="cvPv()"><div class="pw" style="margin:8px 0"><img id="cv_pv" src="${esc(gd(cur,'M'))}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;${cur?'':'display:none'}" onerror="this.style.display='none'"></div><div class="row"><button class="btn s" onclick="cvSave()">Salvar capa</button><button class="btn o s" onclick="cvDel()">Remover capa</button><button class="btn o s" onclick="cvYt()">▶ Miniatura do YouTube</button></div></details>`};
+function cvPv(){const i=$('#cv_pv'),v=$('#cv_u').value.trim();if(!i)return;i.style.display=v?'':'none';if(v)i.src=gd(v,'M')}
+function cvSet(v){$('#cv_u').value=v;cvPv()}
+async function cvSave(){const tid=S.et,q=$('#cv_s').value,u=gd($('#cv_u').value.trim()),k=q=='all'?'cov_all:'+tid:'cov:'+tid+':'+q;if(ok(await sb.from('settings').upsert([{key:k,value:u}]))){S.set[k]=u;S.cvo=1;alert(u?'Capa salva!':'Capa removida.');ad()}}
+function cvDel(){$('#cv_u').value='';cvSave()}
+function cvYt(){const q=$('#cv_s').value,x=S.E.find(e=>e.id==q)||S.E.find(e=>e.title_id==S.et)||S.L.find(l=>l.title_id==S.et)||{},m=(x.url||'').match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/);if(!m)return alert('Escolha um episódio com link do YouTube.');const b='https://i.ytimg.com/vi/'+m[1]+'/',i=new Image();i.onload=()=>cvSet(b+(i.naturalWidth>200?'maxresdefault':'hqdefault')+'.jpg');i.onerror=()=>cvSet(b+'hqdefault.jpg');i.src=b+'maxresdefault.jpg'}
 function pvC(){['cover','banner'].forEach(k=>{const i=$('#pv_'+k),f=$('#f_'+k);if(!i||!f)return;const v=f.value.trim();i.style.display=v?'':'none';if(v)i.src=gd(v)})}
 function tmG(){const q=($('#tm_q').value||$('#f_name').value).trim();if(!q)return alert('Digite o nome primeiro.');window.open('https://www.google.com/search?tbm=isch&q='+encodeURIComponent(q+' poster'),'_blank');alert('No Google: segure o dedo na imagem escolhida > Copiar endereço da imagem. Depois cole em "Link da capa" ou "Link do banner".')}
 async function tmAuto(){
@@ -1159,7 +1169,7 @@ function oeNv(n){const o=S.oved;S.set['nb_'+o.w+'v_'+o.k]=String(n);const b=docu
 const PPI=[[1,'Circular brilhante',70],[2,'Pílula',128],[3,'Pílula com círculo',117],[4,'Circular',70],[5,'Circular (simples)',64],[6,'Quadrado arredondado',66],[7,'Quadrado',64],[8,'Botão de ação',105],...NPIM];
 const ppiN=k=>{const n=ppo('pb_pi',k,1);return PPI.find(a=>a[0]==n)||PPI[0]};
 const ppiW=k=>ppiN(k)[2],ppiF=k=>'botao-play-'+ppiN(k)[0]+'.png';
-function pbGo(){const w=$('#pw'),f=w&&w.querySelector('iframe'),v=w&&w.querySelector('video'),pk=S.cur&&S.cur.pk;
+function pbGo(){cvHide();const w=$('#pw'),f=w&&w.querySelector('iframe'),v=w&&w.querySelector('video'),pk=S.cur&&S.cur.pk;
  try{if(v)v.play();else if(f&&f.contentWindow){const m={yt:{event:'command',func:'playVideo',args:[]},vm:{method:'play'}}[pk];if(m)f.contentWindow.postMessage(JSON.stringify(m),'*')}}catch(x){}
  if(ppo('pb_pa',pk,1)==1){const c=S.cur;S.pbd=c.t.id+':'+(c.e?c.e.id:'')+':'+c.li;w&&w.querySelectorAll('.ob.ppb').forEach(b=>b.style.display='none')}}
 const OEC={r:{n:'Botão girar',sel:'.ob.ls',K:[['ov_lx','Horizontal',0,100,97,'%'],['ov_ly','Vertical',0,100,6,'%'],['ov_sl','Tamanho',.7,2.5,1,'x'],['ov_lo','Visibilidade',10,100,100,'%'],['ov_bd','Borda (0% = sem borda)',0,100,100,'%'],['ov_bf','Fundo (0% = sem fundo)',0,100,100,'%']]},f:{n:'Botão Minha lista',sel:'.ob.pml',K:[['ov_fx','Horizontal',0,100,12,'%'],['ov_fy','Vertical',0,100,50,'%'],['ov_sf','Tamanho',.7,2.5,1,'x'],['ov_fo','Visibilidade (0% = invisível)',0,100,100,'%'],['ov_fd','Borda e brilho (0% = sem)',0,100,100,'%'],['ov_ff','Fundo (0% = sem fundo)',0,100,100,'%']]},c:{n:'Botão Recomendado',sel:'.ob.prc',K:[['ov_rx','Horizontal',0,100,88,'%'],['ov_ry','Vertical',0,100,50,'%'],['ov_sr','Tamanho',.7,2.5,1,'x'],['ov_ro','Visibilidade (0% = invisível)',0,100,100,'%'],['ov_rd','Borda e brilho (0% = sem)',0,100,100,'%'],['ov_rf','Fundo (0% = sem fundo)',0,100,100,'%']]},p:{n:'Botão play',sel:'.ob.ppb',K:[['ov_px','Horizontal',0,100,50,'%'],['ov_py','Vertical',0,100,50,'%'],['ov_sp','Tamanho',.3,3,1,'x'],['ov_po','Visibilidade (0% = invisível)',0,100,100,'%']]},x:{n:'Botão voltar (✕)',sel:'.ob.ex',K:[['ov_xx','Horizontal',0,100,4,'%'],['ov_xy','Vertical',0,100,6,'%'],['ov_sx','Tamanho',.7,2.5,1,'x'],['ov_xo','Visibilidade',10,100,100,'%'],['ov_xd','Borda (0% = sem borda)',0,100,100,'%'],['ov_xf','Fundo (0% = sem fundo)',0,100,100,'%']]}};
@@ -1183,7 +1193,7 @@ function oeSty(w,k){if(w=='z')return tzSty(k);if(w=='bz')return bzSty(k,1);const
 function oePaint(){const o=S.oved,el=o&&document.querySelector('#pw '+OEC[o.w].sel);if(el)el.style.cssText=oeSty(o.w,o.k);if(o&&o.w=='r'){const x=document.querySelector('#pw .ob.ex');if(x)x.style.cssText=oeSty('x',o.k).replace(';display:grid','')}}
 function oeGl(){const k=S.oved.k;S.set['ov_gl_'+k]=document.getElementById('oe_gl').checked?'1':'0';oePaint()}
 function oeSet(b,v,u){const o=S.oved;if(S.ovc>=0){const ix=OEC[o.w].K.findIndex(a=>a[0]==b),c=cpL(o.k)[S.ovc];if(c&&ix>=0&&ix<4){cpSetM(c,blM(),{[['x','y','s','o'][ix]]:+v});cpCommit(o.k);const l=document.getElementById('oel_'+b);if(l)l.textContent=v+u;cpSync();return}}S.set[b+'_'+o.k+mS()]=String(v);const l=document.getElementById('oel_'+b);if(l)l.textContent=v+u;oePaint()}
-const PB={f:['pb_fm','pb_fa','pb_ft'],c:['pb_rm','pb_ra','pb_rt'],p:['pb_pm','pb_pa','pb_pi','pb_ta']};
+const PB={f:['pb_fm','pb_fa','pb_ft'],c:['pb_rm','pb_ra','pb_rt'],p:['pb_pm','pb_pa','pb_pi']};
 const pbm=(w,k)=>ppo(PB[w][0],k,1);
 function oeMode(v){const o=S.oved;S.set[PB[o.w][0]+'_'+o.k]=v;draw()}
 function oeRw(){const o=S.oved;S.set['pb_row_'+o.k]=document.getElementById('oe_rw').checked?'1':'0';draw()}
@@ -1198,7 +1208,7 @@ function oEdPanel(){const{w,k}=S.oved,d0=OEC[w],nm=(PK.find(x=>x[0]==k)||[0,k])[
  d.innerHTML=`<div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:center"><b>${d0.n} · ${nm}</b><button class="btn o s" onclick="fs()">↻ Girar</button><button class="btn o s" onclick="oEdExit()">Sair</button></div><div class="mu" style="padding:2px 0 6px">Editando: ${blMN[blM()]}. Arraste o botão em cima do vídeo ou use os controles. Para ajustar o outro modo (deitado / em pé), toque em ↻ Girar: cada modo guarda a sua posição. Toque em Salvar ao terminar.${'fc'.includes(w)?' Escolha em “Onde mostrar” se o botão fica sobre o vídeo, abaixo dele ou escondido. Cada botão é independente.':''}</div>`+
  d0.K.map(([b,n,a,z,df,u])=>{const v=ppo(b,k,df);return `<div class="rg"><span>${n}</span><span class="mu" id="oel_${b}" style="padding:0">${v}${u}</span><input type="range" id="oer_${b}" min="${a}" max="${z}" step="${u=='x'?.05:1}" value="${v}" oninput="oeSet('${b}',this.value,'${u}')"></div>`}).join('')+
  ('fc'.includes(w)?`<div class="rg"><span>Onde mostrar</span></div><select id="oe_md" onchange="oeMode(this.value)"><option value="1" ${pbm(w,k)==1?'selected':''}>Sobre o vídeo</option><option value="0" ${pbm(w,k)==0?'selected':''}>Abaixo do vídeo</option><option value="2" ${pbm(w,k)==2?'selected':''}>Não mostrar</option></select><label class="k"><input type="checkbox" id="oe_al" ${ppo(PB[w][1],k,0)==1?'checked':''} onchange="oeAl()"> Sempre visível (não some sozinho)</label><label class="k"><input type="checkbox" id="oe_rw" ${ppo('pb_row',k,1)==1?'checked':''} onchange="oeRw()"> Abaixo do vídeo: Minha lista e Recomendado lado a lado (mesma fileira)</label><div class="rg"><span>Some depois de (toque no vídeo mostra de novo)</span><span class="mu" id="oel_tm" style="padding:0">${ppo(PB[w][2],k,4)}s</span><input type="range" min="1" max="20" step="1" value="${ppo(PB[w][2],k,4)}" oninput="oeTm(this.value)"></div>`:'')+
- (w=='p'?`<div class="rg"><span>Onde mostrar</span></div><select id="oe_pm" onchange="oePm(this.value)"><option value="1" ${ppo('pb_pm',k,0)==1?'selected':''}>Mostrar ao abrir o vídeo</option><option value="0" ${ppo('pb_pm',k,0)==1?'':'selected'}>Não mostrar</option></select><label class="k"><input type="checkbox" id="oe_pa" ${ppo('pb_pa',k,1)==1?'checked':''} onchange="oePa()"> Sumir depois do 1º toque (só volta ao entrar em outro vídeo)</label><div class="rg"><span>Some sozinho depois de (0 = não some sozinho)</span><span class="mu" id="oel_pta" style="padding:0">${ppo('pb_ta',k,2)}s</span><input type="range" min="0" max="10" step="1" value="${ppo('pb_ta',k,2)}" oninput="oePta(this.value)"></div><div class="mu" style="padding:2px 0 6px">O botão também some quando você gira a tela e só volta ao entrar na capa do vídeo de novo.</div><div class="rg"><span>Ícone</span></div><div class="ipg" id="ip_pi">${PPI.map(a=>`<button class="ipb ${ppiN(k)[0]==a[0]?'on':''}" onclick="oeIc(${a[0]})">${ppiHtml(a[0])}<span>${a[1]}</span></button>`).join('')}</div>`:'')+
+ (w=='p'?`<div class="rg"><span>Onde mostrar</span></div><select id="oe_pm" onchange="oePm(this.value)"><option value="1" ${ppo('pb_pm',k,0)==1?'selected':''}>Mostrar ao abrir o vídeo</option><option value="0" ${ppo('pb_pm',k,0)==1?'':'selected'}>Não mostrar</option></select><label class="k"><input type="checkbox" id="oe_pa" ${ppo('pb_pa',k,1)==1?'checked':''} onchange="oePa()"> Sumir depois do 1º toque (só volta ao entrar em outro vídeo)</label><div class="rg"><span>Ícone</span></div><div class="ipg" id="ip_pi">${PPI.map(a=>`<button class="ipb ${ppiN(k)[0]==a[0]?'on':''}" onclick="oeIc(${a[0]})">${ppiHtml(a[0])}<span>${a[1]}</span></button>`).join('')}</div>`:'')+
  nbPanel(w,k)+(w=='bz'?`<div class="rg"><span>Formato</span></div><select id="bz_sh" onchange="bzSh(this.value)"><option value="0" ${ppb('bz_s',k,0)==0?'selected':''}>Retângulo (largura e altura)</option><option value="1" ${ppb('bz_s',k,0)==1?'selected':''}>Quadrado</option><option value="2" ${ppb('bz_s',k,0)==2?'selected':''}>Bola</option></select><div class="row" style="margin:6px 0"><button class="btn o s" onclick="bzCen('x')">↔ Centralizar horizontal</button><button class="btn o s" onclick="bzCen('y')">↕ Centralizar vertical</button><button class="btn o s" onclick="bzCen('c')">⊕ Centro</button></div><div class="rg"><span>Quando tocar 1 vez</span></div><select id="bz_md" onchange="bzMd(this.value)"><option value="0" ${ppb('bz_m',k,0)==0?'selected':''}>Passa para o player (play/pause normal)</option><option value="1" ${ppb('bz_m',k,0)==1?'selected':''}>Não faz nada (a área segura o toque)</option></select><div class="mu" style="padding:4px 0">A área laranja é o botão voltar invisível. Arraste para mover. Em Quadrado e Bola o tamanho vem só da Largura. Aumente a Visibilidade para ver o formato enquanto posiciona e volte para 0% ao terminar. Ele só existe em tela cheia. Com 1 toque o player reage normalmente (play/pause); 2 toques seguidos (no tempo de “Tempo entre os 2 toques”) voltam. Cada modo (normal, deitado, em pé) guarda a sua posição. Toque em Salvar neste player ao terminar.</div>`:'')+(w=='z'?`<div class="mu" style="padding:4px 0">A área azul é a zona de toque: tocar em qualquer parte dela mostra o botão girar. Arraste a área para mover e use Largura e Altura para aumentar ou diminuir. Com o botão visível, os toques passam para o player normalmente; quando o botão some, a área volta a segurar o toque. Cada modo (normal, deitado, em pé) guarda a sua área.</div>`:'')+(w=='r'?`<label class="k"><input type="checkbox" id="oe_gl" ${ppo('ov_gl',k,0)==1?'checked':''} onchange="oeGl()"> Grudar o botão voltar no girar (onde um for, o outro vai junto)</label><label class="k"><input type="checkbox" id="oe_tg" ${ppo('ov_tg',k,0)?'checked':''} onchange="oeTg()"> Tocar na tela deste player mostra o botão e tocar de novo esconde</label>`:'')+
  `<div id="cpw"></div><div class="row"><button class="btn s" onclick="oeSave()">Salvar neste player</button><button class="btn o s" onclick="oeReset()">Voltar ao padrão</button></div>`;document.body.appendChild(d);drWrap(d);cpBar()}
 function oEdWire(){const o=S.oved,el=o&&document.querySelector('#pw '+OEC[o.w].sel);if(!el)return;el.style.cssText=oeSty(o.w,o.k);el.style.touchAction='none';el.onclick=e=>{e.preventDefault();e.stopPropagation()};
@@ -1207,7 +1217,7 @@ function oEdWire(){const o=S.oved,el=o&&document.querySelector('#pw '+OEC[o.w].s
  el.onpointerdown=ev=>{ev.preventDefault();if(S.ovc>=0){S.ovc=-1;cpBar();cpHi()}const pw=document.getElementById('pw').getBoundingClientRect(),br=el.getBoundingClientRect(),K=OEC[o.w].K,bx=ppo(K[0][0],o.k,K[0][4]),by=ppo(K[1][0],o.k,K[1][4]),sx=ev.clientX,sy=ev.clientY,rt=document.getElementById('pw').classList.contains('rot'),dw=Math.max(1,rt?pw.height-br.height:pw.width-br.width),dh=Math.max(1,rt?pw.width-br.width:pw.height-br.height);el.setPointerCapture(ev.pointerId);
   el.onpointermove=m=>{const x=Math.max(0,Math.min(100,Math.round(bx+(rt?m.clientY-sy:m.clientX-sx)/dw*100))),y=Math.max(0,Math.min(100,Math.round(by+(rt?-(m.clientX-sx):m.clientY-sy)/dh*100)));S.set[K[0][0]+'_'+o.k+mS()]=String(x);S.set[K[1][0]+'_'+o.k+mS()]=String(y);el.style.left=x+'%';el.style.top=y+'%';el.style.transform='translate(-'+x+'%,-'+y+'%)';[[K[0][0],x],[K[1][0],y]].forEach(([b,v])=>{const r=document.getElementById('oer_'+b),l=document.getElementById('oel_'+b);if(r)r.value=v;if(l)l.textContent=v+'%'})};
   el.onpointerup=el.onpointercancel=()=>{el.onpointermove=null}}}
-async function oeSave(){const{w,k}=S.oved,ks=OEC[w].K.map(x=>x[0]),rows=ks.map(b=>({key:b+'_'+k,value:String(ppb(b,k,OEC[w].K.find(x=>x[0]==b)[4]))}));if(w=='r')rows.push({key:'ov_tg_'+k,value:String(ppo('ov_tg',k,0))},{key:'ov_gl_'+k,value:String(ppo('ov_gl',k,0))});if(w=='p')rows.push({key:'pb_pm_'+k,value:document.getElementById('oe_pm').value},{key:'pb_pa_'+k,value:document.getElementById('oe_pa').checked?'1':'0'},{key:'pb_pi_'+k,value:String(ppiN(k)[0])},{key:'pb_ta_'+k,value:String(ppo('pb_ta',k,2))});if('fc'.includes(w)){const[m,a,t]=PB[w];rows.push({key:m+'_'+k,value:String(document.getElementById('oe_md').value)},{key:a+'_'+k,value:document.getElementById('oe_al').checked?'1':'0'},{key:t+'_'+k,value:String(ppo(t,k,4))},{key:'pb_row_'+k,value:document.getElementById('oe_rw').checked?'1':'0'})}if('nyi'.includes(w))rows.push({key:'nb_'+w+'m_'+k,value:String(document.getElementById('oe_nm').value)},{key:'nb_'+w+'v_'+k,value:String(nbV(w,k)[0])},{key:'nb_'+w+'g_'+k,value:String(ppb('nb_'+w+'g',k,0))});if(w=='bz')rows.push({key:'bz_s_'+k,value:String(ppb('bz_s',k,0))},{key:'bz_m_'+k,value:String(ppb('bz_m',k,0))});rows.push({key:'cp_'+k,value:S.set['cp_'+k]||'[]'});OEC[w].K.forEach(x=>['_v','_h'].forEach(z=>{const y=x[0]+'_'+k+z;if(S.set[y]!==undefined&&S.set[y]!=='')rows.push({key:y,value:String(S.set[y])})}));if(ok(await sb.from('settings').upsert(rows)))alert('Ajustes salvos para este player.')}
+async function oeSave(){const{w,k}=S.oved,ks=OEC[w].K.map(x=>x[0]),rows=ks.map(b=>({key:b+'_'+k,value:String(ppb(b,k,OEC[w].K.find(x=>x[0]==b)[4]))}));if(w=='r')rows.push({key:'ov_tg_'+k,value:String(ppo('ov_tg',k,0))},{key:'ov_gl_'+k,value:String(ppo('ov_gl',k,0))});if(w=='p')rows.push({key:'pb_pm_'+k,value:document.getElementById('oe_pm').value},{key:'pb_pa_'+k,value:document.getElementById('oe_pa').checked?'1':'0'},{key:'pb_pi_'+k,value:String(ppiN(k)[0])});if('fc'.includes(w)){const[m,a,t]=PB[w];rows.push({key:m+'_'+k,value:String(document.getElementById('oe_md').value)},{key:a+'_'+k,value:document.getElementById('oe_al').checked?'1':'0'},{key:t+'_'+k,value:String(ppo(t,k,4))},{key:'pb_row_'+k,value:document.getElementById('oe_rw').checked?'1':'0'})}if('nyi'.includes(w))rows.push({key:'nb_'+w+'m_'+k,value:String(document.getElementById('oe_nm').value)},{key:'nb_'+w+'v_'+k,value:String(nbV(w,k)[0])},{key:'nb_'+w+'g_'+k,value:String(ppb('nb_'+w+'g',k,0))});if(w=='bz')rows.push({key:'bz_s_'+k,value:String(ppb('bz_s',k,0))},{key:'bz_m_'+k,value:String(ppb('bz_m',k,0))});rows.push({key:'cp_'+k,value:S.set['cp_'+k]||'[]'});OEC[w].K.forEach(x=>['_v','_h'].forEach(z=>{const y=x[0]+'_'+k+z;if(S.set[y]!==undefined&&S.set[y]!=='')rows.push({key:y,value:String(S.set[y])})}));if(ok(await sb.from('settings').upsert(rows)))alert('Ajustes salvos para este player.')}
 async function oeReset(){const{w,k}=S.oved,ks=OEC[w].K.flatMap(x=>['','_v','_h'].map(z=>x[0]+'_'+k+z)).concat(w=='r'?['ov_tg_'+k,'ov_gl_'+k]:[],w=='bz'?['bz_s_'+k,'bz_m_'+k]:[],'fc'.includes(w)||w=='p'?PB[w].map(x=>x+'_'+k):[],'nyi'.includes(w)?['nb_'+w+'m_'+k,'nb_'+w+'v_'+k,'nb_'+w+'g_'+k]:[],'fc'.includes(w)?['pb_row_'+k]:[]);if(ok(await sb.from('settings').upsert(ks.map(x=>({key:x,value:''}))))){ks.forEach(x=>S.set[x]='');cpRs(w,k);OEC[w].K.forEach(([b,,,,df,u])=>{const v=ppo(b,k,df),r=document.getElementById('oer_'+b),l=document.getElementById('oel_'+b);if(r)r.value=v;if(l)l.textContent=v+u});const c=document.getElementById('oe_tg');if(c)c.checked=!!ppo('ov_tg',k,0);if('fc'.includes(w)||w=='p'){S.set[PB[w][0]+'_'+k]='1';draw();oEdPanel()}else if('nyi'.includes(w)){S.set['nb_'+w+'m_'+k]='1';draw();oEdPanel()}oePaint();if(w=='bz')oEdPanel();alert('Este player voltou a usar o padrão.')}}
 function oEdClose(){const d=document.getElementById('bled');if(d&&S.oved)d.remove();S.oved=null}
 function oEdExit(){const d=document.getElementById('bled');if(d)d.remove();S.oved=null;go('admin')}
