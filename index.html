@@ -524,7 +524,8 @@ async function saveN(){const n=$('#nm').value.trim();if(n&&ok(await sb.from('pro
 function qr(){$('#qr').innerHTML='<div class="qr" id="qc"></div>';new QRCode($('#qc'),{text:S.set.qr_text,width:150,height:150})}
 
 /* ---------- player ---------- */
-function embed(u){
+const SKR=/#cnskip=(\d{1,2})\s*$/,skM=n=>{n=Math.max(0,Math.min(40,parseInt(n)||0));return n?'#cnskip='+n:''};
+function embed0(u){
  u=(u||'').trim();let m;
  if(m=u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/))return{t:'if',s:'https://www.youtube.com/embed/'+m[1]+'?playsinline=1&rel=0&enablejsapi=1&fs=0&modestbranding=1&iv_load_policy=3&disablekb=1',k:'yt'};
  if(m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]+)/))return{t:'if',s:'https://drive.google.com/file/d/'+m[1]+'/preview',k:'dr'};
@@ -535,6 +536,7 @@ function embed(u){
  if(/\.(mp4|webm|m4v)(\?|$)/i.test(u))return{t:'v',s:u,k:'mp'};
  return{t:'x',s:u,k:'ot'};
 }
+function embed(u){u=(u||'').trim();const m=u.match(SKR),sk=m?Math.min(40,+m[1]):0,r=embed0(m?u.slice(0,m.index):u);if(sk>0&&r){if(r.k=='yt'||r.k=='dm')r.s+='&start='+sk;else if(r.k=='mp')r.s+='#t='+sk;else if(r.k=='vm')r.s+='#t='+sk+'s'}return r}
 function recom(t){
  const g=x=>(x.genres||'').toLowerCase().split(/[,•]/).map(a=>a.trim()).filter(Boolean);
  const mine=g(t);
@@ -562,7 +564,7 @@ function play(id,eid,li){
 }
 const cvU=(t,e)=>(e&&S.set['cov:'+t+':'+e])||S.set['cov_all:'+t]||'';
 const cu=()=>{const c=S.cur;return c.e?c.e.url:(vids(c.t)[c.li]||{}).url};
-const dl=()=>on('downloads_on')&&S.cur?.v?`<a class="ib" href="${esc(cu())}" download target="_blank">${ic(I.d)}</a>`:'';
+const dl=()=>on('downloads_on')&&S.cur?.v?`<a class="ib" href="${esc((cu()||'').replace(SKR,''))}" download target="_blank">${ic(I.d)}</a>`:'';
 const dzv=k=>ovn('ov_dz_'+k,k=='dr'?ovn('ov_dz',2):1),dzs=z=>{return ` class="dz" style="width:${z*100}%;height:${z*100}%;transform:scale(${(1/z).toFixed(4)})"`};
 function pPlay(){
  const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.pk='ot';
@@ -815,9 +817,9 @@ async function ad(f){
   const vq0=(S.vq||'').toLowerCase(),tl=vq0?S.T.filter(t=>t.name.toLowerCase().includes(vq0)):S.T;if(tl.length&&!tl.some(t=>t.id==S.et)){S.et=tl[0].id}const et2=S.et,qm=!vq0||(T(et2)&&T(et2).name.toLowerCase().includes(vq0));
   const mv=!!(T(et2)&&T(et2).section=='movies');
   d.innerHTML=S.T.length?`<div class="box mf"><div class="nmw"><input id="v_q" placeholder="Pesquisar vídeos…" value="${esc(S.vq||'')}" onkeydown="if(event.key=='Enter')vq()"><button type="button" onclick="vq()" aria-label="Buscar">🔍</button></div><select id="v_t" onchange="S.et=+this.value;ad()">${tl.map(t=>`<option value="${t.id}" ${et2==t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></div>
-${cvBox(et2)}<details class="box mf dt" ${mv?'':'open'}><summary>＋ Episódio</summary><div class="mfg2"><input id="e_s" type="number" placeholder="Temporada" value="1"><input id="e_n" type="number" placeholder="Episódio"></div><input id="e_m" placeholder="Nome (opcional)"><input id="e_u" placeholder="Link do vídeo"><button class="btn" style="width:100%;margin-top:4px" onclick="svE()">Adicionar episódio</button></details>
-<details class="box mf dt" ${mv?'open':''}><summary>＋ Link do filme</summary><input id="l_l" placeholder="Nome do link (ex.: Link 1)"><input id="l_u" placeholder="Link do vídeo"><button class="btn" style="width:100%;margin-top:4px" onclick="svL()">Adicionar link</button></details>
-<details class="box mf dt"><summary>＋ Vários episódios de uma vez</summary><div class="mu" style="padding:2px 0 4px">Um link por linha, em ordem.</div><div class="mfg2"><input id="m_s" type="number" placeholder="Temporada" value="1"><input id="m_n" type="number" placeholder="1º episódio" value="1"></div><textarea id="m_u" rows="5" placeholder="https://...&#10;https://..."></textarea><button class="btn" style="width:100%;margin-top:4px" onclick="svM()">Adicionar todos</button></details>`+S.E.filter(x=>x.title_id==et2&&(qm||(`t${x.season} e${x.num} ${x.name||''}`).toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>T${x.season} • E${x.num}</b><small class="mu">${esc(x.name||'')}</small></div><button class="btn o s" onclick="dE(${x.id})">Apagar</button></div>`).join('')+S.L.filter(x=>x.title_id==et2&&(qm||(x.label||x.url||'').toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>Link</b><small class="mu">${esc(x.label||x.url)}</small></div><button class="btn o s" onclick="dL(${x.id})">Apagar</button></div>`).join(''):'<p class="mu">Cadastre um título primeiro.</p>';
+${cvBox(et2)}${trBox(et2)}<details class="box mf dt" ${mv?'':'open'}><summary>＋ Episódio</summary><div class="mfg2"><input id="e_s" type="number" placeholder="Temporada" value="1"><input id="e_n" type="number" placeholder="Episódio"></div><input id="e_m" placeholder="Nome (opcional)"><input id="e_u" placeholder="Link do vídeo"><input id="e_k" type="number" min="0" max="40" placeholder="⏩ Pular o início (0 a 40 s) — todos começam daí"><button class="btn" style="width:100%;margin-top:4px" onclick="svE()">Adicionar episódio</button></details>
+<details class="box mf dt" ${mv?'open':''}><summary>＋ Link do filme</summary><input id="l_l" placeholder="Nome do link (ex.: Link 1)"><input id="l_u" placeholder="Link do vídeo"><input id="l_k" type="number" min="0" max="40" placeholder="⏩ Pular o início (0 a 40 s) — todos começam daí"><button class="btn" style="width:100%;margin-top:4px" onclick="svL()">Adicionar link</button></details>
+<details class="box mf dt"><summary>＋ Vários episódios de uma vez</summary><div class="mu" style="padding:2px 0 4px">Um link por linha, em ordem.</div><div class="mfg2"><input id="m_s" type="number" placeholder="Temporada" value="1"><input id="m_n" type="number" placeholder="1º episódio" value="1"></div><textarea id="m_u" rows="5" placeholder="https://...&#10;https://..."></textarea><input id="m_k" type="number" min="0" max="40" placeholder="⏩ Pular o início (0 a 40 s) — todos começam daí"><button class="btn" style="width:100%;margin-top:4px" onclick="svM()">Adicionar todos</button></details>`+S.E.filter(x=>x.title_id==et2&&(qm||(`t${x.season} e${x.num} ${x.name||''}`).toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>T${x.season} • E${x.num}</b><small class="mu">${esc(x.name||'')}</small></div><button class="btn o s" onclick="dE(${x.id})">Apagar</button></div>`).join('')+S.L.filter(x=>x.title_id==et2&&(qm||(x.label||x.url||'').toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>Link</b><small class="mu">${esc(x.label||x.url)}</small></div><button class="btn o s" onclick="dL(${x.id})">Apagar</button></div>`).join(''):'<p class="mu">Cadastre um título primeiro.</p>';
   if(S.T.length)subAdm();
  }
  if(a=='l'){d.innerHTML=lyAdm();return}
@@ -872,6 +874,10 @@ function cvSet(v){$('#cv_u').value=v;cvPv()}
 async function cvSave(){const tid=S.et,q=$('#cv_s').value,u=gd($('#cv_u').value.trim()),k=q=='all'?'cov_all:'+tid:'cov:'+tid+':'+q;const tk='cov_t:'+tid,tv=$('#cv_t').value;if(ok(await sb.from('settings').upsert([{key:k,value:u},{key:tk,value:tv}]))){S.set[k]=u;S.set[tk]=tv;S.cvo=1;alert(u?'Capa salva!':'Capa removida (o tempo foi salvo).');ad()}}
 function cvDel(){$('#cv_u').value='';cvSave()}
 function cvYt(){const q=$('#cv_s').value,x=S.E.find(e=>e.id==q)||S.E.find(e=>e.title_id==S.et)||S.L.find(l=>l.title_id==S.et)||{},m=(x.url||'').match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/);if(!m)return alert('Escolha um episódio com link do YouTube.');const b='https://i.ytimg.com/vi/'+m[1]+'/',i=new Image();i.onload=()=>cvSet(b+(i.naturalWidth>200?'maxresdefault':'hqdefault')+'.jpg');i.onerror=()=>cvSet(b+'hqdefault.jpg');i.src=b+'maxresdefault.jpg'}
+/* ---------- trailer enquanto o vídeo não inicia ---------- */
+const trBox=tid=>{const cur=S.set['trl:'+tid]||'';return `<details class="box mf dt" ${S.tro?'open':''} ontoggle="S.tro=this.open"><summary>🎬 Trailer (toca enquanto o vídeo não inicia)</summary><div class="mu" style="padding:2px 0 6px">Link de um trailer do YouTube. Se o vídeo (do YouTube) demorar para começar depois do play, o trailer toca por cima, com som, e o vídeo de baixo fica sem áudio. Quando o vídeo começa, o trailer some e o som volta. Vale para todos os episódios deste título.</div><input id="tr_u" placeholder="Link do trailer (YouTube)" value="${esc(cur)}"><div class="row"><button class="btn s" onclick="trSave()">Salvar trailer</button><button class="btn o s" onclick="trDel()">Remover trailer</button></div></details>`};
+async function trSave(){const tid=S.et,u=$('#tr_u').value.trim();if(u&&!/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)[\w-]{11}/.test(u))return alert('Use um link do YouTube.');const k='trl:'+tid;if(ok(await sb.from('settings').upsert([{key:k,value:u}]))){S.set[k]=u;S.tro=1;alert(u?'Trailer salvo!':'Trailer removido.');ad()}}
+function trDel(){$('#tr_u').value='';trSave()}
 /* ---------- ao girar o celular: botão girar e seta voltar ---------- */
 const RTT=[0,1,1.5,1.7,2,3,4,5,6,8,10,15,20],rtO=(k,d)=>RTT.map(x=>`<option value="${x}" ${ovn(k,d)==x?'selected':''}>${x==0?'Não some':String(x).replace('.',',')+' s'}</option>`).join('');
 const rtBox=()=>`<div class="box"><b>Ao girar o celular (botão girar e seta voltar)</b><div class="mu" style="padding:4px 0">Quando a pessoa gira o celular em tela cheia, você escolhe se o botão girar e a seta voltar (✕) aparecem e por quanto tempo cada um fica na tela. Vale para todos os usuários.</div><label class="k"><input type="checkbox" id="rt_fs" ${ovn('ls_fs',0)==1?'checked':''}> Mostrar o botão girar também em tela cheia (desligado: em tela cheia aparece só a seta voltar)</label><label class="k"><input type="checkbox" id="rt_ls" ${ovn('rot_ls',1)?'checked':''}> Mostrar o botão girar ao girar o celular (fora da tela cheia)</label><div class="rg"><span>Botão girar fica na tela por</span></div><select id="rt_lt">${rtO('rot_lt',ovn('ov_t',4))}</select><label class="k"><input type="checkbox" id="rt_ex" ${ovn('rot_ex',1)?'checked':''}> Mostrar a seta voltar (✕) ao girar o celular</label><div class="rg"><span>Seta voltar fica na tela por</span></div><select id="rt_xt">${rtO('rot_xt',ovn('ov_t',4))}</select><div class="row" style="margin-top:8px"><button class="btn s" onclick="svRT()">Salvar</button></div></div>`;
@@ -1003,7 +1009,7 @@ function tmSetW(k,el){$('#fw_'+k).value=el.dataset.u;el.parentNode.querySelector
 
 function pvW(){['cover'].forEach(k=>{const i=$('#fw_pv'),f=$('#fw_'+k);if(!i||!f)return;const v=f.value.trim();i.style.backgroundImage=v?"url('"+gd(v).replace(/'/g,'%27')+"')":'';i.textContent=v?'':'Capa'});fwSave()}
 // ===== Janela flutuante (filmes e séries) =====
-const FWK='cn_fw',FWF=['cover','banner','name','url','synopsis','year','genres','country','audio','rating','section','season','ep','label'];
+const FWK='cn_fw',FWF=['cover','banner','name','url','synopsis','year','genres','country','audio','rating','section','season','ep','label','skip'];
 const fwEl=()=>document.getElementById('fw')||(window._pipw&&!_pipw.closed?_pipw.document.getElementById('fw'):null);
 function fwG(){try{return JSON.parse(localStorage[FWK]||'{}')}catch(x){return{}}}
 function fwSave(){const d=S.fwd=S.fwd||fwG();FWF.forEach(k=>{const e=$('#fw_'+k);if(e)d[k]=e.value});try{localStorage[FWK]=JSON.stringify(d)}catch(x){}}
@@ -1020,7 +1026,7 @@ function fwOpen(){
  x.innerHTML=`<div class="fwh" id="fwh"><b>＋ Novo ${ty=='f'?'filme':'série'}</b><span>${window.documentPictureInPicture&&!pipOn?'<button onclick="fwPop()" title="Levar para fora do app">⧉</button>':''}<button onclick="fwMin()">${d.min?'▢':'—'}</button><button onclick="fwTog()">✕</button></span></div><div class="fwb">
 <div class="seg"><button class="${ty=='f'?'on':''}" onclick="fwTy('f')">Filme</button><button class="${ty=='s'?'on':''}" onclick="fwTy('s')">Série</button></div>
 <div class="fwg"><div class="fwc"><div id="fw_pv" onclick="$('#fw_cover').focus()" style="${d.cover?"background-image:url('"+esc(gd(d.cover))+"')":''}">${d.cover?'':'Capa'}</div></div>
-<div class="fwr"><input id="fw_cover" placeholder="Link da capa" value="${v('cover')}" oninput="pvW();fwSave()"><div class="nmw"><input id="fw_name" placeholder="Nome (digite para buscar a capa)" value="${v('name')}" oninput="fwSave();fwAuto()" onkeydown="if(event.key=='Enter')fwGo()"><button type="button" id="fw_lupa" onclick="fwGo()" aria-label="Buscar informações automaticamente">🔍</button></div><input id="fw_url" placeholder="🎬 Link do vídeo" value="${v('url')}" oninput="fwSave()"></div></div>
+<div class="fwr"><input id="fw_cover" placeholder="Link da capa" value="${v('cover')}" oninput="pvW();fwSave()"><div class="nmw"><input id="fw_name" placeholder="Nome (digite para buscar a capa)" value="${v('name')}" oninput="fwSave();fwAuto()" onkeydown="if(event.key=='Enter')fwGo()"><button type="button" id="fw_lupa" onclick="fwGo()" aria-label="Buscar informações automaticamente">🔍</button></div><input id="fw_url" placeholder="🎬 Link do vídeo" value="${v('url')}" oninput="fwSave()"><input id="fw_skip" type="number" min="0" max="40" placeholder="⏩ Pular o início (0 a 40 s)" value="${v('skip')}" oninput="fwSave()"></div></div>
 <div id="fw_r"></div>
 ${ty=='s'?`<div class="fwg2"><input id="fw_season" type="number" placeholder="Temporada" value="${esc(d.season||1)}" oninput="fwSave()"><input id="fw_ep" type="number" placeholder="Episódio" value="${esc(d.ep||1)}" oninput="fwSave()"><input id="fw_label" style="display:none"></div>`:`<input id="fw_label" placeholder="Nome do link (ex.: Link 1)" value="${v('label')}" oninput="fwSave()">`}
 <input id="fw_banner" placeholder="Link do banner (opcional)" value="${v('banner')}" oninput="fwSave()"><textarea id="fw_synopsis" placeholder="Sinopse" oninput="fwSave()">${v('synopsis')}</textarea>
@@ -1060,7 +1066,7 @@ async function fwPop(){
   w.addEventListener('pagehide',()=>{fwSave();window._pipw=null;if(S.fwd&&S.fwd.open)fwOpen()})
  }catch(e){alert('Não foi possível abrir a janela flutuante.')}}
 async function svW(){
- const g=k=>(($('#fw_'+k)||{}).value||'').trim(),m=$('#fw_m'),d=S.fwd||{},ty=d.ty||'f',url=g('url');
+ const g=k=>(($('#fw_'+k)||{}).value||'').trim(),m=$('#fw_m'),d=S.fwd||{},ty=d.ty||'f',url=g('url')?g('url')+skM(g('skip')):'';
  fwSave();m.textContent='Salvando…';
  try{let tid=d.tid;
   if(!tid){const name=g('name');if(!name){m.textContent='Informe o nome.';return}
@@ -1092,7 +1098,7 @@ async function svE(){
  const u=$('#e_u').value.trim();if(!u)return alert('Informe o link do vídeo.');
  const{data:s,error}=await sb.from('seasons').upsert({title_id:S.et,number:+$('#e_s').value||1},{onConflict:'title_id,number'}).select().single();
  if(error)return alert(error.message);
- if(ok(await sb.from('episodes').insert({season_id:s.id,number:+$('#e_n').value||1,name:$('#e_m').value.trim()||null,url:u}))){await load();ad()}
+ if(ok(await sb.from('episodes').insert({season_id:s.id,number:+$('#e_n').value||1,name:$('#e_m').value.trim()||null,url:u+skM(($('#e_k')||{}).value)}))){await load();ad()}
 }
 async function svM(){
  const ls=$('#m_u').value.split('\n').map(x=>x.trim()).filter(Boolean);
@@ -1102,9 +1108,9 @@ async function svM(){
  if(!confirm('Adicionar '+ls.length+' episódio(s): Temporada '+sn+', do episódio '+n0+' ao '+(n0+ls.length-1)+'?'))return;
  const{data:s,error}=await sb.from('seasons').upsert({title_id:S.et,number:sn},{onConflict:'title_id,number'}).select().single();
  if(error)return alert(error.message);
- if(ok(await sb.from('episodes').insert(ls.map((u,i)=>({season_id:s.id,number:n0+i,name:null,url:u}))))){await load();ad();alert(ls.length+' episódio(s) adicionados!')}
+ if(ok(await sb.from('episodes').insert(ls.map((u,i)=>({season_id:s.id,number:n0+i,name:null,url:u+skM(($('#m_k')||{}).value)}))))){await load();ad();alert(ls.length+' episódio(s) adicionados!')}
 }
-async function svL(){const u=$('#l_u').value.trim();if(!u)return alert('Informe o link.');if(ok(await sb.from('links').insert({title_id:S.et,label:$('#l_l').value.trim()||null,url:u}))){await load();ad()}}
+async function svL(){const u=$('#l_u').value.trim();if(!u)return alert('Informe o link.');if(ok(await sb.from('links').insert({title_id:S.et,label:$('#l_l').value.trim()||null,url:u+skM(($('#l_k')||{}).value)}))){await load();ad()}}
 async function dE(id){if(confirm('Apagar episódio?')){await sb.from('episodes').delete().eq('id',id);await load();ad()}}
 async function dL(id){if(confirm('Apagar link?')){await sb.from('links').delete().eq('id',id);await load();ad()}}
 const secBox=()=>`<div class="box"><b>Seções (abas)</b><div class="mu" style="padding:4px 0">Marque para mostrar. Mude o nome e toque em Salvar. Use ▲ ▼ para a ordem. Só dá para apagar uma seção sem títulos.</div>${S.secs.map(x=>`<div class="row" style="align-items:center;flex-wrap:nowrap;gap:6px"><input type="checkbox" ${x.enabled?'checked':''} onchange="tSec('${x.key}',this.checked)" style="width:auto;margin:0;flex:none"><input id="sn_${x.key}" value="${esc(x.label)}" style="flex:1;min-width:0;margin:0"><button class="btn o s" onclick="secRen('${x.key}')">Salvar</button><button class="btn o s" onclick="secMv('${x.key}',-1)">▲</button><button class="btn o s" onclick="secMv('${x.key}',1)">▼</button><button class="btn o s" onclick="secDel('${x.key}')">🗑</button></div>`).join('')}<div class="row" style="margin-top:8px"><input id="sn_new" placeholder="Nome da nova seção (ex.: Documentários)" style="flex:1"><button class="btn s" onclick="secAdd()">Adicionar</button></div></div>`;
@@ -1530,6 +1536,43 @@ boot();
  b.addEventListener('click',e=>{if(Date.now()-sup<400){e.preventDefault();return}gbkBack()});
  setInterval(()=>{const hide=!SHOW.includes(S.tab)||S.ff||document.fullscreenElement||document.webkitFullscreenElement||S.oved||S.bled||document.getElementById('vzp');
   b.style.display=hide?'none':'grid'},200);
+})();
+</script>
+<style id="trl-css">
+#ptr{position:absolute;inset:0;z-index:50;background:#000;pointer-events:none}
+#ptr iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#000}
+</style>
+<script id="trl-js">
+(()=>{
+ /* Trailer: se o vídeo (YouTube) não começar logo depois do play, o trailer toca por cima e o vídeo de baixo fica sem áudio até começar */
+ const TD=2000,YT=/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/;
+ let key='',started=0,att=0,n=0;
+ const K=()=>{const c=S.cur;return c&&c.t?c.t.id+':'+(c.e?c.e.id:'')+':'+(c.li||0):''};
+ const trl=()=>{const c=S.cur;return c&&c.t?(S.set['trl:'+c.t.id]||''):''};
+ const mainF=w=>w?[...w.querySelectorAll('iframe')].find(f=>!f.classList.contains('ptrf')&&/youtube\.com\/embed/.test(f.getAttribute('src')||'')):null;
+ const cmd=(f,fn,a)=>{try{f.contentWindow.postMessage(JSON.stringify({event:'command',func:fn,args:a||[]}),'*')}catch(e){}};
+ const rm=()=>{const o=document.getElementById('ptr');if(o)o.remove()};
+ function show(w,f){
+  if(w.querySelector('#ptr'))return;const m=trl().match(YT);if(!m)return;
+  const d=document.createElement('div');d.id='ptr';
+  d.innerHTML='<iframe class="ptrf" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation" src="https://www.youtube.com/embed/'+m[1]+'?autoplay=1&playsinline=1&controls=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0&loop=1&playlist='+m[1]+'"></iframe>';
+  w.appendChild(d);cmd(f,'mute')}
+ function begin(){started=1;att=0;const w=document.getElementById('pw'),f=mainF(w);rm();if(f){cmd(f,'unMute');cmd(f,'setVolume',[100])}}
+ setInterval(()=>{
+  const w=document.getElementById('pw'),k=K();
+  if(k!==key){key=k;started=0;att=0;rm()}
+  const ed=typeof S=='undefined'||S.oved||S.bled||document.getElementById('vzp'),f=w&&!ed&&S.tab=='play'&&S.cur&&S.cur.pk=='yt'?mainF(w):null;
+  if(!f||!trl()){rm();return}
+  if(w.querySelector('#ptr')){if(++n%2==0)cmd(f,'mute');return}
+  if(!started&&att&&Date.now()-att>TD)show(w,f)},300);
+ addEventListener('message',e=>{
+  try{if(!new URL(e.origin).hostname.endsWith('youtube.com'))return}catch(x){return}
+  const f=mainF(document.getElementById('pw'));if(!f||e.source!==f.contentWindow)return;
+  let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}
+  const i=d&&d.info;if(!i||!('playerState' in i))return;
+  if(i.playerState===1){if(!started)begin()}
+  else if(i.playerState===3&&!started&&!att&&trl())att=Date.now()});
+ const g=window.pbGo;if(typeof g=='function')window.pbGo=function(){if(!started&&!att&&trl()&&S.cur&&S.cur.pk=='yt')att=Date.now();return g.apply(this,arguments)};
 })();
 </script>
 </body></html>
