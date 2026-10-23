@@ -875,8 +875,8 @@ async function cvSave(){const tid=S.et,q=$('#cv_s').value,u=gd($('#cv_u').value.
 function cvDel(){$('#cv_u').value='';cvSave()}
 function cvYt(){const q=$('#cv_s').value,x=S.E.find(e=>e.id==q)||S.E.find(e=>e.title_id==S.et)||S.L.find(l=>l.title_id==S.et)||{},m=(x.url||'').match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/);if(!m)return alert('Escolha um episódio com link do YouTube.');const b='https://i.ytimg.com/vi/'+m[1]+'/',i=new Image();i.onload=()=>cvSet(b+(i.naturalWidth>200?'maxresdefault':'hqdefault')+'.jpg');i.onerror=()=>cvSet(b+'hqdefault.jpg');i.src=b+'maxresdefault.jpg'}
 /* ---------- trailer enquanto o vídeo não inicia ---------- */
-const trBox=tid=>{const cur=S.set['trl:'+tid]||'';return `<details class="box mf dt" ${S.tro?'open':''} ontoggle="S.tro=this.open"><summary>🎬 Trailer (toca enquanto o vídeo não inicia)</summary><div class="mu" style="padding:2px 0 6px">Link do trailer: YouTube, Telegram (canal público, ex.: https://t.me/canal/123) ou .mp4 direto. O trailer toca por cima assim que o vídeo abre, e o vídeo de baixo fica sem som. Quando o filme começa, o trailer some sozinho. YouTube e .mp4 avisam o início na hora; Drive, Telegram etc. não avisam, então o trailer sai alguns segundos depois do seu toque no play. Vale para todos os episódios deste título.</div><input id="tr_u" placeholder="Link do trailer (YouTube, Telegram ou .mp4)" value="${esc(cur)}"><div class="row"><button class="btn s" onclick="trSave()">Salvar trailer</button><button class="btn o s" onclick="trDel()">Remover trailer</button></div></details>`};
-async function trSave(){const tid=S.et,u=$('#tr_u').value.trim();if(u&&!/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)[\w-]{11}|(?:t\.me|telegram\.me)\/(?!c\/|\+|joinchat)[A-Za-z0-9_]{4,}\/\d+|^https?:\/\/\S+\.(?:mp4|m4v|webm)/i.test(u))return alert('Use um link do YouTube, do Telegram (canal público, ex.: t.me/canal/123) ou um .mp4.');const k='trl:'+tid;if(ok(await sb.from('settings').upsert([{key:k,value:u}]))){S.set[k]=u;S.tro=1;alert(u?'Trailer salvo!':'Trailer removido.');ad()}}
+const trBox=tid=>{const cur=S.set['trl:'+tid]||'';return `<details class="box mf dt" ${S.tro?'open':''} ontoggle="S.tro=this.open"><summary>🎬 Trailer (toca enquanto o vídeo não inicia)</summary><div class="mu" style="padding:2px 0 6px">Link do trailer: YouTube, Telegram (canal público, ex.: https://t.me/canal/123) ou .mp4 direto. O trailer toca por cima assim que o vídeo abre, e o vídeo de baixo fica sem som. Quando o filme começa, o trailer some sozinho. YouTube e .mp4 avisam o início na hora; Drive, Telegram etc. não avisam, então o trailer sai alguns segundos depois do seu toque no play. Vale para todos os episódios deste título.</div><input id="tr_u" placeholder="Link do trailer (YouTube, Telegram ou .mp4)" value="${esc(cur)}"><div class="row"><button class="btn s" onclick="trSave()">Salvar trailer</button><button class="btn o s" onclick="trDel()">Remover trailer</button></div><div class="rg"><span>Trailer padrão: toca em todos os títulos que não têm trailer próprio</span></div><input id="tr_a" placeholder="Link do trailer padrão" value="${esc(S.set['trl:all']||'')}"><div class="row"><button class="btn s" onclick="trSave(1)">Salvar padrão</button></div><div class="rg"><span>Drive, Telegram etc. (não avisam o início): trailer sai depois do play em</span></div><select onchange="cf('trl_s',this.value)">${[3,4,5,6,8,10,15,20,30].map(x=>`<option value="${x}" ${ovn('trl_s',6)==x?'selected':''}>${x} s</option>`).join('')}</select><div class="rg"><span>Trailer do Telegram sai sozinho depois de</span></div><select onchange="cf('trl_a',this.value)">${[10,15,20,30,45,60,90].map(x=>`<option value="${x}" ${ovn('trl_a',20)==x?'selected':''}>${x} s</option>`).join('')}</select></details>`};
+async function trSave(all){const tid=S.et,u=$(all?'#tr_a':'#tr_u').value.trim();if(u&&!/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)[\w-]{11}|(?:t\.me|telegram\.me)\/(?!c\/|\+|joinchat)[A-Za-z0-9_]{4,}\/\d+|^https?:\/\/\S+\.(?:mp4|m4v|webm)/i.test(u))return alert('Use um link do YouTube, do Telegram (canal público, ex.: t.me/canal/123) ou um .mp4.');const k=all?'trl:all':'trl:'+tid;if(ok(await sb.from('settings').upsert([{key:k,value:u}]))){S.set[k]=u;S.tro=1;alert(u?'Trailer salvo!':'Trailer removido.');ad()}}
 function trDel(){$('#tr_u').value='';trSave()}
 /* ---------- ao girar o celular: botão girar e seta voltar ---------- */
 const RTT=[0,1,1.5,1.7,2,3,4,5,6,8,10,15,20],rtO=(k,d)=>RTT.map(x=>`<option value="${x}" ${ovn(k,d)==x?'selected':''}>${x==0?'Não some':String(x).replace('.',',')+' s'}</option>`).join('');
@@ -1551,10 +1551,9 @@ boot();
  /* Trailer por cima do vídeo enquanto ele não inicia. Aceita link do YouTube, do Telegram (canal público: t.me/canal/123) ou .mp4.
     Dispara depois do 1º toque no player (ou do play do app) se o vídeo não começar em 2 s. */
  const TD=2000,YT=/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/,TG=/(?:t\.me|telegram\.me)\/(?!c\/|\+|joinchat)([A-Za-z0-9_]{4,})\/(\d+)/i,MP=/^https?:\/\/\S+\.(?:mp4|m4v|webm)(?:[?#]\S*)?$/i;
- const TS=6000,TA=20000; /* TS: segundos depois do toque no play até sair o trailer (players sem aviso); TA: duração do trailer do Telegram */
  let key='',started=0,att=0,n=0,th=0,mt=0,tp=0,op=0;
  const K=()=>{const c=S.cur;return c&&c.t?c.t.id+':'+(c.e?c.e.id:'')+':'+(c.li||0):''};
- const trl=()=>{const c=S.cur;return c&&c.t?(S.set['trl:'+c.t.id]||''):''};
+ const trl=()=>{const c=S.cur;return c&&c.t?(S.set['trl:'+c.t.id]||S.set['trl:all']||''):''};
  const kind=u=>{let m;if(m=u.match(TG))return{k:'tg',s:'https://t.me/'+m[1]+'/'+m[2]+'?embed=1&mode=tme'};if(MP.test(u))return{k:'mp',s:u};if(m=u.match(YT))return{k:'yt',s:'https://www.youtube.com/embed/'+m[1]+'?autoplay=1&playsinline=1&controls=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0&loop=1&playlist='+m[1]};return null};
  const mainF=w=>w?[...w.querySelectorAll('iframe')].find(f=>!f.closest('#ptr')):null;
  const isYT=f=>!!f&&/youtube\.com\/embed/.test(f.getAttribute('src')||'');
@@ -1579,12 +1578,13 @@ boot();
  setInterval(()=>{
   const w=document.getElementById('pw'),k=K();
   if(k!==key){key=k;started=0;att=0;mt=0;tp=0;rm()}
+  if(S.tab!='play'||!S.cur){started=0;att=0;mt=0;tp=0;rm();return}
   const ed=typeof S=='undefined'||S.oved||S.bled||document.getElementById('vzp'),f=w&&!ed&&S.tab=='play'&&S.cur?mainF(w):null,v=w&&!ed&&S.tab=='play'?w.querySelector('#vd'):null;
   if((!f&&!v)||!trl()||!kind(trl())){rm();return}
   if(started)return;
   if(v&&!v.paused){if(v.readyState>=3&&v.currentTime>.2){begin();return}if(!att)att=Date.now()}
   const o=w.querySelector('#ptr');
-  if(o){if(++n%2==0)mute(f,v);const ex=!isYT(f)&&!v;if(ex&&((tp&&Date.now()-tp>TS)||(o.classList.contains('tg')&&Date.now()-op>TA)))begin();return}
+  if(o){if(++n%2==0)mute(f,v);const ex=!isYT(f)&&!v;if(ex&&((tp&&Date.now()-tp>ovn('trl_s',6)*1000)||(o.classList.contains('tg')&&Date.now()-op>ovn('trl_a',20)*1000)))begin();return}
   show(w,f,v)},300);
  /* 1º toque dentro do player de qualquer site (Drive, Telegram, Archive...): o foco vai para o iframe */
  addEventListener('blur',()=>setTimeout(()=>{const w=document.getElementById('pw'),a=document.activeElement;if(!started&&!tp&&trl()&&w&&a&&a.tagName=='IFRAME'&&!a.closest('#ptr')&&w.contains(a))tp=Date.now()},0));
