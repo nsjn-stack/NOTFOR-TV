@@ -238,7 +238,15 @@ body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!im
 /* botão voltar invisível (precisa de 2 toques): só existe em tela cheia; no editor aparece em laranja */
 .bkz{position:absolute;z-index:98;display:none;background:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 .pw.ff .bkz,.pw:fullscreen .bkz,.pw:-webkit-full-screen .bkz{display:block}
-.bkz.pt:not(.ed):not(.arm){pointer-events:none}.bkz:not(.ed){outline:0;border:0;box-shadow:none;background-image:none}
+.bkz.pt:not(.ed):not(.arm){pointer-events:none}#vzc{position:absolute;inset:0;z-index:99;touch-action:none}
+#vzcf{position:absolute;box-sizing:border-box;box-shadow:0 0 0 9999px rgba(0,0,0,.62);border:1px solid rgba(255,255,255,.9);cursor:move;touch-action:none;background:linear-gradient(#ffffff90,#ffffff90) 33.333% 0/1px 100% no-repeat,linear-gradient(#ffffff90,#ffffff90) 66.666% 0/1px 100% no-repeat,linear-gradient(#ffffff90,#ffffff90) 0 33.333%/100% 1px no-repeat,linear-gradient(#ffffff90,#ffffff90) 0 66.666%/100% 1px no-repeat}
+.vzh{position:absolute;width:52px;height:52px;touch-action:none;display:block}
+.vzh::before{content:'';position:absolute;width:26px;height:26px;border:0 solid #fff}
+.vzh.tl{left:-26px;top:-26px}.vzh.tl::before{left:24px;top:24px;border-left-width:4px;border-top-width:4px}
+.vzh.tr{right:-26px;top:-26px}.vzh.tr::before{right:24px;top:24px;border-right-width:4px;border-top-width:4px}
+.vzh.bl{left:-26px;bottom:-26px}.vzh.bl::before{left:24px;bottom:24px;border-left-width:4px;border-bottom-width:4px}
+.vzh.br{right:-26px;bottom:-26px}.vzh.br::before{right:24px;bottom:24px;border-right-width:4px;border-bottom-width:4px}
+.bkz:not(.ed){outline:0;border:0;box-shadow:none;background-image:none}
 .bkz.ed{display:block;outline:2px solid #fff;outline-offset:-2px;background:transparent;box-shadow:none;touch-action:none}
 .bkz.ed::after{content:'Voltar invisível (2 toques)';position:absolute;left:4px;top:2px;font:700 11px system-ui;color:#fff;text-shadow:0 0 3px #000}
 </style>
@@ -1274,23 +1282,50 @@ const VZK=[['tg','Telegram'],...PK.filter(x=>x[0]!='tg')];
 const vzD=(k,f)=>k=='tg'&&f=='vx'?-3.5:0;
 function vzV(k,f,d){const a=parseFloat(S.set[f+'_'+k+'_'+blM()]);return isNaN(a)?(f=='vx'?vzD(k,f):d):a}
 function vzApply(){const w=document.getElementById('pw'),k=S.cur&&S.cur.pk;if(!w||!k||k=='tg')return;const f=w.querySelector('iframe,video');if(!f)return;
+ if(S.vzcrop&&document.getElementById('vzp')){if(f.style.transform)f.style.transform='';return}
  const has=['n','v','h'].some(m=>['vz','vx','vy'].some(g=>{const a=S.set[g+'_'+k+'_'+m];return a!==undefined&&a!==''}));
  if(!has&&!f.dataset.vzx)return;
  const z=vzV(k,'vz',1),x=vzV(k,'vx',0),y=vzV(k,'vy',0);f.style.transformOrigin='50% 50%';
  if(z==1&&!x&&!y){f.style.transform='';delete f.dataset.vzx}else{f.style.transform='translate('+x+'%,'+y+'%) scale('+z+')';f.dataset.vzx=1}}
 setInterval(vzApply,300);
 const _bsV=blSync;blSync=function(){_bsV.apply(this,arguments);vzApply();if(document.getElementById('vzp')&&S.vzm!=blM())vzPanel()};
-function vzOpen(k){const r=blFind(k);if(!r)return;S.oved=null;S.bled=null;S.vzed=k;S.vzm=blM();play(r[0],r[1]||undefined,r[2]);vzPanel()}
+function vzOpen(k){const r=blFind(k);if(!r)return;S.oved=null;S.bled=null;S.vzed=k;S.vzcrop=k=='tg'?0:1;S.vzm=blM();play(r[0],r[1]||undefined,r[2]);vzPanel()}
 function vzPanel(){const k=S.vzed,nm=(VZK.find(x=>x[0]==k)||[0,k])[1];let d=document.getElementById('vzp');if(d)d.remove();d=document.createElement('div');d.id='vzp';d.className='bled';S.vzm=blM();
- d.innerHTML=`<div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:center"><b>Zoom e posição · ${nm}</b><button class="btn o s" onclick="fs()">↻ Girar</button><button class="btn o s" onclick="vzExit()">Sair</button></div><div class="mu" style="padding:2px 0 6px">Editando: ${blMN[blM()]}. Normal = vídeo na tela do app. Toque em ↻ Girar para ajustar a tela cheia: em pé e deitado têm zoom separados. Toque em Salvar em cada modo.</div>`+
- [['vz','Zoom',.5,3,1,'x',.05],['vx','Horizontal (← →)',-50,50,0,'%',.5],['vy','Vertical (↑ ↓)',-50,50,0,'%',1]].map(([f,n,a,z,df,u,st])=>{const v=vzV(k,f,df);return `<div class="rg"><span>${n}</span><span class="mu" id="vzl_${f}" style="padding:0">${v}${u}</span><input type="range" id="vzr_${f}" min="${a}" max="${z}" step="${st}" value="${v}" oninput="vzSet('${f}',this.value,'${u}')"></div>`}).join('')+
- `<div class="row"><button class="btn o s" onclick="vzCenter()">⊕ Centralizar</button><button class="btn o s" onclick="vzReset()">Zoom 1x e centro</button><button class="btn s" onclick="vzSave()">Salvar</button></div>`;document.body.appendChild(d);drWrap(d)}
+ d.innerHTML=`<div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:center"><b>Zoom e posição · ${nm}</b><button class="btn o s" onclick="fs()">↻ Girar</button><button class="btn o s" onclick="vzExit()">Sair</button></div><div class="mu" style="padding:2px 0 6px">Editando: ${blMN[blM()]}. Arraste os cantos da moldura no vídeo para dar zoom e arraste dentro dela para mover; o que ficar dentro da moldura preenche o player. Toque em ↻ Girar para ajustar a tela cheia: em pé e deitado são separados. Toque em Salvar em cada modo.</div>`+
+ [['vz','Zoom',.5,3,1,'x',.05],['vx','Horizontal (← →)',-100,100,0,'%',.5],['vy','Vertical (↑ ↓)',-100,100,0,'%',.5]].map(([f,n,a,z,df,u,st])=>{const v=vzV(k,f,df);return `<div class="rg"><span>${n}</span><span class="mu" id="vzl_${f}" style="padding:0">${v}${u}</span><input type="range" id="vzr_${f}" min="${a}" max="${z}" step="${st}" value="${v}" oninput="vzSet('${f}',this.value,'${u}')"></div>`}).join('')+
+ `<div class="row">${k=='tg'?'':`<button class="btn o s" id="vzcb" onclick="vzcToggle()">${S.vzcrop?'✔ Ver resultado':'✂ Recortar'}</button>`}<button class="btn o s" onclick="vzCenter()">⊕ Centralizar</button><button class="btn o s" onclick="vzReset()">Zoom 1x e centro</button><button class="btn s" onclick="vzSave()">Salvar</button></div>`;document.body.appendChild(d);drWrap(d);vzcMount()}
+/* Recorte do player: moldura com cantos arrastáveis (como cortar foto) */
+const vzRot=()=>{const w=document.getElementById('pw');return w&&w.classList.contains('rot')?(w.classList.contains('rotn')?-1:1):0};
+function vzGeo(){const w=document.getElementById('pw');if(!w||!S.vzed)return null;const k=S.vzed,W=w.offsetWidth,H=w.offsetHeight;if(!W||!H)return null;
+ const z=Math.max(1,vzV(k,'vz',1)),x=vzV(k,'vx',0),y=vzV(k,'vy',0),cw=W/z,ch=H/z,cx=W/2-(x/100)*W/z,cy=H/2-(y/100)*H/z;
+ return{W,H,cw,ch,l:Math.min(Math.max(cx-cw/2,0),W-cw),t:Math.min(Math.max(cy-ch/2,0),H-ch)}}
+function vzcPos(){const g=vzGeo(),f=document.getElementById('vzcf');if(!g||!f)return;f.style.left=g.l+'px';f.style.top=g.t+'px';f.style.width=g.cw+'px';f.style.height=g.ch+'px'}
+function vzcCommit(l,t,cw){const w=document.getElementById('pw'),k=S.vzed,m=blM(),W=w.offsetWidth,H=w.offsetHeight,ch=cw*H/W,z=W/cw,cx=l+cw/2,cy=t+ch/2,r=(v,d)=>String(Math.round(v*d)/d);
+ S.set['vz_'+k+'_'+m]=r(z,100);S.set['vx_'+k+'_'+m]=r((W/2-cx)*z/W*100,10);S.set['vy_'+k+'_'+m]=r((H/2-cy)*z/H*100,10);vzFill();vzcPos()}
+function vzcDown(ev,c){ev.preventDefault();ev.stopPropagation();const g=vzGeo();if(!g)return;const el=ev.currentTarget;try{el.setPointerCapture(ev.pointerId)}catch(x){}
+ const rot=vzRot(),sx=ev.clientX,sy=ev.clientY,{W,H,cw,ch,l,t}=g;
+ const mv=e=>{const a=e.clientX-sx,b=e.clientY-sy,dx=rot==0?a:rot==1?b:-b,dy=rot==0?b:rot==1?-a:a;
+  if(c=='m'){vzcCommit(Math.min(Math.max(l+dx,0),W-cw),Math.min(Math.max(t+dy,0),H-ch),cw);return}
+  const lf=c[1]=='l',tp=c[0]=='t',ox=lf?l+cw:l,oy=tp?t+ch:t,px=(lf?l:l+cw)+dx,py=(tp?t:t+ch)+dy;
+  let w=Math.max(Math.abs(px-ox),Math.abs(py-oy)*W/H);const mx=Math.min(lf?ox:W-ox,(tp?oy:H-oy)*W/H);
+  w=Math.max(Math.min(Math.max(w,W/3),mx,W),10);const h=w*H/W;vzcCommit(lf?ox-w:ox,tp?oy-h:oy,w)};
+ const up=()=>{el.removeEventListener('pointermove',mv);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up)};
+ el.addEventListener('pointermove',mv);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up)}
+function vzcMount(){const w=document.getElementById('pw');let o=document.getElementById('vzc');
+ const on=S.vzcrop&&S.vzed&&S.vzed!='tg'&&document.getElementById('vzp');
+ if(!on||!w){if(o)o.remove();return}
+ if(o&&o.parentNode!==w){o.remove();o=null}
+ if(!o){o=document.createElement('div');o.id='vzc';o.innerHTML='<div id="vzcf">'+['tl','tr','bl','br'].map(c=>'<b class="vzh '+c+'"></b>').join('')+'</div>';w.appendChild(o);
+  const f=o.firstChild;f.addEventListener('pointerdown',e=>vzcDown(e,'m'));
+  f.querySelectorAll('.vzh').forEach((h,i)=>h.addEventListener('pointerdown',e=>vzcDown(e,['tl','tr','bl','br'][i])));vzcPos()}}
+function vzcToggle(){S.vzcrop=S.vzcrop?0:1;const b=document.getElementById('vzcb');if(b)b.textContent=S.vzcrop?'✔ Ver resultado':'✂ Recortar';vzcMount();vzApply()}
+setInterval(()=>{try{vzcMount();vzcPos()}catch(e){}},300);
 function vzSet(f,v,u){const k=S.vzed;S.set[f+'_'+k+'_'+blM()]=String(v);const l=document.getElementById('vzl_'+f);if(l)l.textContent=v+u;vzApply();if(k=='tg')tgFit()}
 function vzFill(){['vz','vx','vy'].forEach(f=>{const v=vzV(S.vzed,f,f=='vz'?1:0),r=document.getElementById('vzr_'+f),l=document.getElementById('vzl_'+f);if(r)r.value=v;if(l)l.textContent=v+(f=='vz'?'x':'%')});vzApply();if(S.vzed=='tg')tgFit()}
 function vzCenter(){const k=S.vzed,m=blM();S.set['vx_'+k+'_'+m]=String(vzD(k,'vx'));S.set['vy_'+k+'_'+m]='0';vzFill()}
 function vzReset(){const k=S.vzed,m=blM();S.set['vz_'+k+'_'+m]='1';vzCenter()}
 async function vzSave(){const k=S.vzed,m=blM(),rows=['vz','vx','vy'].map(f=>({key:f+'_'+k+'_'+m,value:String(vzV(k,f,f=='vz'?1:0))}));if(ok(await sb.from('settings').upsert(rows)))alert('Salvo: '+blMN[m]+'.')}
-function vzExit(){const d=document.getElementById('vzp');if(d)d.remove();S.vzed=null;go('admin')}
+function vzExit(){const d=document.getElementById('vzp');if(d)d.remove();S.vzed=null;S.vzcrop=0;vzcMount();go('admin')}
 function xtBox(){const d=$('#ad');if(!d||$('#xtbx'))return;d.insertAdjacentHTML('beforeend',`<div class="box" id="xtbx"><b>Botão ＋ flutuante</b><label class="k"><input type="checkbox" ${ovn('fw_on',1)?'checked':''} onchange="cf('fw_on',this.checked?1:0).then(fwMount)"> Mostrar o botão ＋ (gaveta para adicionar filmes e séries)</label></div><div class="box"><b>Zoom e centralizar o player</b><div class="mu" style="padding:4px 0 8px">Abre um vídeo desse player para você dar zoom e mover na mão. Vale para todos.</div><div class="row">${VZK.map(([k,n])=>`<button class="btn o s" onclick="vzOpen('${k}')">Ajustar ${n}</button>`).join('')}</div></div>`)}
 const _ad2=ad;ad=async function(){await _ad2.apply(this,arguments);if(S.at=='s')xtBox()};
 boot();
