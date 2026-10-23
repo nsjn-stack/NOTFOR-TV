@@ -395,7 +395,7 @@ function go(t,k){if(t=='home'&&S.tab=='home')S.adC={};S.keep=1;S.tab=t;if(k)S.ki
 function draw(){
  const kp=S.keep;S.keep=0;
  {const o=document.getElementById('ad');if(o&&S.adShown){(S.adC=S.adC||{})[S.adShown]={n:o,y:window.scrollY};o.remove()}S.adShown=null}
- if(S.tab!='play'){S.pbd=null;S.pqd=null}
+ if(S.tab!='play')S.pbd=null;
  if((S.bled||S.oved)&&S.tab!='play'){blEdClose();oEdClose()}
  S.ff=0;document.documentElement.style.overflow='';
  const t=S.tab,b={home:pHome,list:pList,search:pSearch,fav:pFav,me:pMe,admin:pAdmin,play:pPlay}[t]();
@@ -518,7 +518,7 @@ const ppb=(b,k,d)=>ovn(b+'_'+k,ovn(b,d)),mS=()=>{const m=blM();return m=='n'?'':
 const ovp=(x,y)=>`left:${x}%;top:${y}%;transform:translate(-${x}%,-${y}%)`;
 const vids=t=>S.L.filter(l=>l.title_id==t.id);
 function play(id,eid,li){
- clearInterval(S.nxT);clearTimeout(S.pqt);S.pqt=0;S.pqd=null;
+ clearInterval(S.nxT);
  const sc0=S.tab=='play'&&S.cur&&S.cur.t&&S.cur.t.id==id?document.querySelector('.sc'):null,keep=sc0?sc0.scrollLeft:null;
  const t=T(id),es=S.E.filter(e=>e.title_id==id),e=es.length?(es.find(x=>x.id==eid)||es[0]):null;
  if(S.tab!='play')S.prev=S.tab;
