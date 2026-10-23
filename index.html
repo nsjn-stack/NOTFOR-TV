@@ -238,8 +238,8 @@ body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!im
 /* botão voltar invisível (precisa de 2 toques): só existe em tela cheia; no editor aparece em laranja */
 .bkz{position:absolute;z-index:98;display:none;background:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 .pw.ff .bkz,.pw:fullscreen .bkz,.pw:-webkit-full-screen .bkz{display:block}
-.bkz.pt:not(.ed):not(.arm){pointer-events:none}
-.bkz.ed{display:block;outline:2px dashed #ff7a00;background:rgba(255,122,0,.22);touch-action:none}
+.bkz.pt:not(.ed):not(.arm){pointer-events:none}.bkz:not(.ed){outline:0;border:0;box-shadow:none;background-image:none}
+.bkz.ed{display:block;outline:2px solid #fff;outline-offset:-2px;background:transparent;box-shadow:none;touch-action:none}
 .bkz.ed::after{content:'Voltar invisível (2 toques)';position:absolute;left:4px;top:2px;font:700 11px system-ui;color:#fff;text-shadow:0 0 3px #000}
 </style>
 <script id="guard-js">
