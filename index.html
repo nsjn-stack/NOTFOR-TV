@@ -832,7 +832,8 @@ function sbBar(){const man=!['yt','vm','mp'].includes(S.cur.pk);$('#sbc').innerH
 async function sbInit(){clearInterval(S.sbi);const c=S.cur;S.sk={p:0,at:0,run:0};S.so=0;S.sv=[];S.si=-1;if(!c||!$('#pw iframe,#pw video'))return;const v=await sbLoad(c.t.id,c.e?c.e.id:0);if(S.cur!==c||!$('#sbt'))return;S.sv=v.slice();const z=parseInt(localStorage.cn_sb);S.si=v.length?(z<0?-1:Math.min(z||0,v.length-1)):-1;sbBar();S.sbi=setInterval(sbTick,200)}
 const TMI='https://image.tmdb.org/t/p/';
 const TMK=()=>localStorage.cn_tmdb||'';
-function tmKey(){const k=prompt('Cole sua chave do TMDB (grátis: themoviedb.org > Configurações > API). Serve a "Chave da API (v3)" ou o "Token de leitura (v4)".',TMK());if(k!==null)localStorage.cn_tmdb=k.trim()}
+const OMK=()=>localStorage.cn_omdb||'';
+function tmKey(){const k=prompt('Cole sua chave aqui. Serve a chave do OMDb (8 letras/números, omdbapi.com) ou a do TMDB (v3 ou v4, themoviedb.org).',TMK()||OMK());if(k===null)return;const t=k.trim();if(/^[a-z0-9]{6,10}$/i.test(t)){localStorage.cn_omdb=t;localStorage.removeItem('cn_tmdb')}else{localStorage.cn_tmdb=t;localStorage.removeItem('cn_omdb')}}
 async function tmF(p,q){
  if(!TMK())tmKey();const k=TMK();if(!k)throw new Error('Cole a chave do TMDB (botão 🔑 Chave).');
  const h={};let u='https://api.themoviedb.org/3'+p+'?language=pt-BR'+(q||'');
@@ -864,6 +865,8 @@ async function tmSearch(auto){
  const v=$('#tm_q').value.trim(),o=$('#tm_r');if(!v)return;
  o.innerHTML='<p class="mu" style="padding:0">Buscando…</p>';
  try{
+  if(!TMK()&&!OMK())tmKey();
+  if(!TMK()&&OMK())return await omSearch(v,auto);
   const m=v.match(/themoviedb\.org\/(movie|tv)\/(\d+)/);
   if(m)return tmPick(m[1],m[2]);
   const d=await tmF('/search/multi','&include_adult=false&query='+encodeURIComponent(v));
@@ -872,6 +875,44 @@ async function tmSearch(auto){
   o.innerHTML=l.length?`<div class="sc" style="padding:0">${l.map(x=>`<div class="cd" style="cursor:pointer" onclick="tmPick('${x.media_type}',${x.id})"><i ${x.poster_path?`style="--bg:url('${TMI}w185${x.poster_path}')"`:''}></i><b>${esc(x.title||x.name)}</b><small>${(x.release_date||x.first_air_date||'').slice(0,4)} • ${x.media_type=='tv'?'Série':'Filme'}</small></div>`).join('')}</div>`:'<p class="mu" style="padding:0">Nada encontrado. Tente outro nome.</p>';
  }catch(e){o.innerHTML='<p class="mu" style="padding:0">'+esc(e.message)+'</p>'}
 }
+/* ---------- alternativa sem TMDB: OMDb (dados do IMDb) ---------- */
+async function omF(q){
+ const k=OMK();if(!k)throw new Error('Cole a chave do OMDb (botão 🔑 Chave).');
+ const r=await fetch('https://www.omdbapi.com/?apikey='+encodeURIComponent(k)+q);
+ let d={};try{d=await r.json()}catch(_){}
+ if(d.Response==='False'&&/api key/i.test(d.Error||''))throw new Error('Chave do OMDb inválida ou não ativada (clique no link do e-mail).');
+ if(!r.ok&&d.Response!=='False')throw new Error('Erro '+r.status+' na busca.');
+ return d}
+const omImg=u=>u&&u!=='N/A'?u.replace(/SX\d+/,'SX700'):'';
+const omGen={action:'ação',adventure:'aventura',animation:'animação',biography:'biografia',comedy:'comédia',crime:'crime',documentary:'documentário',drama:'drama',family:'família',fantasy:'fantasia','film-noir':'noir',history:'história',horror:'terror',music:'música',musical:'musical',mystery:'mistério',romance:'romance','sci-fi':'ficção científica',sport:'esporte',thriller:'suspense',war:'guerra',western:'faroeste',reality:'reality','reality-tv':'reality','talk-show':'talk show',news:'notícias'};
+const omRat={G:'Livre',PG:'10+','PG-13':'12+',R:'16+','NC-17':'18+','TV-Y':'Livre','TV-Y7':'10+','TV-G':'Livre','TV-PG':'10+','TV-14':'14+','TV-MA':'18+'};
+async function omSearch(v,auto){
+ const o=$('#tm_r'),mi=v.match(/imdb\.com\/title\/(tt\d+)/);
+ if(mi)return omPick(mi[1]);
+ if(/^tt\d{6,}$/.test(v))return omPick(v);
+ let d=await omF('&s='+encodeURIComponent(v));
+ if(d.Response==='False'){const d2=await omF('&s='+encodeURIComponent(v)+'&type=series');if(d2.Response!=='False')d=d2}
+ const l=(d.Search||[]).filter(x=>x.Type=='movie'||x.Type=='series').slice(0,15);
+ const card=x=>`<div class="cd" style="cursor:pointer" onclick="omPick('${x.imdbID}')"><i ${omImg(x.Poster)?`style="--bg:url('${omImg(x.Poster).replace('SX700','SX300')}')"`:''}></i><b>${esc(x.Title)}</b><small>${esc((x.Year||'').slice(0,4))} • ${x.Type=='series'?'Série':'Filme'}</small></div>`;
+ if(!l.length){o.innerHTML='<p class="mu" style="padding:0">Nada encontrado. O OMDb procura melhor pelo nome original (em inglês). Tente outro nome.</p>';return}
+ if(auto===true){await omPick(l[0].imdbID);const z=o.innerHTML;o.innerHTML=z+(l.length>1?'<div class="mu" style="padding:6px 0 2px">Não é esse? Escolha outro:</div><div class="sc" style="padding:0">'+l.slice(1).map(card).join('')+'</div>':'');return}
+ o.innerHTML='<div class="sc" style="padding:0">'+l.map(card).join('')+'</div>'}
+async function omPick(id){
+ const o=$('#tm_r');o.innerHTML='<p class="mu" style="padding:0">Carregando…</p>';
+ try{
+  const d=await omF('&plot=full&i='+encodeURIComponent(id));
+  if(d.Response==='False')throw new Error(d.Error||'Não encontrado.');
+  const set=(k,v)=>{const e=$('#f_'+k);if(e&&v&&v!=='N/A')e.value=v};
+  set('name',d.Title);set('synopsis',d.Plot);set('year',(d.Year||'').slice(0,4));
+  const gs=(d.Genre&&d.Genre!=='N/A'?d.Genre.split(',').map(x=>x.trim()):[]);
+  set('genres',gs.map(g=>omGen[g.toLowerCase()]||g.toLowerCase()).join(', '));
+  const c=omRat[d.Rated];if(c&&$('#f_rating'))$('#f_rating').value=c;
+  const sec=d.Type=='movie'?'movies':(gs.some(g=>/animation/i.test(g))&&/japan/i.test(d.Country||'')?'anime':'series');
+  const se=$('#f_section');if(se&&[...se.options].some(x=>x.value==sec))se.value=sec;
+  const pu=omImg(d.Poster);if(pu)set('cover',pu);
+  pvC();
+  o.innerHTML=`<div class="mu" style="padding:0;color:#7CFC9A">✓ Preenchido: ${esc(d.Title)}. Revise os campos abaixo.</div><div class="mu" style="padding:4px 0 0">Pelo OMDb a sinopse vem em inglês e não vem banner. Edite a sinopse e use o botão do Google para achar o banner, se quiser.</div>`
+ }catch(e){o.innerHTML='<p class="mu" style="padding:0">'+esc(e.message)+'</p>'}}
 async function tmPick(t,id){
  const o=$('#tm_r');o.innerHTML='<p class="mu" style="padding:0">Carregando…</p>';
  try{
