@@ -1285,7 +1285,7 @@ const vzD=(k,f)=>k=='tg'&&f=='vx'?-3.5:0;
 function vzV(k,f,d){const a=parseFloat(S.set[f+'_'+k+'_'+blM()]);return isNaN(a)?(f=='vx'?vzD(k,f):d):a}
 function vzApply(){const w=document.getElementById('pw'),k=S.cur&&S.cur.pk;if(!w||!k||k=='tg')return;const f=w.querySelector('iframe,video');if(!f)return;
  if(S.vzcrop&&document.getElementById('vzp')){if(f.style.transform)f.style.transform='';if(f.style.clipPath)f.style.clipPath='';return}
- const has=['n','v','h'].some(m=>['vz','vx','vy','vl','vt','vr','vb'].some(g=>{const a=S.set[g+'_'+k+'_'+m];return a!==undefined&&a!==''}));
+ const has=['n','v','h'].some(m=>['vz','vx','vy','vl','vt','vr','vb','va'].some(g=>{const a=S.set[g+'_'+k+'_'+m];return a!==undefined&&a!==''}));
  if(!has&&!f.dataset.vzx)return;
  const z=vzV(k,'vz',1),x=vzV(k,'vx',0),y=vzV(k,'vy',0);f.style.transformOrigin='50% 50%';
  const il=vzV(k,'vl',0),it=vzV(k,'vt',0),ir=vzV(k,'vr',0),ib=vzV(k,'vb',0),cr=!!(il||it||ir||ib);f.style.clipPath=cr?'inset('+it+'% '+ir+'% '+ib+'% '+il+'%)':'';
@@ -1296,20 +1296,23 @@ function vzOpen(k){const r=blFind(k);if(!r)return;S.oved=null;S.bled=null;S.vzed
 function vzPanel(){const k=S.vzed,nm=(VZK.find(x=>x[0]==k)||[0,k])[1];let d=document.getElementById('vzp');if(d)d.remove();d=document.createElement('div');d.id='vzp';d.className='bled';S.vzm=blM();
  d.innerHTML=`<div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:center"><b>Zoom e posição · ${nm}</b><button class="btn o s" onclick="fs()">↻ Girar</button><button class="btn o s" onclick="vzExit()">Sair</button></div><div class="mu" style="padding:2px 0 6px">Editando: ${blMN[blM()]}. Arraste os cantos ou as bordas da moldura para cortar (por exemplo, tirar só a parte de baixo) e arraste dentro dela para mover. O que ficar fora da moldura é cortado e o que ficar dentro é ajustado ao player sem distorcer. Toque em ↻ Girar para ajustar a tela cheia: em pé e deitado são separados. Toque em Salvar em cada modo.</div>`+
  [['vz','Zoom',.5,3,1,'x',.05],['vx','Horizontal (← →)',-100,100,0,'%',.5],['vy','Vertical (↑ ↓)',-100,100,0,'%',.5]].map(([f,n,a,z,df,u,st])=>{const v=vzV(k,f,df);return `<div class="rg"><span>${n}</span><span class="mu" id="vzl_${f}" style="padding:0">${v}${u}</span><input type="range" id="vzr_${f}" min="${a}" max="${z}" step="${st}" value="${v}" oninput="vzSet('${f}',this.value,'${u}')"></div>`}).join('')+
- `<div class="row">${k=='tg'?'':`<button class="btn o s" id="vzcb" onclick="vzcToggle()">${S.vzcrop?'✔ Ver resultado':'✂ Recortar'}</button>`}<button class="btn o s" onclick="vzCenter()">⊕ Centralizar</button><button class="btn o s" onclick="vzReset()">Zoom 1x e centro</button><button class="btn s" onclick="vzSave()">Salvar</button></div>`;document.body.appendChild(d);drWrap(d);vzcMount()}
+ (k=='tg'?'':`<div class="rg"><span>Posição do vídeo cortado no player</span></div><select id="vzal" onchange="vzAl(this.value)"><option value="0" ${vzV(k,'va',0)==0?'selected':''}>Centro (barras pretas iguais em cima e embaixo)</option><option value="1" ${vzV(k,'va',0)==1?'selected':''}>Colado em cima</option><option value="2" ${vzV(k,'va',0)==2?'selected':''}>Colado embaixo</option></select>`)+`<div class="row">${k=='tg'?'':`<button class="btn o s" id="vzcb" onclick="vzcToggle()">${S.vzcrop?'✔ Ver resultado':'✂ Recortar'}</button>`}<button class="btn o s" onclick="vzCenter()">⊕ Centralizar</button><button class="btn o s" onclick="vzReset()">Zoom 1x e centro</button><button class="btn s" onclick="vzSave()">Salvar</button></div>`;document.body.appendChild(d);drWrap(d);vzcMount()}
 /* Recorte livre do player: moldura com cantos e bordas arrastáveis (como cortar foto) */
 const vzRot=()=>{const w=document.getElementById('pw');return w&&w.classList.contains('rot')?(w.classList.contains('rotn')?-1:1):0};
+function vzFr(w){const f=w.querySelector('iframe,video'),W=w.offsetWidth,H=w.offsetHeight;if(!f||!f.offsetWidth||!f.offsetHeight)return{fl:0,ft:0,fw:W,fh:H};return{fl:f.offsetLeft,ft:f.offsetTop,fw:f.offsetWidth,fh:f.offsetHeight}}
 function vzGeo(){const w=document.getElementById('pw');if(!w||!S.vzed)return null;const k=S.vzed,W=w.offsetWidth,H=w.offsetHeight;if(!W||!H)return null;
- const il=vzV(k,'vl',0),it=vzV(k,'vt',0),ir=vzV(k,'vr',0),ib=vzV(k,'vb',0);
- if(il||it||ir||ib){const l=il/100*W,t=it/100*H;return{W,H,l,t,cw:Math.max(10,W-l-ir/100*W),ch:Math.max(10,H-t-ib/100*H)}}
- const z=Math.max(1,vzV(k,'vz',1)),x=vzV(k,'vx',0),y=vzV(k,'vy',0),cw=W/z,ch=H/z,cx=W/2-(x/100)*W/z,cy=H/2-(y/100)*H/z;
+ const{fl,ft,fw,fh}=vzFr(w),il=vzV(k,'vl',0),it=vzV(k,'vt',0),ir=vzV(k,'vr',0),ib=vzV(k,'vb',0);
+ if(il||it||ir||ib){const l=fl+il/100*fw,t=ft+it/100*fh;return{W,H,l,t,cw:Math.max(10,fw-il/100*fw-ir/100*fw),ch:Math.max(10,fh-it/100*fh-ib/100*fh)}}
+ const z=Math.max(1,vzV(k,'vz',1)),x=vzV(k,'vx',0),y=vzV(k,'vy',0),cw=W/z,ch=H/z,fx=fl+fw/2,fy=ft+fh/2,cx=fx+(W/2-fx-x/100*fw)/z,cy=fy+(H/2-fy-y/100*fh)/z;
  return{W,H,cw,ch,l:Math.min(Math.max(cx-cw/2,0),W-cw),t:Math.min(Math.max(cy-ch/2,0),H-ch)}}
 function vzcPos(){const g=vzGeo(),f=document.getElementById('vzcf');if(!g||!f)return;f.style.left=g.l+'px';f.style.top=g.t+'px';f.style.width=g.cw+'px';f.style.height=g.ch+'px'}
-/* grava a moldura (l,t,largura,altura em px) e calcula o zoom/posição para a região caber no player sem distorcer */
-function vzcRect(l,t,cw,ch){const k=S.vzed,m=blM(),W=document.getElementById('pw').offsetWidth,H=document.getElementById('pw').offsetHeight,r=(v,d)=>String(Math.round(v*d)/d),
- s=Math.min(W/cw,H/ch),cx=l+cw/2,cy=t+ch/2,set=(f,v)=>{S.set[f+'_'+k+'_'+m]=v};
- set('vl',r(l/W*100,100));set('vt',r(t/H*100,100));set('vr',r((W-l-cw)/W*100,100));set('vb',r((H-t-ch)/H*100,100));
- set('vz',r(s,100));set('vx',r((W/2-cx)*s/W*100,10));set('vy',r((H/2-cy)*s/H*100,10));vzFill();vzcPos()}
+/* grava a moldura (l,t,largura,altura em px, no player) e calcula zoom/posição: a região cabe no player sem distorcer e fica alinhada (centro/topo/base) */
+function vzcRect(l,t,cw,ch){const w=document.getElementById('pw'),k=S.vzed,m=blM(),W=w.offsetWidth,H=w.offsetHeight,{fl,ft,fw,fh}=vzFr(w),r=(v,d)=>String(Math.round(v*d)/d),
+ set=(f,v)=>{S.set[f+'_'+k+'_'+m]=v},s=Math.min(W/cw,H/ch),al=vzV(k,'va',0),
+ ox=(W-cw*s)/2,oy=al==1?0:al==2?H-ch*s:(H-ch*s)/2,fx=fl+fw/2,fy=ft+fh/2,tx=ox-fx-s*(l-fx),ty=oy-fy-s*(t-fy),pc=v=>Math.max(0,v);
+ set('vl',r(pc((l-fl)/fw*100),100));set('vt',r(pc((t-ft)/fh*100),100));set('vr',r(pc((fl+fw-l-cw)/fw*100),100));set('vb',r(pc((ft+fh-t-ch)/fh*100),100));
+ set('vz',r(s,100));set('vx',r(tx/fw*100,10));set('vy',r(ty/fh*100,10));vzFill();vzcPos()}
+function vzAl(v){const k=S.vzed,m=blM();S.set['va_'+k+'_'+m]=String(v);const g=vzGeo(),has=['vl','vt','vr','vb'].some(f=>vzV(k,f,0));if(g&&has)vzcRect(g.l,g.t,g.cw,g.ch)}
 function vzcClear(){const k=S.vzed,m=blM();['vl','vt','vr','vb'].forEach(f=>{S.set[f+'_'+k+'_'+m]='0'})}
 function vzcDown(ev,c){ev.preventDefault();ev.stopPropagation();const g=vzGeo();if(!g)return;const el=ev.currentTarget;try{el.setPointerCapture(ev.pointerId)}catch(x){}
  const rot=vzRot(),sx=ev.clientX,sy=ev.clientY,{W,H,cw,ch,l,t}=g,mw=W*.1,mh=H*.1,cl=(v,a,b)=>Math.min(Math.max(v,a),b);
@@ -1335,7 +1338,7 @@ function vzSet(f,v,u){const k=S.vzed;vzcClear();S.set[f+'_'+k+'_'+blM()]=String(
 function vzFill(){['vz','vx','vy'].forEach(f=>{const v=vzV(S.vzed,f,f=='vz'?1:0),r=document.getElementById('vzr_'+f),l=document.getElementById('vzl_'+f);if(r)r.value=v;if(l)l.textContent=v+(f=='vz'?'x':'%')});vzApply();if(S.vzed=='tg')tgFit()}
 function vzCenter(){const k=S.vzed,m=blM();{const g=vzGeo(),has=['vl','vt','vr','vb'].some(f=>vzV(k,f,0));if(g&&has){vzcRect((g.W-g.cw)/2,(g.H-g.ch)/2,g.cw,g.ch);return}}S.set['vx_'+k+'_'+m]=String(vzD(k,'vx'));S.set['vy_'+k+'_'+m]='0';vzFill()}
 function vzReset(){const k=S.vzed,m=blM();vzcClear();S.set['vz_'+k+'_'+m]='1';vzCenter()}
-async function vzSave(){const k=S.vzed,m=blM(),rows=['vz','vx','vy','vl','vt','vr','vb'].map(f=>({key:f+'_'+k+'_'+m,value:String(vzV(k,f,f=='vz'?1:0))}));if(ok(await sb.from('settings').upsert(rows)))alert('Salvo: '+blMN[m]+'.')}
+async function vzSave(){const k=S.vzed,m=blM(),rows=['vz','vx','vy','vl','vt','vr','vb','va'].map(f=>({key:f+'_'+k+'_'+m,value:String(vzV(k,f,f=='vz'?1:0))}));if(ok(await sb.from('settings').upsert(rows)))alert('Salvo: '+blMN[m]+'.')}
 function vzExit(){const d=document.getElementById('vzp');if(d)d.remove();S.vzed=null;S.vzcrop=0;vzcMount();go('admin')}
 function xtBox(){const d=$('#ad');if(!d||$('#xtbx'))return;d.insertAdjacentHTML('beforeend',`<div class="box" id="xtbx"><b>Botão ＋ flutuante</b><label class="k"><input type="checkbox" ${ovn('fw_on',1)?'checked':''} onchange="cf('fw_on',this.checked?1:0).then(fwMount)"> Mostrar o botão ＋ (gaveta para adicionar filmes e séries)</label></div><div class="box"><b>Zoom e centralizar o player</b><div class="mu" style="padding:4px 0 8px">Abre um vídeo desse player para você dar zoom e mover na mão. Vale para todos.</div><div class="row">${VZK.map(([k,n])=>`<button class="btn o s" onclick="vzOpen('${k}')">Ajustar ${n}</button>`).join('')}</div></div>`)}
 const _ad2=ad;ad=async function(){await _ad2.apply(this,arguments);if(S.at=='s')xtBox()};
