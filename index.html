@@ -1561,10 +1561,14 @@ boot();
  const rm=()=>{const o=document.getElementById('ptr');if(o)o.remove()};
  function fit(){
   const d=document.getElementById('ptr'),f=d&&d.querySelector('iframe');if(!f||!d.classList.contains('tg')||!th)return;
-  const w=d.parentNode,FS=w.classList.contains('ff')||document.fullscreenElement===w||document.webkitFullscreenElement===w,W=d.clientWidth,H=d.clientHeight,T=ovn('tg_t',44),B=ovn('tg_b',46),hv=Math.max(40,th-T-B),k=Math.min(W/(hv*16/9),H/hv)*.99;
-  f.style.width=(FS?Math.max(260,Math.min(document.documentElement.clientWidth,720)-26):W)+'px';f.style.height=th+'px';
-  f.style.clipPath='inset('+(T+6)+'px 0 '+(B+10)+'px 0)';
-  f.style.transform='translate('+(-8*k).toFixed(1)+'px,'+((B-T)/2*k).toFixed(1)+'px) scale('+k.toFixed(4)+')';
+  const w=d.parentNode,FS=w.classList.contains('ff')||document.fullscreenElement===w||document.webkitFullscreenElement===w,FW=Math.max(260,Math.min(document.documentElement.clientWidth,720)-26);
+  f.style.width=FS?FW+'px':'';
+  /* mesmas configurações de Configuração > Zoom e centralizar o player > Ajustar Telegram */
+  const W=d.clientWidth,H=d.clientHeight,h=th,T=ovn('tg_t',44),B=ovn('tg_b',46),hv=Math.max(40,h-T-B),cw=hv*16/9,k=Math.min(W/cw,H/hv)*.99;
+  const VZ=vzV('tg','vz',1),VX=vzV('tg','vx',0)/100*W,VY=vzV('tg','vy',0)/100*H,ET=ovn('tg_et',6),EB=ovn('tg_eb',10);
+  f.style.height=h+'px';
+  f.style.clipPath='inset('+(T+ET)+'px 0 '+(B+EB)+'px 0)';
+  f.style.transform='translate('+(-8*k+VX).toFixed(1)+'px,'+((B-T)/2*k+VY).toFixed(1)+'px) scale('+(k*VZ).toFixed(4)+')';
   f.style.visibility='visible'}
  function show(w,f){
   if(w.querySelector('#ptr'))return;const t=kind(trl());if(!t)return;
