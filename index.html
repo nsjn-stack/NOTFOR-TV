@@ -611,11 +611,11 @@ function pPlay(){
 function tgFit(){const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[data-tg]');if(!f||!S.tgh)return;const FS=w.classList.contains('ff')||document.fullscreenElement===w||document.webkitFullscreenElement===w,FW=Math.max(260,Math.min(document.documentElement.clientWidth,720)-26);f.style.width=FS?FW+'px':'';const W=w.clientWidth,H=w.clientHeight,h=S.tgh,T=ovn('tg_t',44),B=ovn('tg_b',46),hv=Math.max(40,h-T-B),cw=hv*16/9,k=Math.min(W/cw,H/hv)*.99;const VZ=vzV('tg','vz',1),VX=vzV('tg','vx',0)/100*W,VY=vzV('tg','vy',0)/100*H;f.style.height=h+'px';const ET=ovn('tg_et',6),EB=ovn('tg_eb',10);f.style.clipPath='inset('+(T+ET)+'px 0 '+(B+EB)+'px 0)';f.style.transform='translate('+(-8*k+VX).toFixed(1)+'px,'+((B-T)/2*k+VY).toFixed(1)+'px) scale('+(k*VZ).toFixed(4)+')';w.classList.add('tgm')}
 window.addEventListener('message',e=>{
  if(e.origin=='https://t.me'||e.origin=='https://telegram.me'){try{const d=typeof e.data=='string'?JSON.parse(e.data):e.data,f=document.querySelector('#pw iframe[data-tg]');if(d&&d.event=='resize'&&+d.height>0&&f&&e.source===f.contentWindow){S.tgh=+d.height;tgFit();const w=f.parentNode;if(window.ResizeObserver&&S.tgw!==w){if(S.tgro)S.tgro.disconnect();S.tgw=w;S.tgro=new ResizeObserver(tgFit);S.tgro.observe(w)}}}catch(x){}return}
- if(e.origin=='https://player.vimeo.com'){try{const d=typeof e.data=='string'?JSON.parse(e.data):e.data;if(d.event=='ready')['timeupdate','pause'].forEach(v=>e.source.postMessage(JSON.stringify({method:'addEventListener',value:v}),'*'));else if(d.event=='timeupdate'&&S.sk)S.sk={p:d.data.seconds,at:Date.now(),run:1};else if(d.event=='pause'&&S.sk)S.sk.run=0}catch(x){}return}
+ if(e.origin=='https://player.vimeo.com'){try{const d=typeof e.data=='string'?JSON.parse(e.data):e.data;if(d.event=='ready')['timeupdate','pause'].forEach(v=>e.source.postMessage(JSON.stringify({method:'addEventListener',value:v}),'*'));else if(d.event=='timeupdate'&&S.sk){S.sk={p:d.data.seconds,at:Date.now(),run:1};S.ev=1}else if(d.event=='pause'&&S.sk)S.sk.run=0}catch(x){}return}
  try{if(!new URL(e.origin).hostname.endsWith('youtube.com'))return}catch(x){return}
  let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}
  if(d&&(d.event=='onStateChange'||(d.event=='infoDelivery'&&d.info&&'playerState' in d.info)))S.showOv&&S.showOv();
- try{if(!S.cur||S.tab!='play')return;const i=d&&d.info;if(i&&S.sk){if(typeof i.currentTime=='number')S.sk={p:i.currentTime,at:Date.now(),run:'playerState' in i?+(i.playerState===1):S.sk.run};else if('playerState' in i)S.sk.run=+(i.playerState===1)}
+ try{if(!S.cur||S.tab!='play')return;const i=d&&d.info;if(i&&S.sk){if(typeof i.currentTime=='number')S.ev=1,S.sk={p:i.currentTime,at:Date.now(),run:'playerState' in i?+(i.playerState===1):S.sk.run};else if('playerState' in i)S.sk.run=+(i.playerState===1)}
   if(d&&d.event=='onStateChange'&&i===0)onEnd();
   else if(d&&d.event=='infoDelivery'&&i){
    if(i.playerState===0)onEnd();
@@ -796,7 +796,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-02 · legenda com relógio e sincronia manual';
+const APP_V='2026-11-02b · legenda acompanha play/pause do Vimeo';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -866,15 +866,23 @@ async function sbUrl(){const u=$('#sb_u').value.trim();if(!u)return alert('Cole 
 async function sbFile(i){const f=i.files[0];if(f)sbAdd(await sbTxt(await f.arrayBuffer()));i.value=''}
 async function subDel(i){const[t,e]=sbTg(),v=await sbLoad(t,e,1);v.splice(i,1);if(await subSave(t,e,v))subList()}
 const sbNow=()=>{const vd=document.querySelector('#pw video');if(vd)return vd.currentTime;const k=S.sk;return k.p+(k.run?(Date.now()-k.at)/1000:0)};
-function sbTick(){const el=$('#sbt');if(!el){clearInterval(S.sbi);return}const tr=S.sv[S.si],tmE=$('#sbtm');if(tmE)tmE.textContent='⏱ '+hmF(sbNow());let x='';if(tr){const t=sbNow()+S.so;for(const q of tr.c)if(t>=q[0]&&t<=q[1]){x=q[2];break}}if(el._x!==x){el._x=x;el.textContent=x}}
+function sbTick(){const el=$('#sbt');if(!el){clearInterval(S.sbi);return}if(S.mn&&S.ev){S.mn=0;sbBar()}const tr=S.sv[S.si],tmE=$('#sbtm');if(tmE)tmE.textContent='⏱ '+hmF(sbNow());let x='';if(tr){const t=sbNow()+S.so;for(const q of tr.c)if(t>=q[0]&&t<=q[1]){x=q[2];break}}if(el._x!==x){el._x=x;el.textContent=x}}
+function vmSdk(f,c){if(!f)return;const go=()=>{try{const pl=new Vimeo.Player(f),ok=()=>S.cur===c&&S.sk;
+  pl.on('timeupdate',d=>{if(ok()){S.sk={p:d.seconds,at:Date.now(),run:1};S.ev=1}});
+  pl.on('play',()=>{if(ok()){S.sk.p=sbNow();S.sk.at=Date.now();S.sk.run=1;S.ev=1}});
+  pl.on('pause',d=>{if(ok()){S.sk.p=d&&d.seconds!=null?d.seconds:sbNow();S.sk.at=Date.now();S.sk.run=0;S.ev=1}});
+  pl.on('seeked',d=>{if(ok()){S.sk.p=d.seconds;S.sk.at=Date.now();S.ev=1}});
+  pl.on('ended',()=>{if(ok())S.sk.run=0})}catch(e){}};
+ if(window.Vimeo&&Vimeo.Player)go();else{const sc=document.createElement('script');sc.src='https://player.vimeo.com/api/player.js';sc.onload=go;document.head.appendChild(sc)}}
 function sbAdj(d){S.so=Math.round((S.so+d)*10)/10;$('#sbo').textContent=(S.so>0?'+':'')+S.so+'s'}
 function sbPlay(){const k=S.sk;k.p=sbNow();k.at=Date.now();k.run=k.run?0:1;$('#sbp').textContent=k.run?'⏸':'▶'}
 function sbSeek(d){const k=S.sk;k.p=Math.max(0,sbNow()+d);k.at=Date.now()}
 async function sbLocal(i){const f=i.files[0];if(!f)return;const c=sbParse(await sbTxt(await f.arrayBuffer()));i.value='';if(!c.length)return alert('Não achei falas nesse arquivo. Use .srt ou .vtt.');S.sv.push({l:f.name.replace(/\.\w+$/,''),c});S.si=S.sv.length-1;sbBar()}
 function sbBar(){const man=!['yt','vm','mp'].includes(S.cur.pk)||S.mn;$('#sbc').innerHTML=`<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 14px 8px"><select style="flex:1;min-width:130px;margin:0" onchange="S.si=+this.value;localStorage.cn_sb=this.value">${S.sv.map((x,i)=>`<option value="${i}" ${i==S.si?'selected':''}>CC: ${esc(x.l)}</option>`).join('')}<option value="-1" ${S.si<0?'selected':''}>CC: desligada</option></select><button class="btn o s" onclick="sbAdj(-.5)">−</button><span id="sbo" class="mu" style="padding:0">${S.so}s</span><button class="btn o s" onclick="sbAdj(.5)">+</button><span id="sbtm" class="mu" style="padding:0">⏱ 0:00</span>${man?'<button class="btn o s" onclick="sbSeek(-5)">⏪5</button><button class="btn o s" id="sbp" onclick="sbPlay()">▶</button><button class="btn o s" onclick="sbSeek(5)">5⏩</button>':''}<button class="btn o s" onclick="$('#sbf').click()">📁</button><input id="sbf" type="file" accept=".srt,.vtt,.txt" style="display:none" onchange="sbLocal(this)"></div>`}
-async function sbInit(){clearInterval(S.sbi);const c=S.cur;S.sk={p:0,at:0,run:0};S.so=0;S.mn=0;S.sv=[];S.si=-1;if(!c||!$('#pw iframe,#pw video'))return;const v=await sbLoad(c.t.id,c.e?c.e.id:0);if(S.cur!==c||!$('#sbt'))return;S.sv=v.slice();const z=parseInt(localStorage.cn_sb);S.si=v.length?(z<0?-1:Math.min(z||0,v.length-1)):-1;sbBar();S.sbi=setInterval(sbTick,200);
+async function sbInit(){clearInterval(S.sbi);const c=S.cur;S.sk={p:0,at:0,run:0};S.so=0;S.mn=0;S.ev=0;S.sv=[];S.si=-1;if(!c||!$('#pw iframe,#pw video'))return;const v=await sbLoad(c.t.id,c.e?c.e.id:0);if(S.cur!==c||!$('#sbt'))return;S.sv=v.slice();const z=parseInt(localStorage.cn_sb);S.si=v.length?(z<0?-1:Math.min(z||0,v.length-1)):-1;sbBar();S.sbi=setInterval(sbTick,200);
+ if(c.pk=='vm')vmSdk($('#pw iframe'),c);
  if(c.pk=='vm'){const f=$('#pw iframe'),sub=()=>{try{['timeupdate','pause','play'].forEach(v=>f.contentWindow.postMessage(JSON.stringify({method:'addEventListener',value:v}),'*'))}catch(e){}};[800,2500,5000].forEach(ms=>setTimeout(()=>{if(S.cur===c)sub()},ms))}
- setTimeout(()=>{if(S.cur===c&&S.sk&&!S.sk.at&&['yt','vm'].includes(c.pk)){S.mn=1;sbBar()}},7000)}
+ setTimeout(()=>{if(S.cur===c&&!S.ev&&['yt','vm'].includes(c.pk)){S.mn=1;sbBar()}},7000)}
 const TMI='https://image.tmdb.org/t/p/';
 /* início/fim definidos pelo admin: viewers não passam do ponto (admin é isento) */
 function skInit(){clearInterval(S.ski);const c=S.cur;if(!c||adm())return;const g=skG(cu());if(!g.a&&!g.b)return;let lk=0,ended=0;
