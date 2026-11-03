@@ -475,6 +475,8 @@ const isSeen=(tid,eid)=>!!lj('cn_seen')[tid+'_'+eid];
 function setSeen(k,v){const o=lj('cn_seen');if(v)o[k]=1;else delete o[k];localStorage.cn_seen=JSON.stringify(o)}
 function setPos(k,sec){const o=lj('cn_pos');if(sec>0)o[k]=Math.floor(sec);else delete o[k];localStorage.cn_pos=JSON.stringify(o)}
 const getPos=k=>lj('cn_pos')[k]||0;
+function rsSave(sec,dur){const c=S.cur;if(!c||S.tab!='play'||!(sec>5))return;if(Date.now()-(S.rsT||0)<3000)return;S.rsT=Date.now();const k=ckey();if(dur>0&&sec/dur>.95){setPos(k,0);if(pf('sn'))setSeen(k,1);return}setPos(k,sec);if(dur>0){const p=prog();p[k]=Math.min(1,sec/dur);localStorage.cn_prog=JSON.stringify(p);if(sec/dur>.9&&pf('sn')&&!lj('cn_seen')[k])setSeen(k,1)}}
+function rsU(m){const s=m.s;if(!pf('rs')||m.t!='if')return s;const k=ckey(),q=getPos(k);if(!(q>10)||(prog()[k]||0)>.95)return s;const p=Math.max(0,q-3);if(m.k=='yt'||m.k=='dm')return s.replace(/&start=\d+/,'')+'&start='+p;if(m.k=='vm')return s.replace(/#t=.*$/,'')+'#t='+p+'s';return s}
 function mk(){const c=S.cur,k=ckey(),v=!lj('cn_seen')[k];setSeen(k,v);const b=$('#mkb');if(b)b.textContent=v?'✓ Assistido (desmarcar)':'Marcar como assistido';const a=document.querySelector('.ep.on b');if(c.e&&a)a.textContent='T'+c.e.season+' • E'+c.e.num+(v?' ✓':'')}
 function pn(tid,eid,nx){const k=ckey();if(nx&&pf('sn'))setSeen(k,1);setPos(k,0);play(tid,eid)}
 function nxEp(){const c=S.cur;if(!c||!c.e)return null;return c.es[c.es.indexOf(c.e)+1]||null}
@@ -536,7 +538,7 @@ function embed0(u){
  if(m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]+)/))return{t:'if',s:'https://drive.google.com/file/d/'+m[1]+'/preview',k:'dr'};
  if(m=u.match(/archive\.org\/(?:details|embed)\/([^\/?#]+)(?:\/([^?#]+))?/))return{t:'if',s:'https://archive.org/embed/'+m[1]+(m[2]?'/'+m[2]:''),k:'ar'};
  if(m=u.match(/vimeo\.com\/(?:[^?#]*\/)?(\d{6,})(?:\/([0-9a-f]{8,}))?/i)){const h=m[2]||(u.match(/[?&]h=([0-9a-f]+)/i)||[])[1];return{t:'if',s:'https://player.vimeo.com/video/'+m[1]+'?api=1&autoplay=1&title=0&byline=0&portrait=0'+(h?'&h='+h:''),k:'vm'}}
- if(m=u.match(/(?:dailymotion\.com\/(?:embed\/)?video\/|dai\.ly\/|dailymotion\.com\/player[^?]*\?[^#]*video=)([a-z0-9]+)/i))return{t:'if',s:'https://www.dailymotion.com/embed/video/'+m[1]+'?autoplay=1',k:'dm'};
+ if(m=u.match(/(?:dailymotion\.com\/(?:embed\/)?video\/|dai\.ly\/|dailymotion\.com\/player[^?]*\?[^#]*video=)([a-z0-9]+)/i))return{t:'if',s:'https://www.dailymotion.com/embed/video/'+m[1]+'?autoplay=1&api=postMessage',k:'dm'};
  if(m=u.match(/(?:t\.me|telegram\.me)\/(?!c\/|\+|joinchat)([A-Za-z0-9_]{4,})\/(\d+)/i))return{t:'if',s:'https://t.me/'+m[1]+'/'+m[2]+'?embed=1&mode=tme',k:'tg'};
  if(/\.(mp4|webm|m4v)(\?|$)/i.test(u))return{t:'v',s:u,k:'mp'};
  return{t:'x',s:u,k:'ot'};
@@ -582,7 +584,7 @@ function pPlay(){
  const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.pk='ot';
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
  else{const m=embed(u);S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';
-  S.tgh=0;p=m.t=='if'?`<iframe onload="pbLd()"${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>`
+  S.tgh=0;p=m.t=='if'?`<iframe onload="pbLd()"${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(rsU(m))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>`
   :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"></video><button class="big" id="bp">▶</button><div class="ov"><input id="sk" type="range" min="0" max="1000" value="0"><div class="pl"><span id="tm">0:00</span><div class="pill"><button id="mu">${ic(I.v)}</button><button id="sp">1x</button></div></div></div>`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
@@ -615,8 +617,9 @@ function pPlay(){
 }
 function tgFit(){const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[data-tg]');if(!f||!S.tgh)return;const FS=w.classList.contains('ff')||document.fullscreenElement===w||document.webkitFullscreenElement===w,FW=Math.max(260,Math.min(document.documentElement.clientWidth,720)-26);f.style.width=FS?FW+'px':'';const W=w.clientWidth,H=w.clientHeight,h=S.tgh,T=ovn('tg_t',44),B=ovn('tg_b',46),hv=Math.max(40,h-T-B),cw=hv*16/9,k=Math.min(W/cw,H/hv)*.99;const VZ=vzV('tg','vz',1),VX=vzV('tg','vx',0)/100*W,VY=vzV('tg','vy',0)/100*H;f.style.height=h+'px';const ET=ovn('tg_et',6),EB=ovn('tg_eb',10);f.style.clipPath='inset('+(T+ET)+'px 0 '+(B+EB)+'px 0)';f.style.transform='translate('+(-8*k+VX).toFixed(1)+'px,'+((B-T)/2*k+VY).toFixed(1)+'px) scale('+(k*VZ).toFixed(4)+')';w.classList.add('tgm')}
 window.addEventListener('message',e=>{
+ if(e.origin=='https://www.dailymotion.com'||e.origin=='https://geo.dailymotion.com'){try{const q=new URLSearchParams(typeof e.data=='string'?e.data:'');const v=q.get('event');if(v=='durationchange')S.dmd=+q.get('duration')||0;else if(v=='timeupdate')rsSave(+q.get('time'),S.dmd||+q.get('duration')||0)}catch(x){}return}
  if(e.origin=='https://t.me'||e.origin=='https://telegram.me'){try{const d=typeof e.data=='string'?JSON.parse(e.data):e.data,f=document.querySelector('#pw iframe[data-tg]');if(d&&d.event=='resize'&&+d.height>0&&f&&e.source===f.contentWindow){S.tgh=+d.height;tgFit();const w=f.parentNode;if(window.ResizeObserver&&S.tgw!==w){if(S.tgro)S.tgro.disconnect();S.tgw=w;S.tgro=new ResizeObserver(tgFit);S.tgro.observe(w)}}}catch(x){}return}
- if(e.origin=='https://player.vimeo.com'){try{const d=typeof e.data=='string'?JSON.parse(e.data):e.data;if(d.event=='ready')['timeupdate','pause'].forEach(v=>e.source.postMessage(JSON.stringify({method:'addEventListener',value:v}),'*'));else if(d.event=='timeupdate'&&S.sk){S.sk={p:d.data.seconds,at:Date.now(),run:1};S.ev=1}else if(d.event=='pause'&&S.sk)S.sk.run=0}catch(x){}return}
+ if(e.origin=='https://player.vimeo.com'){try{const d=typeof e.data=='string'?JSON.parse(e.data):e.data;if(d.event=='ready')['timeupdate','pause'].forEach(v=>e.source.postMessage(JSON.stringify({method:'addEventListener',value:v}),'*'));else if(d.event=='timeupdate'){if(S.sk){S.sk={p:d.data.seconds,at:Date.now(),run:1};S.ev=1}rsSave(d.data.seconds,d.data.duration)}else if(d.event=='pause'&&S.sk)S.sk.run=0}catch(x){}return}
  try{if(!new URL(e.origin).hostname.endsWith('youtube.com'))return}catch(x){return}
  let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}
  if(d&&(d.event=='onStateChange'||(d.event=='infoDelivery'&&d.info&&'playerState' in d.info)))S.showOv&&S.showOv();
@@ -624,7 +627,7 @@ window.addEventListener('message',e=>{
   if(d&&d.event=='onStateChange'&&i===0)onEnd();
   else if(d&&d.event=='infoDelivery'&&i){
    if(i.playerState===0)onEnd();
-   else if(typeof i.currentTime=='number'&&i.currentTime>5&&Date.now()-(S.ytp||0)>3000){S.ytp=Date.now();setPos(ckey(),i.currentTime);if(i.duration&&i.currentTime/i.duration>.9&&pf('sn')&&!lj('cn_seen')[ckey()])setSeen(ckey(),1)}}}catch(x){}});
+   else if(typeof i.currentTime=='number'&&i.currentTime>5&&Date.now()-(S.ytp||0)>3000){S.ytp=Date.now();setPos(ckey(),i.currentTime);if(i.duration>0){const p=prog();p[ckey()]=Math.min(1,i.currentTime/i.duration);localStorage.cn_prog=JSON.stringify(p)}if(i.duration&&i.currentTime/i.duration>.9&&pf('sn')&&!lj('cn_seen')[ckey()])setSeen(ckey(),1)}}}catch(x){}});
 function ovWire(){
  clearInterval(S.ovp);S.showOv=null;S.showRot=null;document.body.classList.toggle('nolsfs',ovn('ls_fs',0)!=1);
  const w=$('#pw');if(!w||!w.querySelector('.ob'))return;cpSync();
@@ -801,7 +804,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-03a · editar nome e número dos episódios';
+const APP_V='2026-11-03b · continuar de onde parou (YouTube, Vimeo, Dailymotion, mp4)';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
