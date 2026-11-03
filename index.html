@@ -692,7 +692,7 @@ function fsExitReal(){try{screen.orientation.lock('portrait-primary').catch(()=>
 const fkOn=()=>ovn('ov_fm',1)==1;
 function fkApply(){
  const w=$('#pw');if(!w||!S.ff)return;
- w.classList.add('ff');w.classList.toggle('rot',S.ffL&&innerHeight>innerWidth);w.classList.remove('rotn');
+ w.classList.add('ff');w.classList.toggle('rot',S.ffL&&innerHeight>innerWidth);w.classList.toggle('rotn',!!S.ffN&&S.ffL&&innerHeight>innerWidth);
  document.documentElement.style.overflow='hidden';
  if(S.showRot)S.showRot();
  blSync();
@@ -704,7 +704,7 @@ function fkEnter(){
  fkApply();
 }
 function fkClose(){
- S.ff=0;const w=$('#pw');if(w)w.classList.remove('ff','rot');
+ S.ff=0;S.ffN=0;const w=$('#pw');if(w)w.classList.remove('ff','rot');
  document.documentElement.style.overflow='';
  blSync();
 }
@@ -740,7 +740,7 @@ function phApply(l){
  if(!w||S.oved||S.bled||document.getElementById('vzp')||!w.querySelector('iframe,video'))return;
  if(S.ff){S.ffL=true;fkApply()}
  else if(isFs()){if(S.showRot)S.showRot()}
- else if(l)(fkOn()?fkEnter:fsEnter)();
+ else if(l){S.ffN=S.phD>0?1:0;(fkOn()?fkEnter:fsEnter)()}
 }
 S.phL=null;S.phW=null;
 /* Posição física do celular pela gravidade (não só pelo gamma):
@@ -750,11 +750,12 @@ addEventListener('deviceorientation',e=>{
  const b=e.beta,g=e.gamma;if(typeof b!='number'||typeof g!='number')return;
  const r=Math.PI/180,gx=Math.cos(b*r)*Math.sin(g*r),ax=Math.abs(gx);
  let l=S.phL===null?false:S.phL;
- S.phWr=ax>.72&&gx>=0;if(ax>.72){S.phD=gx>0?1:-1;l=gx<0}else if(ax<.5)l=false; /* só o lado em que o vídeo fica em pé (lado direito do celular para cima) conta; o lado oposto é ignorado para o vídeo não virar de cabeça pra baixo */
+ S.phWr=false;if(ax>.6){l=true;S.phD=gx>0?1:-1}else if(ax<.4)l=false; /* os dois lados contam; o lado define para onde o vídeo gira para ficar em pé */
+ if(l&&ax>.8&&S.ff){const n=gx>0?1:0;if(S.ffN!==n){S.ffN=n;fkApply()}}
  if(S.phL===null){S.phL=l;return}
  if(l===S.phL){clearTimeout(S.pht);S.phW=null;return}
  if(S.phW===l)return; /* já agendado: não reinicia o tempo a cada leitura do sensor */
- S.phW=l;clearTimeout(S.pht);S.pht=setTimeout(()=>{S.phW=null;S.phL=l;phApply(l)},250);
+ S.phW=l;clearTimeout(S.pht);S.pht=setTimeout(()=>{S.phW=null;S.phL=l;phApply(l)},150);
 });
 try{screen.orientation.addEventListener('change',arApply)}catch(x){}
 addEventListener('orientationchange',()=>setTimeout(arApply,120));
@@ -811,7 +812,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-03e · Vimeo em alta qualidade, voltar ao girar em pé, limpar bloqueadores';
+const APP_V='2026-11-03f · girar para qualquer lado entra na tela cheia deitada';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
