@@ -642,7 +642,7 @@ function ovWire(){
  /* botão voltar invisível: 2 toques seguidos (dentro do tempo configurado) saem da tela cheia, igual ao botão ✕ */
  {const z=w.querySelector('.bkz:not(.ed)');if(z){
   const T=()=>ppo('bz_t',pk,600);
-  if(ppb('bz_m',pk,0)==1){let lt=0;z.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();const n=Date.now();if(lt&&n-lt<T()){lt=0;fsExit()}else lt=n})}
+  if(ppb('bz_m',pk,0)==1){let lt=0;z.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();const n=Date.now();if(lt&&n-lt<T()){lt=0;(window.fsExitDirect||fsExit)()}else lt=n})}
   else{
    /* 1 toque: passa direto para o player (a área não segura o toque). 2 toques seguidos dentro da área: voltam.
       Player de outro site (iframe) não avisa o toque: detectamos pelo foco e, por um instante, a área passa a segurar o 2º toque. */
@@ -650,7 +650,7 @@ function ovWire(){
    let lt=0,ta=0,sx=0,sy=0,st=0;const sh=ppb('bz_s',pk,0);
    const dis=()=>{clearTimeout(ta);ta=0;z.classList.remove('arm')};
    const inZ=(x,y)=>{const r=z.getBoundingClientRect();if(!r.width||!r.height||x<r.left||x>r.right||y<r.top||y>r.bottom)return false;if(sh==2){const a=(x-(r.left+r.right)/2)/(r.width/2),b=(y-(r.top+r.bottom)/2)/(r.height/2);return a*a+b*b<=1}return true};
-   const reg=()=>{const n=Date.now();if(lt&&n-lt<T()){lt=0;dis();fsExit()}else lt=n};
+   const reg=()=>{const n=Date.now();if(lt&&n-lt<T()){lt=0;dis();(window.fsExitDirect||fsExit)()}else lt=n};
    const off=()=>{document.removeEventListener('pointerdown',dn,true);document.removeEventListener('pointerup',up,true);window.removeEventListener('blur',bl)};
    const dn=e=>{if(!document.body.contains(w))return off();sx=e.clientX;sy=e.clientY;st=Date.now()};
    const up=e=>{if(!document.body.contains(w))return off();if(S.oved||S.bled)return;if(Date.now()-st>450||Math.abs(e.clientX-sx)>20||Math.abs(e.clientY-sy)>20)return;if(inZ(e.clientX,e.clientY))reg()};
@@ -1584,6 +1584,7 @@ boot();
  },200);
  // botão voltar: se o menu do Vimeo pode estar aberto, fecha o menu (sem sair da tela cheia); depois, volta ao normal
  const fx=window.fsExit;
+ window.fsExitDirect=function(){const w=document.getElementById('pw');if(w)w.classList.remove('vmo');S.fa=0;return fx.apply(this,arguments)};
  window.fsExit=function(){
   const w=document.getElementById('pw'),f=w&&w.querySelector('iframe');
   if(f&&S.cur&&S.cur.pk=='vm'&&w.classList.contains('vmo')){
