@@ -642,7 +642,7 @@ function ovWire(){
  /* botão voltar invisível: 2 toques seguidos (dentro do tempo configurado) saem da tela cheia, igual ao botão ✕ */
  {const z=w.querySelector('.bkz:not(.ed)');if(z){
   const T=()=>ppo('bz_t',pk,600);
-  if(ppb('bz_m',pk,0)==1){let lt=0;z.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();const n=Date.now();if(lt&&n-lt<T()){lt=0;(window.fsExitDirect||fsExit)()}else lt=n})}
+  if(true){let lt=0;z.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();const n=Date.now();if(lt&&n-lt<T()){lt=0;(window.fsExitDirect||fsExit)()}else lt=n})}
   else{
    /* 1 toque: passa direto para o player (a área não segura o toque). 2 toques seguidos dentro da área: voltam.
       Player de outro site (iframe) não avisa o toque: detectamos pelo foco e, por um instante, a área passa a segurar o 2º toque. */
@@ -714,7 +714,7 @@ function fkToggle(){
  S.ffL=!S.ffL;fkApply();
 }
 function fkExit(){if(history.state&&history.state.ff){S.ffX=1;history.back()}else fkClose()}
-addEventListener('popstate',()=>{if(!S.ff)return;if(S.ffX){S.ffX=0;fkClose()}else{try{history.pushState({ff:1},'')}catch(x){}if(S.showOv)S.showOv()}});
+addEventListener('popstate',()=>{if(!S.ff)return;S.ffX=0;fkClose()});
 addEventListener('resize',fkApply);
 addEventListener('orientationchange',()=>setTimeout(fkApply,200));
 /* girar o celular: deitado entra na tela cheia; em pé mantém a tela cheia e mostra o botão girar */
@@ -1587,7 +1587,7 @@ boot();
  window.fsExitDirect=function(){const w=document.getElementById('pw');if(w)w.classList.remove('vmo');S.fa=0;return fx.apply(this,arguments)};
  window.fsExit=function(){
   const w=document.getElementById('pw'),f=w&&w.querySelector('iframe');
-  if(f&&S.cur&&S.cur.pk=='vm'&&w.classList.contains('vmo')){
+  if(0){
    const p=S.sk&&S.sk.p?Math.max(0,Math.floor(S.sk.p-(S.sk.run?(0):0))):0,run=S.sk&&S.sk.run;
    let u=(f.getAttribute('src')||'').split('#')[0].replace(/[&?]_r=\d+/,'').replace(/[&?]autoplay=\d/,'');
    u+='&_r='+Date.now()+(run?'&autoplay=1':'')+(p>1?'#t='+p+'s':'');
