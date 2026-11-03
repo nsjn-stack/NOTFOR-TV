@@ -1,8 +1,8 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#000000"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><title>CINE NOTFOR</title>
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="theme-color" content="#000000"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><title>CINE NOTFOR</title>
 <style>
 :root{--r:#E10600;--g:#9a9a9a;--c:#0c0c0c;--l:#2a1010;--cw:120px;--hh:260px;--ww:190px;--bs:1}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{background:#000}
+html{background:#000;touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{margin:0;background:transparent;color:var(--tx,#fff);font:15px/1.4 system-ui,Roboto,sans-serif;padding-bottom:96px}
 body::before{content:"";position:fixed;inset:0;z-index:-1;background:#000 url(fundo.jpg) center/cover no-repeat}
 body::after{content:"";position:fixed;inset:0;z-index:-1;background:var(--bgc,transparent);mix-blend-mode:color;opacity:var(--bga,0);pointer-events:none}
@@ -687,7 +687,7 @@ async function fsReal(){
   }
  }finally{setTimeout(()=>{S.fsB=0},500)}
 }
-function fsExitReal(){try{screen.orientation.unlock()}catch(x){}(document.exitFullscreen||document.webkitExitFullscreen).call(document)}
+function fsExitReal(){try{screen.orientation.lock('portrait-primary').catch(()=>{})}catch(x){}(document.exitFullscreen||document.webkitExitFullscreen).call(document)}
 /* tela cheia falsa: ocupa a tela toda sem usar a tela cheia do Android (sem o aviso) */
 const fkOn=()=>ovn('ov_fm',1)==1;
 function fkApply(){
@@ -755,6 +755,10 @@ addEventListener('deviceorientation',e=>{
 });
 try{screen.orientation.addEventListener('change',arApply)}catch(x){}
 addEventListener('orientationchange',()=>setTimeout(arApply,120));
+/* app sempre em pé (sem virar de cabeça pra baixo) e sem zoom de pinça */
+try{screen.orientation.lock('portrait-primary').catch(()=>{})}catch(x){}
+['gesturestart','gesturechange','gestureend'].forEach(g=>document.addEventListener(g,e=>e.preventDefault()));
+document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1&&!e.target.closest('#vzp,.bl.adm'))e.preventDefault()},{passive:false});
 /* mexer no celular em tela cheia: mostra de novo os botões girar e voltar (e desfaz o "esconder" do toque duplo/segurar).
    Nada aqui sai da tela cheia: só o botão voltar (✕) ou o botão invisível de 2 toques. */
 S.mvB=null;S.mvT=0;
@@ -804,7 +808,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-03c · girar só para um lado (sem virar de cabeça pra baixo)';
+const APP_V='2026-11-03d · app travado em pé e sem zoom';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
