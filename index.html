@@ -224,6 +224,7 @@ body.nolsfs .pw.ff .ob.ls:not(.cps),body.nolsfs .pw:fullscreen .ob.ls:not(.cps),
 .cfm .cfr{display:flex;gap:8px}.cfm .cfr .btn{flex:1}
 </style><style id="gest-css">
 .tz.pt:not(.ed){pointer-events:none!important}
+.tz.pt,.bkz.pt{border:0!important;margin:0!important;padding:0!important;box-shadow:none!important}
 .pw.vmo .ob.ex{opacity:var(--o,1);pointer-events:auto}
 body.hb .pw.vmo .ob.ex{opacity:0!important;pointer-events:none!important}
 </style>
@@ -813,7 +814,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-03m · botão 🔍 (admin): varre a tela atrás da linha vermelha';
+const APP_V='2026-11-03n · some a linha vermelha do Vimeo (área de toque)';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
