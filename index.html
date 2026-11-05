@@ -850,7 +850,7 @@ function pPlay(){
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
  else{const m=drNat(arNat(vmNat(embed(u))));S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';
   S.tgh=0;p=m.t=='if'?`<iframe onload="pbLd()"${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(rsU(m))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>`
-  :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"${m.k=='dr'?' referrerpolicy="no-referrer"':''}${m.k=='ar'?' onerror="arFail()"':m.k=='dr'?' onerror="drFail()"':m.vm?' onerror="vmFail()"':''}></video><div class="ov cnp"><div class="cnp-top"><button class="cnp-b" id="cb" aria-label="Voltar">${ic(I.b,2)}</button><div class="cnp-t"><b>${esc(t.name)}</b><small>${e?`T${e.season} • ${t.section=='novela'?'Cap.':'Ep.'} ${e.num}${e.name?' - '+esc(e.name):''}`:esc([t.year,t.audio].filter(Boolean).join(' • '))}</small></div><button class="cnp-b" id="cc" onclick="cnpMenu('cc')" aria-label="Legendas"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10.2 10.3a2 2 0 100 3.4M16.2 10.3a2 2 0 100 3.4"/></svg></button><button class="cnp-b" id="gr" onclick="cnpMenu('gr')" aria-label="Qualidade e imagem"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button></div><div class="cnp-menu" id="cnpm" hidden></div><div class="cnp-vs l"><span class="cnp-vi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg></span><div class="cnp-vt" id="vtb"><u></u><s></s></div></div><div class="cnp-vs r"><span class="cnp-vi">${ic(I.v)}</span><div class="cnp-vt" id="vtv"><u></u><s></s></div></div><div class="cnp-mid"><button class="cnp-b cnp-s" id="b10" aria-label="Voltar 10 segundos"><svg viewBox="0 0 24 24"><path d="M5 12a7 7 0 107-7H8.5M10.5 2.5L8 5l2.5 2.5"/><text x="12" y="15" font-size="7" text-anchor="middle" fill="currentColor" stroke="none" font-weight="800">10</text></svg></button><button class="cnp-play" id="bp" aria-label="Reproduzir ou pausar"></button><button class="cnp-b cnp-s" id="f10" aria-label="Avançar 10 segundos"><svg viewBox="0 0 24 24"><path d="M19 12a7 7 0 11-7-7h3.5M13.5 2.5L16 5l-2.5 2.5"/><text x="12" y="15" font-size="7" text-anchor="middle" fill="currentColor" stroke="none" font-weight="800">10</text></svg></button></div><div class="cnp-bot"><div class="cnp-row"><span id="tm">0:00</span><input id="sk" type="range" min="0" max="1000" value="0" style="--p:0%"><span id="tt">0:00</span></div><div class="cnp-row cnp-r2"><button class="cnp-pill" id="bp2" aria-label="Reproduzir ou pausar"></button><button class="cnp-b cnp-m" id="mu" aria-label="Som">${ic(I.v)}</button><input id="vl" type="range" min="0" max="100" value="100" style="--p:100%"><button class="cnp-b cnp-sp" id="sp">1x</button><button class="cnp-b" id="rt" onclick="fs()" aria-label="Girar tela">${rIc()}</button></div></div></div>`
+  :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"${m.k=='dr'?' referrerpolicy="no-referrer"':''}${m.k=='ar'?' onerror="arFail()"':m.k=='dr'?' onerror="drFail()"':m.vm?' onerror="vmFail()"':''}></video><div class="ov cnp"><div class="cnp-top"><button class="cnp-b" id="cb" aria-label="Voltar">${ic(I.b,2)}</button><div class="cnp-t"><b>${esc(t.name)}</b><small>${e?`T${e.season} • ${t.section=='novela'?'Cap.':'Ep.'} ${e.num}${e.name?' - '+esc(e.name):''}`:esc([t.year,t.audio].filter(Boolean).join(' • '))}</small></div><button class="cnp-b" id="cc" onclick="cnpMenu('cc')" aria-label="Legendas"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10.2 10.3a2 2 0 100 3.4M16.2 10.3a2 2 0 100 3.4"/></svg></button><button class="cnp-b" id="gr" onclick="cnpMenu('gr')" aria-label="Qualidade e imagem"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button></div><div class="cnp-menu" id="cnpm" hidden></div><div class="cnp-mid"><button class="cnp-play" id="bp" aria-label="Reproduzir ou pausar"></button></div><div class="cnp-bot"><div class="cnp-row"><span id="tm">0:00</span><input id="sk" type="range" min="0" max="1000" value="0" style="--p:0%"><span id="tt">0:00</span></div><div class="cnp-row cnp-r2"><button class="cnp-pill" id="bp2" aria-label="Reproduzir ou pausar"></button><button class="cnp-b cnp-m" id="mu" aria-label="Som">${ic(I.v)}</button><input id="vl" type="range" min="0" max="100" value="100" style="--p:100%"><button class="cnp-b cnp-sp" id="spd" aria-label="Velocidade">1x</button><button class="cnp-b" id="rt" onclick="fs()" aria-label="Girar tela">${rIc()}</button></div></div></div>`
   :m.t=='w'?`<p class="mu" style="padding:30px">Preparando vídeo…</p>`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
@@ -1071,7 +1071,7 @@ function wire(){
   v.addEventListener('volumechange',syncV);
   syncV();syncB();setTimeout(()=>{syncV();syncB()},700)}
  $('#mu').onclick=()=>{am=0;const m=pw.querySelector('.amx');if(m)m.remove();v.muted=!v.muted;$('#mu').style.opacity=v.muted?.4:1};
- $('#sp').onclick=()=>{const r=[1,1.25,1.5,2,.75],n=r[(r.indexOf(v.playbackRate)+1)%5];v.playbackRate=n;$('#sp').textContent=n+'x'};
+ {const sp=$('#spd');if(sp)sp.onclick=()=>{const r=[1,1.25,1.5,2,.75],n=r[(r.indexOf(v.playbackRate)+1)%5];v.playbackRate=n;sp.textContent=n+'x'}}
 }
 
 /* ---------- comentários ---------- */
@@ -2088,12 +2088,23 @@ document.addEventListener('pointerup',end,true);document.addEventListener('point
 <style id="gx-css">
 #pw.gxp{touch-action:none;-webkit-user-select:none;user-select:none}
 #gxb{position:absolute;inset:0;z-index:1;background:#000;opacity:0;pointer-events:none}
-#gxh{position:absolute;z-index:99;pointer-events:none;display:none;align-items:center;gap:8px;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:8px 12px;color:#fff;font:700 13px system-ui,sans-serif;white-space:nowrap}
+#gxh{position:absolute;z-index:99;pointer-events:none;display:none;flex-direction:column;align-items:center;gap:5px;color:#fff;font:700 11px system-ui,sans-serif;text-shadow:0 1px 3px #000;white-space:nowrap}
 #gxh.on{display:flex}
-#gxh.l{left:8%;top:50%;transform:translateY(-50%)}
-#gxh.r{right:8%;top:50%;transform:translateY(-50%)}
-#gxh i{display:block;width:80px;height:5px;border-radius:3px;background:rgba(255,255,255,.3);overflow:hidden}
-#gxh i u{display:block;height:100%;background:#ff2a1a}
+#gxh.l{left:12px;top:50%;transform:translateY(-50%)}
+#gxh.r{right:12px;top:50%;transform:translateY(-50%)}
+#gxh em{font-style:normal}
+#gxh.v{width:34px;height:min(64%,150px);padding:8px 0 6px;border-radius:18px;box-sizing:border-box;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.22);box-shadow:0 0 10px rgba(255,26,15,.3)}
+#gxh .gi{display:grid;place-items:center;width:18px;height:18px;flex:none}
+#gxh svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#gxh .gt{position:relative;flex:1;width:100%;min-height:24px;display:block}
+#gxh .gt::before{content:"";position:absolute;left:50%;top:5px;bottom:5px;width:4px;margin-left:-2px;border-radius:3px;background:rgba(255,255,255,.3)}
+#gxh .gt u{position:absolute;left:50%;bottom:5px;width:4px;margin-left:-2px;border-radius:3px;height:calc((100% - 10px)*var(--f));background:#ff1a0f;box-shadow:0 0 6px rgba(255,26,15,.7)}
+#gxh.sun .gt u{background:#fff;box-shadow:none}
+#gxh .gt s{position:absolute;left:50%;bottom:calc(5px + (100% - 10px)*var(--f));width:11px;height:11px;margin:0 0 -5.5px -5.5px;border-radius:50%;background:#fff;box-shadow:0 0 5px #000}
+#gxh.sk.l{left:14%}#gxh.sk.r{right:14%}
+#gxh .gk{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.5);border:1.5px solid rgba(255,255,255,.35)}
+#gxh .gk svg{width:30px;height:30px}
+#gxh.txt{padding:6px 10px;border-radius:12px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.25)}
 </style>
 <script id="gx-js">
 /* Gestos no player do app (vídeo nativo: mp4, Archive, Drive "Direto"):
@@ -2112,10 +2123,12 @@ function loc(pw,x,y){
  const r=pw.getBoundingClientRect(),w=pw.offsetWidth,h=pw.offsetHeight,cx=r.left+r.width/2,cy=r.top+r.height/2,
   ox=cx-(m.a*w/2+m.c*h/2),oy=cy-(m.b*w/2+m.d*h/2);
  return{x:m.a*(x-ox)+m.b*(y-oy),y:m.c*(x-ox)+m.d*(y-oy),w,h}}
-function hud(pw,cls,html,pct){
+function hud(pw,cls,html,pct,kind){
  let h=pw.querySelector('#gxh');if(!h){h=document.createElement('div');h.id='gxh';pw.appendChild(h)}
- h.className='on '+cls;
- h.innerHTML='<span>'+html+'</span>'+(pct==null?'':'<i><u style="width:'+Math.round(pct*100)+'%"></u></i><span>'+Math.round(pct*100)+'%</span>');
+ const SUN='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>',SPK='<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4zM17 8a5 5 0 010 8"/></svg>',MUT='<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4zM17 9l5 6M22 9l-5 6"/></svg>',BK='<svg viewBox="0 0 24 24"><path d="M5 12a7 7 0 107-7H8.5M10.5 2.5L8 5l2.5 2.5"/><text x="12" y="15" font-size="7" text-anchor="middle" fill="currentColor" stroke="none" font-weight="800">10</text></svg>',FW='<svg viewBox="0 0 24 24"><path d="M19 12a7 7 0 11-7-7h3.5M13.5 2.5L16 5l-2.5 2.5"/><text x="12" y="15" font-size="7" text-anchor="middle" fill="currentColor" stroke="none" font-weight="800">10</text></svg>';
+ if(kind=='b'||kind=='f'){h.className='on sk '+cls;h.innerHTML='<span class="gk">'+(kind=='b'?BK:FW)+'</span><em>'+(kind=='b'?'−':'+')+html+'</em>'}
+ else if(pct!=null){const p=Math.round(pct*100),sun=cls=='l';h.className='on v '+cls+(sun?' sun':'');h.innerHTML='<span class="gi">'+(sun?SUN:(p==0?MUT:SPK))+'</span><b class="gt" style="--f:'+pct.toFixed(3)+'"><u></u><s></s></b><em>'+p+'%</em>'}
+ else{h.className='on txt '+cls;h.innerHTML='<span>'+html+'</span>'}
  clearTimeout(ht);ht=setTimeout(()=>{h.className=''},700)}
 const dim=pw=>{const b=pw.querySelector('#gxb');if(b)b.style.opacity=((1-br)*.9).toFixed(3)};
 window.cnGx={gb:()=>br,sb:x=>{br=cl(x,.1,1);const p=document.getElementById('pw');if(p)dim(p);sv()},sv:x=>{vol=cl(x,0,1);sv()}};
@@ -2163,7 +2176,7 @@ function seek(d,s){
  const v=d.v,k=s=='L'?-10:10;chain.acc+=k;
  try{v.currentTime=cl(v.currentTime+k,0,isFinite(v.duration)?v.duration:1e9)}catch(x){}
  const a=Math.abs(chain.acc)+'s';
- hud(d.pw,s=='L'?'l':'r',s=='L'?'⏪ −'+a:'+'+a+' ⏩')}
+ hud(d.pw,s=='L'?'l':'r',a,null,s=='L'?'b':'f')}
 function sideTap(d){
  const now=Date.now(),s=d.z;
  if(chain.s==s&&now-chain.t<450){chain.t=now;seek(d,s);return}
@@ -2223,6 +2236,7 @@ function sideTap(d){
 .cnp input[type=range]::-moz-range-thumb{width:13px;height:13px;border:0;border-radius:50%;background:#fff}
 .cnp-menu{position:absolute;top:44px;right:8px;z-index:6;min-width:128px;max-width:72%;max-height:calc(100% - 112px);overflow:auto;padding:6px;border-radius:12px;background:rgba(0,0,0,.72);border:1px solid rgba(255,42,26,.55);box-shadow:0 0 12px rgba(255,26,15,.35);display:flex;flex-direction:column;gap:3px;pointer-events:auto;color:#fff}
 .cnp-menu[hidden]{display:none}
+.pw:has(.cnp) .ob.ls{display:none!important}
 .pw.ovh .cnp-menu{display:none}
 .cnp-menu b{font-size:11px;color:#ff7a6e;margin:3px 4px 1px}
 .cnp-menu small{font-size:10.5px;color:#bbb;margin:2px 4px}
