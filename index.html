@@ -741,7 +741,10 @@ function cnpMenu(k,keep){
   h='<b>Qualidade</b>'+(q||'<small>Este vídeo tem uma qualidade só (a do arquivo).</small>');
   if(c.v){const z=drQ();h+='<b>Imagem</b>'+b(z=='0',"drQs('0');cnpMenu('gr',1)",'Normal')+b(z=='1',"drQs('1');cnpMenu('gr',1)",'Nítida')+b(z=='2',"drQs('2');cnpMenu('gr',1)",'Máxima')}
  }
+ h+='<b>Tela cheia</b>'+b(fsm()=='r',"fsMode('r');cnpMenu('gr',1)",'Real (leve, mostra aviso)')+b(fsm()=='f',"fsMode('f');cnpMenu('gr',1)",'Girada (sem aviso, mais pesada)')+'<small>Vale na próxima vez que entrar na tela cheia.</small>';
  m.innerHTML=h}
+const fsm=()=>{try{return localStorage.cn_fsm=='f'?'f':'r'}catch(e){return'r'}};
+function fsMode(k){try{localStorage.cn_fsm=k}catch(e){}}
 function drImg(v){
  v=v||$('#vd');if(!v)return;
  if(!S.cur||!S.cur.v){v.style.filter='';return}
@@ -960,7 +963,7 @@ function fkApply(){
 /* tela cheia REAL na horizontal (mais leve: o próprio aparelho gira o vídeo). Se o aparelho não deixar, cai na tela cheia falsa girada por CSS. */
 async function rlTry(){
  const w=$('#pw');
- if(!w||ovn('ov_rl',1)!=1||!(w.requestFullscreen||w.webkitRequestFullscreen)||!(screen.orientation&&screen.orientation.lock))return false;
+ if(!w||ovn('ov_rl',1)!=1||fsm()=='f'||!(w.requestFullscreen||w.webkitRequestFullscreen)||!(screen.orientation&&screen.orientation.lock))return false;
  try{
   S.fsT=Date.now();
   if(!isFs())await (w.requestFullscreen||w.webkitRequestFullscreen).call(w);
