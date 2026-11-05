@@ -409,6 +409,11 @@ body.typing nav{display:none!important}
 body.typing{padding-bottom:40vh}
 .cm,.cm div{color:#fff}
 </style>
+<style id="drag-css">
+.dgh{flex:none;width:40px;height:40px;margin:-6px 2px -6px -8px;display:grid;place-items:center;font-size:24px;line-height:1;text-decoration:none;opacity:.8;touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#ad.cfgc>.box.dgg{outline:2px solid #ff2a1a;box-shadow:0 0 18px #ff1a0f;opacity:.92;position:relative;z-index:5}
+#ad.cfgc>.box.dgg .dgh{cursor:grabbing;opacity:1}
+</style>
 </head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -694,7 +699,7 @@ function arQ(t){
    Se o Drive não entregar o vídeo (cota, arquivo privado, página de aviso), volta sozinho para o player do Google. */
 const DRF={};
 const drId=u=>{const m=(u||'').match(/^https:\/\/drive\.google\.com\/file\/d\/([\w-]+)\/preview$/);return m?m[1]:null};
-const DRI={},DRA={};
+const DRI={},DRA={},DRT={};
 const drUrls=id=>{let k='';try{k=localStorage.cn_gdk||''}catch(e){}const L=[];
  if(k)L.push('https://www.googleapis.com/drive/v3/files/'+id+'?alt=media&key='+encodeURIComponent(k));
  L.push('https://drive.usercontent.google.com/download?id='+id+'&export=download&confirm=t','https://drive.google.com/uc?export=download&confirm=t&id='+id,'https://drive.usercontent.google.com/download?id='+id+'&export=download&authuser=0&confirm=t');
@@ -705,13 +710,15 @@ function drNat(m){
  const id=drId(m.s);if(!id||DRF[id])return m;
  let a=0;try{a=skG(cu()).a}catch(e){}
  const L=drUrls(id),i=Math.min(DRI[id]||0,L.length-1);
- clearTimeout(S.drw);S.drw=setTimeout(()=>{const v=$('#vd');if(v&&S.cur&&drNow()==id&&v.readyState===0&&!v.currentTime)drFail(1)},10000);
+ clearTimeout(S.drw);S.drw=setTimeout(()=>{const v=$('#vd');if(v&&S.cur&&drNow()==id&&v.readyState===0&&!v.currentTime)drFail(1)},25000);
  return{t:'v',s:L[i]+(a>0?'#t='+a:''),k:'dr'}}
 /* falhou: tenta o próximo link; se acabarem os links, volta para o player do Google */
 function drFail(force){const v=$('#vd'),id=drNow();if(!force&&v&&v.currentTime>2)return;if(!id||DRF[id])return;
  const n=drUrls(id).length,i=(DRI[id]||0)+1;
+ if(!DRT[id]){DRT[id]=1;draw();return}
  if(i<n){DRI[id]=i;draw();return}
- DRF[id]=1;DRA[id]=1;draw()}
+ DRF[id]=1;DRA[id]=1;draw();
+ setTimeout(()=>{if(DRA[id]){delete DRF[id];delete DRA[id];DRI[id]=0;DRT[id]=0}},120000)}
 /* Opções do Drive no player do app: Player (Direto = arquivo original, como está hoje | Google = player do Drive com 360p–1080p) e Imagem (realce opcional, manual; "Normal" é igual ao que já era) */
 const drQ=()=>{try{return localStorage.cn_drq||'0'}catch(e){return'0'}};
 function drImg(v){
@@ -730,7 +737,7 @@ function drQs(k){try{localStorage.cn_drq=k}catch(e){}drImg();const b=document.ge
 function drPl(k){
  const id=drNow();if(!id)return;
  const v=$('#vd');if(v&&v.currentTime>5)setPos(ckey(),v.currentTime);
- if(k=='g'){DRF[id]=1;delete DRA[id]}else{delete DRF[id];delete DRA[id];DRI[id]=0}draw()}
+ if(k=='g'){DRF[id]=1;delete DRA[id]}else{delete DRF[id];delete DRA[id];DRI[id]=0;DRT[id]=0}draw()}
 /* botão "Continuar de mm:ss" (vídeos que tocam dentro do app: mp4 e Archive) */
 const rsFmt=t=>{t=Math.floor(t);const h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s).padStart(2,'0')};
 function rsBtnH(){
@@ -1830,7 +1837,7 @@ boot();
  const AVK='cn_adv',avm=()=>{try{return localStorage.getItem(AVK)||'l'}catch(e){return 'l'}};
  window.avSet=m=>{try{localStorage.setItem(AVK,m)}catch(e){}avInit()};
  function avCfg(d){[...d.children].forEach(e=>{if(!e.classList.contains('box')||e.querySelector(':scope>.xh'))return;
-  const b=e.querySelector('b'),h=document.createElement('div');h.className='xh';h.innerHTML='<span></span><i>›</i>';h.firstChild.textContent=(b?b.textContent:'Opções').trim();
+  const b=e.querySelector('b'),h=document.createElement('div');h.className='xh';h.innerHTML='<s class="dgh" title="Arraste para mudar de lugar">⠿</s><span></span><i>›</i>';h.querySelector('span').textContent=(b?b.textContent:'Opções').trim();
   h.onclick=()=>e.classList.toggle('xo');
   const mv=e.querySelector(':scope>.mv');mv?mv.after(h):e.prepend(h)})}
  function avInit(){const d=document.getElementById('ad');if(!d)return;
@@ -1951,5 +1958,23 @@ boot();
 <script id="cmt-fix-js">
 document.addEventListener('focusin',e=>{const t=e.target;if(t&&t.id=='ct'){document.body.classList.add('typing');setTimeout(()=>{try{t.scrollIntoView({block:'center',behavior:'smooth'})}catch(x){}},350)}});
 document.addEventListener('focusout',e=>{const t=e.target;if(t&&t.id=='ct')setTimeout(()=>{if(document.activeElement!==t)document.body.classList.remove('typing')},250)});
+</script>
+<script id="drag-js">
+(()=>{let D=null;
+const save=()=>{if(!D)return;const p=D.p;try{cf('cfg_order',[...p.children].filter(c=>c.dataset&&c.dataset.k!==undefined).map(c=>c.dataset.k).join(','))}catch(x){}};
+document.addEventListener('pointerdown',e=>{const h=e.target.closest&&e.target.closest('.dgh');if(!h)return;const b=h.closest('.box');if(!b||!b.parentNode)return;e.preventDefault();D={b,p:b.parentNode};b.classList.add('dgg');try{h.setPointerCapture(e.pointerId)}catch(x){}},true);
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('.dgh')){e.stopPropagation();e.preventDefault()}},true);
+document.addEventListener('pointermove',e=>{if(!D)return;e.preventDefault();const{b,p}=D;
+ if(e.clientY<110)scrollBy(0,-14);else if(e.clientY>innerHeight-150)scrollBy(0,14);
+ const bt=b.getBoundingClientRect().top;
+ for(const c of p.children){if(c===b||!c.classList.contains('box')||c.dataset.k===undefined)continue;
+  const r=c.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)continue;
+  const mid=r.top+r.height/2,fol=!!(b.compareDocumentPosition(c)&Node.DOCUMENT_POSITION_FOLLOWING),same=Math.abs(r.top-bt)<6,mx=r.left+r.width/2;
+  if(fol){if(e.clientY>mid||(same&&e.clientX>mx))c.after(b)}else{if(e.clientY<mid||(same&&e.clientX<mx))c.before(b)}
+  break}
+},{passive:false,capture:true});
+const end=()=>{if(!D)return;D.b.classList.remove('dgg');save();D=null};
+document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',end,true);
+})();
 </script>
 </body></html>
