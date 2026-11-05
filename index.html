@@ -701,8 +701,8 @@ function arQ(t){
    Se o Drive não entregar o vídeo (cota, arquivo privado, página de aviso), volta sozinho para o player do Google. */
 const DRF={};
 const drId=u=>{const m=(u||'').match(/^https:\/\/drive\.google\.com\/file\/d\/([\w-]+)\/preview$/);return m?m[1]:null};
-const DRI={},DRA={},DRT={};
-const drUrls=id=>{let k='';try{k=localStorage.cn_gdk||''}catch(e){}const L=[];
+const DRI={},DRA={},DRT={},DRE={};
+const drUrls=id=>{let k='';try{k=(S.set&&S.set.gd_key)||localStorage.cn_gdk||''}catch(e){}const L=[];
  if(k)L.push('https://www.googleapis.com/drive/v3/files/'+id+'?alt=media&key='+encodeURIComponent(k));
  L.push('https://drive.usercontent.google.com/download?id='+id+'&export=download&confirm=t','https://drive.google.com/uc?export=download&confirm=t&id='+id,'https://drive.usercontent.google.com/download?id='+id+'&export=download&authuser=0&confirm=t');
  return L};
@@ -716,6 +716,7 @@ function drNat(m){
  return{t:'v',s:L[i]+(a>0?'#t='+a:''),k:'dr'}}
 /* falhou: tenta o próximo link; se acabarem os links, volta para o player do Google */
 function drFail(force){const v=$('#vd'),id=drNow();if(!force&&v&&v.currentTime>2)return;if(!id||DRF[id])return;
+ try{const c=v&&v.error?v.error.code:(force?'tempo esgotado':'?');DRE[id]=(DRE[id]?DRE[id]+', ':'')+c}catch(e){}
  const n=drUrls(id).length,i=(DRI[id]||0)+1;
  if(!DRT[id]){DRT[id]=1;draw();return}
  if(i<n){DRI[id]=i;draw();return}
@@ -723,9 +724,27 @@ function drFail(force){const v=$('#vd'),id=drNow();if(!force&&v&&v.currentTime>2
  setTimeout(()=>{if(DRA[id]){delete DRF[id];delete DRA[id];DRI[id]=0;DRT[id]=0}},120000)}
 /* Opções do Drive no player do app: Player (Direto = arquivo original, como está hoje | Google = player do Drive com 360p–1080p) e Imagem (realce opcional, manual; "Normal" é igual ao que já era) */
 const drQ=()=>{try{return localStorage.cn_drq||'0'}catch(e){return'0'}};
+
+/* menu dos botões CC (legendas) e engrenagem (qualidade / imagem) do player novo */
+function cnpMenu(k,keep){
+ const m=document.getElementById('cnpm');if(!m)return;
+ if(!k||(!keep&&m.dataset.k==k&&!m.hidden)){m.hidden=true;return}
+ m.dataset.k=k;m.hidden=false;
+ const b=(on,fn,t)=>`<button class="${on?'on':''}" onclick="${fn}">${t}</button>`,c=S.cur||{};let h='';
+ if(k=='cc'){
+  const sv=S.sv||[];
+  h='<b>Legendas</b>'+b(S.si<0,"sbSel(-1,1);cnpMenu()",'Desligada')+sv.map((x,i)=>b(i==S.si,"sbSel("+i+",1);cnpMenu()",esc(x.l))).join('')+(sv.length?'':'<small>Nenhuma legenda cadastrada neste vídeo.</small>')+b(0,"cnpMenu();var f=document.getElementById('sbf');if(f)f.click()",'📁 Colocar do celular')
+ }else{
+  let q='';
+  if(c.pk=='ar'){const id=arNow(),L=id&&ARN[id];if(L&&L.length>1&&new Set(L.map(x=>x.size)).size>1){const p=localStorage.cn_arq||'auto',o=[['auto','Auto'],['h','Alta'],...(L.length>2?[['m','Média']]:[]),['l','Leve']];q=o.map(([a,n])=>b(p==a,"arQ('"+a+"');cnpMenu()",n)).join('')}}
+  else if(c.pk=='mp'&&typeof vmNow=='function'&&vmNow()){const n=vmNow(),L=VMN[n.id],hs=L?L.filter(f=>f.h):[];if(hs.length>1){const p=vmQ();q=b(p=='auto',"vmQs('auto');cnpMenu()",'Auto')+hs.map(f=>b(p==String(f.h),"vmQs('"+f.h+"');cnpMenu()",f.h+'p')).join('')}}
+  h='<b>Qualidade</b>'+(q||'<small>Este vídeo tem uma qualidade só (a do arquivo).</small>');
+  if(c.v){const z=drQ();h+='<b>Imagem</b>'+b(z=='0',"drQs('0');cnpMenu('gr',1)",'Normal')+b(z=='1',"drQs('1');cnpMenu('gr',1)",'Nítida')+b(z=='2',"drQs('2');cnpMenu('gr',1)",'Máxima')}
+ }
+ m.innerHTML=h}
 function drImg(v){
  v=v||$('#vd');if(!v)return;
- if(!S.cur||S.cur.pk!='dr'){v.style.filter='';return}
+ if(!S.cur||!S.cur.v){v.style.filter='';return}
  const q=drQ();
  if(q=='2'&&!document.getElementById('drsvg'))document.body.insertAdjacentHTML('beforeend','<svg id="drsvg" width="0" height="0" style="position:absolute"><filter id="drsharp" color-interpolation-filters="sRGB"><feConvolveMatrix order="3" preserveAlpha="true" kernelMatrix="0 -0.5 0 -0.5 3 -0.5 0 -0.5 0"/></filter></svg>');
  v.style.filter=q=='1'?'contrast(1.05) saturate(1.08)':q=='2'?'url(#drsharp) contrast(1.08) saturate(1.12)':''}
@@ -733,7 +752,7 @@ function drBarH(){
  if(!S.cur||S.cur.pk!='dr')return'';
  const id=drNow();if(!id)return'';
  const nat=!!S.cur.v,q=drQ(),b=(on,fn,n)=>`<button class="${on?'on':''}" onclick="${fn}">${n}</button>`,L=n=>`<span class="mu" style="padding:0;align-self:center;white-space:nowrap">${n}</span>`;
- return `<div id="drb">${!nat&&DRA[id]?'<p class="mu" style="margin:0 14px 6px;padding:0;font-size:12px">O Drive não liberou o arquivo direto agora (limite de downloads ou link restrito) e o app voltou para o player do Google. Toque em Direto para tentar de novo.</p>':''}${!nat||pf('drg')?`<div class="tabs arq">${L('Player')}${b(nat,"drPl('d')",'Direto')}${pf('drg')?b(!nat,"drPl('g')",'Google (360p–1080p)'):''}</div>`:''}`
+ return `<div id="drb">${!nat&&DRA[id]?'<p class="mu" style="margin:0 14px 6px;padding:0;font-size:12px">O Drive não liberou o arquivo direto agora (limite de downloads ou link restrito) e o app voltou para o player do Google. Toque em Direto para tentar de novo.'+(typeof adm=='function'&&adm()?'<br>Só você vê: códigos de erro dos links: '+(DRE[id]||'?')+' (4 = o Drive devolveu uma página em vez do vídeo: limite de downloads, arquivo não público ou bloqueio; 2 = falha de rede; tempo esgotado = não respondeu). A saída mais firme é cadastrar a chave do Drive: <a href="#" onclick="gdKey();return false" style="color:inherit;text-decoration:underline">🔑 Cadastrar chave do Drive (vale para todos)</a>':'')+'</p>':''}${!nat||pf('drg')?`<div class="tabs arq">${L('Player')}${b(nat,"drPl('d')",'Direto')}${pf('drg')?b(!nat,"drPl('g')",'Google (360p–1080p)'):''}</div>`:''}`
   +(nat?`<div class="tabs arq">${L('Imagem')}${b(q=='0',"drQs('0')",'Normal')}${b(q=='1',"drQs('1')",'Nítida')}${b(q=='2',"drQs('2')",'Máxima')}</div>`:'')+`</div>`}
 function drQs(k){try{localStorage.cn_drq=k}catch(e){}drImg();const b=document.getElementById('drb');if(b)b.outerHTML=drBarH()}
 function drPl(k){
@@ -831,7 +850,7 @@ function pPlay(){
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
  else{const m=drNat(arNat(vmNat(embed(u))));S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';
   S.tgh=0;p=m.t=='if'?`<iframe onload="pbLd()"${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(rsU(m))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>`
-  :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"${m.k=='ar'?' onerror="arFail()"':m.k=='dr'?' onerror="drFail()"':m.vm?' onerror="vmFail()"':''}></video><div class="ov cnp"><div class="cnp-top"><button class="cnp-b" id="cb" aria-label="Voltar">${ic(I.b,2)}</button><div class="cnp-t"><b>${esc(t.name)}</b><small>${e?`T${e.season} • ${t.section=='novela'?'Cap.':'Ep.'} ${e.num}${e.name?' - '+esc(e.name):''}`:esc([t.year,t.audio].filter(Boolean).join(' • '))}</small></div><button class="cnp-b cnp-sp" id="sp">1x</button></div><div class="cnp-mid"><button class="cnp-b cnp-s" id="b10" aria-label="Voltar 10 segundos"><svg viewBox="0 0 24 24"><path d="M5 12a7 7 0 107-7H8.5M10.5 2.5L8 5l2.5 2.5"/><text x="12" y="15" font-size="7" text-anchor="middle" fill="currentColor" stroke="none" font-weight="800">10</text></svg></button><button class="cnp-play" id="bp" aria-label="Reproduzir ou pausar"></button><button class="cnp-b cnp-s" id="f10" aria-label="Avançar 10 segundos"><svg viewBox="0 0 24 24"><path d="M19 12a7 7 0 11-7-7h3.5M13.5 2.5L16 5l-2.5 2.5"/><text x="12" y="15" font-size="7" text-anchor="middle" fill="currentColor" stroke="none" font-weight="800">10</text></svg></button></div><div class="cnp-bot"><div class="cnp-row"><span id="tm">0:00</span><input id="sk" type="range" min="0" max="1000" value="0" style="--p:0%"><span id="tt">0:00</span></div><div class="cnp-row cnp-r2"><button class="cnp-b" id="mu" aria-label="Som">${ic(I.v)}</button><button class="cnp-b" id="fl" aria-label="Tela cheia">${ic(I.f)}</button></div></div></div>`
+  :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"${m.k=='dr'?' referrerpolicy="no-referrer"':''}${m.k=='ar'?' onerror="arFail()"':m.k=='dr'?' onerror="drFail()"':m.vm?' onerror="vmFail()"':''}></video><div class="ov cnp"><div class="cnp-top"><button class="cnp-b" id="cb" aria-label="Voltar">${ic(I.b,2)}</button><div class="cnp-t"><b>${esc(t.name)}</b><small>${e?`T${e.season} • ${t.section=='novela'?'Cap.':'Ep.'} ${e.num}${e.name?' - '+esc(e.name):''}`:esc([t.year,t.audio].filter(Boolean).join(' • '))}</small></div><button class="cnp-b" id="cc" onclick="cnpMenu('cc')" aria-label="Legendas"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10.2 10.3a2 2 0 100 3.4M16.2 10.3a2 2 0 100 3.4"/></svg></button><button class="cnp-b" id="gr" onclick="cnpMenu('gr')" aria-label="Qualidade e imagem"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button></div><div class="cnp-menu" id="cnpm" hidden></div><div class="cnp-vs l"><span class="cnp-vi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg></span><div class="cnp-vt" id="vtb"><u></u><s></s></div></div><div class="cnp-vs r"><span class="cnp-vi">${ic(I.v)}</span><div class="cnp-vt" id="vtv"><u></u><s></s></div></div><div class="cnp-mid"><button class="cnp-b cnp-s" id="b10" aria-label="Voltar 10 segundos"><svg viewBox="0 0 24 24"><path d="M5 12a7 7 0 107-7H8.5M10.5 2.5L8 5l2.5 2.5"/><text x="12" y="15" font-size="7" text-anchor="middle" fill="currentColor" stroke="none" font-weight="800">10</text></svg></button><button class="cnp-play" id="bp" aria-label="Reproduzir ou pausar"></button><button class="cnp-b cnp-s" id="f10" aria-label="Avançar 10 segundos"><svg viewBox="0 0 24 24"><path d="M19 12a7 7 0 11-7-7h3.5M13.5 2.5L16 5l-2.5 2.5"/><text x="12" y="15" font-size="7" text-anchor="middle" fill="currentColor" stroke="none" font-weight="800">10</text></svg></button></div><div class="cnp-bot"><div class="cnp-row"><span id="tm">0:00</span><input id="sk" type="range" min="0" max="1000" value="0" style="--p:0%"><span id="tt">0:00</span></div><div class="cnp-row cnp-r2"><button class="cnp-pill" id="bp2" aria-label="Reproduzir ou pausar"></button><button class="cnp-b cnp-m" id="mu" aria-label="Som">${ic(I.v)}</button><input id="vl" type="range" min="0" max="100" value="100" style="--p:100%"><button class="cnp-b cnp-sp" id="sp">1x</button><button class="cnp-b" id="rt" onclick="fs()" aria-label="Girar tela">${rIc()}</button></div></div></div>`
   :m.t=='w'?`<p class="mu" style="padding:30px">Preparando vídeo…</p>`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
@@ -1022,10 +1041,10 @@ function wire(){
  const v=$('#vd');if(!v)return;
  drImg(v);
  const bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),f=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
- const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>',up=()=>{bp.innerHTML=v.paused?PLI:PAI},pw=$('#pw');
+ const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>',up=()=>{bp.innerHTML=v.paused?PLI:PAI;const b2=$('#bp2');if(b2)b2.innerHTML=v.paused?PLI:PAI},pw=$('#pw');
  let ht;const show=()=>{pw.classList.remove('ovh');clearTimeout(ht);if(!v.paused)ht=setTimeout(()=>pw.classList.add('ovh'),3000)};
  v.onplay=v.onpause=()=>{up();show()};up();
- pw.addEventListener('pointerdown',show);pw.addEventListener('touchstart',show,{passive:true});
+ pw.addEventListener('pointerdown',show);pw.addEventListener('touchstart',show,{passive:true});pw.addEventListener('pointerdown',e=>{if(!(e.target.closest&&e.target.closest('.cnp-menu,#cc,#gr')))cnpMenu()});
  if(pf('rs')){const sp=getPos(ckey());if(sp>10)v.addEventListener('loadedmetadata',()=>{if(v.duration&&sp<v.duration-15){v.currentTime=sp;const w=$('#pw'),m=document.createElement('div');m.className='nxb';m.style.cssText='top:12px;bottom:auto;padding:8px 14px';m.textContent='Continuando de '+f(sp);w.appendChild(m);setTimeout(()=>m.remove(),3000)}},{once:true})}
  let am=0,sw=0;const amOn=()=>{am=1;const mb=$('#mu');if(mb)mb.style.opacity=.4;const w=$('#pw');if(w&&!w.querySelector('.amx')){const m=document.createElement('div');m.className='nxb amx';m.style.cssText='top:12px;bottom:auto;padding:8px 14px';m.textContent='Sem som — toque na tela para ativar';w.appendChild(m);setTimeout(()=>m.remove(),6000)}},amOff=()=>{if(!am)return false;am=0;v.muted=false;const mb=$('#mu');if(mb)mb.style.opacity=1;const m=pw.querySelector('.amx');if(m)m.remove();return true};
  pw.addEventListener('pointerdown',e=>{if(am&&!(e.target.closest&&e.target.closest('#mu'))&&amOff())sw=Date.now()},true);
@@ -1035,6 +1054,22 @@ function wire(){
  const sk10=d=>{try{v.currentTime=Math.max(0,Math.min(isFinite(v.duration)?v.duration:1e9,v.currentTime+d))}catch(x){}};
  {const a=$('#b10'),b=$('#f10'),c=$('#fl'),k=$('#cb'),tt=$('#tt');if(a)a.onclick=()=>sk10(-10);if(b)b.onclick=()=>sk10(10);if(c)c.onclick=()=>fs();if(k)k.onclick=()=>{if(S.ff||document.fullscreenElement||document.webkitFullscreenElement)fsExit();else go(S.prev||'home')};v.addEventListener('loadedmetadata',()=>{if(tt)tt.textContent=f(v.duration)})}
  bp.onclick=v.onclick=()=>{if(Date.now()-sw<600)return;v.paused?v.play():v.pause()};
+ {const b2=$('#bp2');if(b2)b2.onclick=bp.onclick;
+  const G=window.cnGx||{},cl=(x,a,b)=>Math.max(a,Math.min(b,x)),tb=$('#vtb'),tv=$('#vtv'),vl=$('#vl');
+  const setF=(el,f)=>{if(el)el.style.setProperty('--f',f.toFixed(3))};
+  const volF=()=>v.muted?0:v.volume;
+  const syncV=()=>{const f=volF();setF(tv,f);if(vl){vl.value=f*100;vl.style.setProperty('--p',(f*100)+'%')}};
+  const syncB=()=>setF(tb,G.gb?(G.gb()-.1)/.9:1);
+  const drag=(el,fn)=>{if(!el)return;const at=e=>{const h=el.clientHeight-12;fn(cl(1-(e.offsetY-6)/h,0,1));e.preventDefault()};
+   el.addEventListener('pointerdown',e=>{try{el.setPointerCapture(e.pointerId)}catch(x){}el._d=1;at(e)});
+   el.addEventListener('pointermove',e=>{if(el._d)at(e)});
+   const end=()=>{el._d=0};el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end)};
+  const setVol=f=>{v.muted=false;try{v.volume=f}catch(x){}G.sv&&G.sv(f);syncV()};
+  drag(tv,setVol);
+  drag(tb,f=>{G.sb&&G.sb(.1+.9*f);syncB()});
+  if(vl)vl.oninput=()=>setVol(vl.value/100);
+  v.addEventListener('volumechange',syncV);
+  syncV();syncB();setTimeout(()=>{syncV();syncB()},700)}
  $('#mu').onclick=()=>{am=0;const m=pw.querySelector('.amx');if(m)m.remove();v.muted=!v.muted;$('#mu').style.opacity=v.muted?.4:1};
  $('#sp').onclick=()=>{const r=[1,1.25,1.5,2,.75],n=r[(r.indexOf(v.playbackRate)+1)%5];v.playbackRate=n;$('#sp').textContent=n+'x'};
 }
@@ -1130,7 +1165,7 @@ async function sbGet(u){const m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?
  for(const p of P)for(const x of L)C.push(p(x));
  const one=async url=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),9000);try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw 0;const tx=await sbTxt(await r.arrayBuffer());if(/^\s*<(!doctype|html)/i.test(tx)){html=1;throw 0}if(!tx.includes('-->'))throw 0;return tx}finally{clearTimeout(t)}};
  try{return await Promise.any(C.map(one))}catch(e){throw html?'html':'fail'}}
-function gdKey(){const k=prompt('Chave de API do Google (Drive API ativada). Fica salva só neste aparelho. Deixe vazio para apagar.',localStorage.cn_gdk||'');if(k===null)return;if(k.trim())localStorage.cn_gdk=k.trim();else localStorage.removeItem('cn_gdk');alert(k.trim()?'Chave salva.':'Chave apagada.')}
+async function gdKey(){const cur=(S.set&&S.set.gd_key)||localStorage.cn_gdk||'';const k=prompt('Chave de API do Google (Drive API ativada, vídeo compartilhado como "Qualquer pessoa com o link"). Se você for o administrador, ela vale para TODOS os usuários. Deixe vazio para apagar.',cur);if(k===null)return;const v=k.trim();if(v)localStorage.cn_gdk=v;else localStorage.removeItem('cn_gdk');if(typeof adm=='function'&&adm()){try{await cf('gd_key',v);S.set.gd_key=v}catch(e){}}Object.keys(DRF).forEach(i=>{delete DRF[i];delete DRA[i];DRI[i]=0;DRT[i]=0});alert(v?'Chave salva. Abra o vídeo de novo.':'Chave apagada.')}
 async function sbUrl(){const u=$('#sb_u').value.trim();if(!u)return alert('Cole o link da legenda.');const b=event&&event.target,st=$('#sb_st'),t0=b&&b.textContent;if(b){b.disabled=true;b.textContent='Baixando…'}if(st)st.textContent='Buscando a legenda… (até 10 segundos)';
  try{const tx=await sbGet(u);if(st)st.textContent='';await sbAdd(tx)}catch(x){const m=x=='html'?'O Google Drive devolveu uma página em vez do arquivo. No Drive: Compartilhar → “Qualquer pessoa com o link” (Leitor), e tente de novo.':'Não consegui ler a legenda por esse link (o Drive bloqueia o acesso direto). Use “Escolher do celular” ou cadastre a chave do Drive (🔑).';if(st)st.textContent=m;alert(m)}
  if(b){b.disabled=false;b.textContent=t0}}
@@ -2083,6 +2118,7 @@ function hud(pw,cls,html,pct){
  h.innerHTML='<span>'+html+'</span>'+(pct==null?'':'<i><u style="width:'+Math.round(pct*100)+'%"></u></i><span>'+Math.round(pct*100)+'%</span>');
  clearTimeout(ht);ht=setTimeout(()=>{h.className=''},700)}
 const dim=pw=>{const b=pw.querySelector('#gxb');if(b)b.style.opacity=((1-br)*.9).toFixed(3)};
+window.cnGx={gb:()=>br,sb:x=>{br=cl(x,.1,1);const p=document.getElementById('pw');if(p)dim(p);sv()},sv:x=>{vol=cl(x,0,1);sv()}};
 function init(){
  const v=document.getElementById('vd'),pw=document.getElementById('pw');
  if(!v||!pw||!pw.contains(v))return;
@@ -2137,36 +2173,61 @@ function sideTap(d){
 })();
 </script>
 <style id="cnp-css">
-/* === Player novo (estilo CINE NOTFOR): controles vermelhos e fundo quase invisível === */
-.pw .ov.cnp{inset:0;padding:6px 10px 6px;justify-content:space-between;gap:0;background:linear-gradient(180deg,rgba(0,0,0,.16),rgba(0,0,0,0) 30%,rgba(0,0,0,0) 62%,rgba(0,0,0,.2));pointer-events:none;color:#fff}
-.cnp button,.cnp input{pointer-events:auto}
-.pw.ovh .cnp button,.pw.ovh .cnp input{pointer-events:none}
+/* === Player novo (CINE NOTFOR): botões redondos, barras vermelhas e fundo quase invisível === */
+.pw .ov.cnp{inset:0;padding:6px 8px;justify-content:space-between;gap:0;background:linear-gradient(180deg,rgba(0,0,0,.14),rgba(0,0,0,0) 28%);pointer-events:none;color:#fff}
+.cnp button,.cnp input,.cnp .cnp-vt{pointer-events:auto}
+.pw.ovh .cnp button,.pw.ovh .cnp input,.pw.ovh .cnp .cnp-vt{pointer-events:none}
 .cnp-top{display:flex;align-items:center;gap:8px}
 .cnp-t{flex:1;min-width:0;line-height:1.15;text-shadow:0 1px 4px #000,0 0 8px rgba(0,0,0,.7)}
 .cnp-t b{display:block;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cnp-t small{display:block;font-size:10.5px;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cnp-b{flex:none;width:32px;height:32px;min-width:0;padding:0;border-radius:50%;display:grid;place-items:center;color:#fff;background:rgba(0,0,0,.28);border:1.5px solid rgba(255,255,255,.28);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);-webkit-tap-highlight-color:transparent;font:800 11px system-ui,sans-serif}
-#cb.cnp-b{border-color:rgba(255,42,26,.9);box-shadow:0 0 8px rgba(255,26,15,.7),inset 0 0 6px rgba(255,26,15,.35)}
-.cnp-b:active,.cnp-play:active{transform:scale(.9)}
-.cnp-b .ic{width:17px;height:17px}
-.cnp-b svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.cnp-sp{width:auto;min-width:34px;padding:0 8px;border-radius:16px}
-.cnp-mid{display:flex;align-items:center;justify-content:center;gap:22px}
-.cnp-mid .cnp-s{width:38px;height:38px}
-.cnp-mid .cnp-s svg{width:26px;height:26px}
-.cnp-play{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;color:#fff;background:rgba(0,0,0,.3);border:2.5px solid #ff2a1a;box-shadow:0 0 12px rgba(255,26,15,.85),inset 0 0 10px rgba(255,26,15,.45);-webkit-tap-highlight-color:transparent}
+.cnp-b{flex:none;width:30px;height:30px;min-width:0;padding:0;border-radius:50%;display:grid;place-items:center;color:#fff;background:rgba(0,0,0,.32);border:1.5px solid rgba(255,255,255,.3);-webkit-tap-highlight-color:transparent;font:800 11px system-ui,sans-serif}
+#cb.cnp-b{width:32px;height:32px;border-color:rgba(255,42,26,.9);box-shadow:0 0 8px rgba(255,26,15,.7),inset 0 0 6px rgba(255,26,15,.35)}
+.cnp-b:active,.cnp-play:active,.cnp-pill:active{transform:scale(.9)}
+.cnp-b .ic{width:16px;height:16px}
+.cnp-b svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cnp-sp{width:auto;min-width:32px;padding:0 7px;border-radius:15px}
+.cnp-mid{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;gap:24px;pointer-events:none}
+.cnp-mid .cnp-s{width:40px;height:40px;background:rgba(0,0,0,.42)}
+.cnp-mid .cnp-s svg{width:28px;height:28px}
+.cnp-play{position:relative;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;color:#fff;background:rgba(0,0,0,.55);border:0;box-shadow:0 0 14px rgba(255,26,15,.5);-webkit-tap-highlight-color:transparent}
+.cnp-play::before{content:"";position:absolute;inset:0;border-radius:50%;padding:3px;background:conic-gradient(#ff2a1a 0 72%,rgba(255,255,255,.18) 72% 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
 .cnp-play svg{width:28px;height:28px}
-.cnp-bot{display:flex;flex-direction:column;gap:2px}
+/* sliders laterais: brilho (esquerda) e volume (direita) */
+.cnp-vs{position:absolute;top:44px;bottom:66px;width:28px;display:flex;flex-direction:column;align-items:center;padding:6px 0;border-radius:16px;background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.18);box-sizing:border-box;pointer-events:none}
+.cnp-vs.l{left:8px}.cnp-vs.r{right:8px}
+.cnp-vi{flex:none;display:grid;place-items:center;width:18px;height:18px;margin-bottom:4px}
+.cnp-vi svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cnp-vi .ic{width:16px;height:16px}
+.cnp-vt{position:relative;flex:1;width:100%;min-height:30px;touch-action:none;--f:.5}
+.cnp-vt::before{content:"";position:absolute;left:50%;top:6px;bottom:6px;width:4px;margin-left:-2px;border-radius:3px;background:rgba(255,255,255,.3)}
+.cnp-vt u{position:absolute;left:50%;bottom:6px;width:4px;margin-left:-2px;border-radius:3px;height:calc((100% - 12px)*var(--f));background:#fff;pointer-events:none}
+.cnp-vs.r .cnp-vt u{background:#ff1a0f;box-shadow:0 0 6px rgba(255,26,15,.7)}
+.cnp-vt s{position:absolute;left:50%;bottom:calc(6px + (100% - 12px)*var(--f));width:12px;height:12px;margin:0 0 -6px -6px;border-radius:50%;background:#fff;box-shadow:0 0 5px #000;pointer-events:none}
+/* barra de baixo: faixa preta bem leve */
+.cnp-bot{position:relative;z-index:1;margin-top:auto;display:flex;flex-direction:column;gap:2px;padding:3px 8px 4px;border-radius:14px;background:rgba(0,0,0,.26);border:1px solid rgba(255,42,26,.38);box-shadow:0 0 10px rgba(255,26,15,.22),inset 0 0 8px rgba(255,26,15,.12)}
 .cnp-row{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;text-shadow:0 1px 3px #000}
 .cnp-row span{flex:none;min-width:32px;text-align:center}
-.cnp-r2{justify-content:space-between}
-.cnp-r2 .cnp-b{width:28px;height:28px;border-color:transparent;background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;filter:drop-shadow(0 1px 3px #000)}
-.cnp input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:22px;margin:0;padding:0;background:transparent;border:0}
+.cnp-r2{gap:8px}
+.cnp-pill{flex:none;width:48px;height:28px;border-radius:15px;display:grid;place-items:center;color:#fff;background:rgba(0,0,0,.35);border:1.5px solid #ff2a1a;box-shadow:0 0 8px rgba(255,26,15,.7),inset 0 0 6px rgba(255,26,15,.3);-webkit-tap-highlight-color:transparent}
+.cnp-pill svg{width:16px;height:16px}
+.cnp-m{width:28px;height:28px;border-color:transparent;background:transparent}
+.cnp-r2 .cnp-b{width:28px;height:28px}
+.cnp-r2 .cnp-sp{width:auto;min-width:32px}
+.cnp-r2 #vl{max-width:130px}
+.cnp input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:20px;margin:0;padding:0;background:transparent;border:0}
 .cnp input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:3px;background:linear-gradient(90deg,#ff1a0f var(--p,0%),rgba(255,255,255,.3) var(--p,0%));box-shadow:0 0 6px rgba(255,26,15,.5)}
 .cnp input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;margin-top:-4.5px;border-radius:50%;background:#fff;box-shadow:0 0 6px #ff2a1a,0 0 2px #000}
 .cnp input[type=range]::-moz-range-track{height:4px;border-radius:3px;background:rgba(255,255,255,.3)}
 .cnp input[type=range]::-moz-range-progress{height:4px;border-radius:3px;background:#ff1a0f}
 .cnp input[type=range]::-moz-range-thumb{width:13px;height:13px;border:0;border-radius:50%;background:#fff}
+.cnp-menu{position:absolute;top:44px;right:8px;z-index:6;min-width:128px;max-width:72%;max-height:calc(100% - 112px);overflow:auto;padding:6px;border-radius:12px;background:rgba(0,0,0,.72);border:1px solid rgba(255,42,26,.55);box-shadow:0 0 12px rgba(255,26,15,.35);display:flex;flex-direction:column;gap:3px;pointer-events:auto;color:#fff}
+.cnp-menu[hidden]{display:none}
+.pw.ovh .cnp-menu{display:none}
+.cnp-menu b{font-size:11px;color:#ff7a6e;margin:3px 4px 1px}
+.cnp-menu small{font-size:10.5px;color:#bbb;margin:2px 4px}
+.cnp-menu button{text-align:left;padding:6px 9px;border-radius:8px;background:transparent;color:#fff;font-size:12px;font-weight:600;border:1px solid transparent}
+.cnp-menu button.on{border-color:#ff2a1a;background:rgba(255,26,15,.25)}
 </style>
 <style id="rcq-css">
 .rcq{position:absolute;top:6px;right:6px;z-index:6;width:28px;height:28px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;background:rgba(255,255,255,.92);color:#222;font:700 16px/1 system-ui,sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.6);-webkit-tap-highlight-color:transparent}
