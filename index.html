@@ -2180,7 +2180,7 @@ function hud(pw,cls,html,pct,kind){
  else if(pct!=null){const p=Math.round(pct*100),sun=cls=='l';h.className='on v '+cls+(sun?' sun':'');h.innerHTML='<span class="gi">'+(sun?SUN:(p==0?MUT:SPK))+'</span><b class="gt" style="--f:'+pct.toFixed(3)+'"><u></u><s></s></b><em>'+p+'%</em>'}
  else{h.className='on txt '+cls;h.innerHTML='<span>'+html+'</span>'}
  clearTimeout(ht);ht=setTimeout(()=>{h.className=''},700)}
-const dim=pw=>{const b=pw.querySelector('#gxb');if(b)b.style.opacity=((1-br)*.9).toFixed(3)};
+const dim=pw=>{const b=pw.querySelector('#gxb');if(b){const o=(1-br)*.9;b.style.opacity=o.toFixed(3);b.style.visibility=o>.001?'visible':'hidden'}};
 window.cnGx={gb:()=>br,sb:x=>{br=cl(x,.1,1);const p=document.getElementById('pw');if(p)dim(p);sv()},sv:x=>{vol=cl(x,0,1);sv()}};
 function init(){
  const v=document.getElementById('vd'),pw=document.getElementById('pw');
@@ -2346,6 +2346,13 @@ function sideTap(d){
 #cfq em{font-style:normal;font-size:12px;color:var(--g);flex:none}
 .cfq-h{display:none!important}
 #ad.cfgc>.box>.xh{-webkit-touch-callout:none}
+</style>
+<style id="perf-css">
+/* player leve: com o vídeo em tela cheia, desliga o que fica atrás/em cima e não precisa ser desenhado */
+body:has(:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen)) nav{display:none}
+body:has(:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen))::before,
+body:has(:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen))::after{display:none}
+#gxb{visibility:hidden}
 </style>
 <style id="rcq-css">
 .rcq{position:absolute;top:6px;right:6px;z-index:6;width:28px;height:28px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;background:rgba(255,255,255,.92);color:#222;font:700 16px/1 system-ui,sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.6);-webkit-tap-highlight-color:transparent}
