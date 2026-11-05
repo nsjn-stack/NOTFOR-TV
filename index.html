@@ -957,8 +957,25 @@ function fkApply(){
  if(S.showRot)S.showRot();
  blSync();
 }
-function fkEnter(){
- const w=$('#pw');if(!w||S.ff)return;
+/* tela cheia REAL na horizontal (mais leve: o próprio aparelho gira o vídeo). Se o aparelho não deixar, cai na tela cheia falsa girada por CSS. */
+async function rlTry(){
+ const w=$('#pw');
+ if(!w||ovn('ov_rl',1)!=1||!(w.requestFullscreen||w.webkitRequestFullscreen)||!(screen.orientation&&screen.orientation.lock))return false;
+ try{
+  S.fsT=Date.now();
+  if(!isFs())await (w.requestFullscreen||w.webkitRequestFullscreen).call(w);
+  await screen.orientation.lock('landscape');
+ }catch(x){
+  try{if(isFs())(document.exitFullscreen||document.webkitExitFullscreen).call(document)}catch(e){}
+  return false}
+ if(S.showOv)S.showOv();
+ return true;
+}
+async function fkEnter(){
+ const w=$('#pw');if(!w||S.ff||isFs()||S.rlB)return;
+ S.rlB=1;let ok=false;
+ try{ok=await rlTry()}finally{S.rlB=0}
+ if(ok||S.ff)return;
  S.ff=1;S.ffL=true;
  try{history.pushState({ff:1},'')}catch(x){}
  fkApply();
@@ -1034,7 +1051,7 @@ addEventListener('deviceorientation',e=>{
  if(Math.abs(b-r[0])>12||Math.abs(g-r[1])>12){S.mvB=[b,g];mvShow()}
 });
 addEventListener('resize',()=>setTimeout(arApply,150));
-function fs(){return fkOn()?fkToggle():fsReal()}
+function fs(){if(isFs())return fsReal();return fkOn()?fkToggle():fsReal()}
 function fsExit(){return S.ff?fkExit():fsExitReal()}
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement){try{screen.orientation.lock('portrait-primary').catch(()=>{})}catch(x){}}setTimeout(blSync,250)});
 function wire(){
@@ -2242,6 +2259,52 @@ function sideTap(d){
 .cnp-menu small{font-size:10.5px;color:#bbb;margin:2px 4px}
 .cnp-menu button{text-align:left;padding:6px 9px;border-radius:8px;background:transparent;color:#fff;font-size:12px;font-weight:600;border:1px solid transparent}
 .cnp-menu button.on{border-color:#ff2a1a;background:rgba(255,26,15,.25)}
+</style>
+<style id="cnp-fs-css">
+/* === Tela cheia / deitada: botões maiores e barra de baixo mais centralizada e mais alta === */
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .ov.cnp{padding:14px 20px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-top{gap:18px;align-items:center}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-t b{font-size:27px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-t small{font-size:18px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-b{width:60px;height:60px;border-width:2px;font-size:19px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) #cb.cnp-b{width:66px;height:66px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-b .ic{width:30px;height:30px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-b svg{width:32px;height:32px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-sp{width:auto;min-width:66px;padding:0 16px;border-radius:32px;font-size:20px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-play{width:108px;height:108px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-play::before{padding:5px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-play svg{width:54px;height:54px}
+/* barra de baixo: afastada das bordas (centralizada) e bem mais grossa */
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-bot{margin:auto 6% 3%;padding:12px 24px 14px;gap:8px;border-radius:28px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-row{gap:18px;font-size:20px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-row span{min-width:68px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-r2{gap:18px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-pill{width:100px;height:58px;border-radius:30px;border-width:2px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-pill svg{width:32px;height:32px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-r2 .cnp-b,:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-m{width:58px;height:58px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-r2 .cnp-sp{width:auto;min-width:68px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-r2 #vl{max-width:320px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]{height:46px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]::-webkit-slider-runnable-track{height:9px;border-radius:5px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]::-webkit-slider-thumb{width:30px;height:30px;margin-top:-10.5px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]::-moz-range-track{height:9px;border-radius:5px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]::-moz-range-progress{height:9px;border-radius:5px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]::-moz-range-thumb{width:30px;height:30px}
+/* menu de legendas / qualidade */
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-menu{top:104px;right:20px;min-width:240px;padding:10px;gap:6px;border-radius:18px;max-height:calc(100% - 104px - 220px)}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-menu b{font-size:19px;margin:5px 6px 2px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-menu small{font-size:16px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-menu button{padding:12px 16px;font-size:20px;border-radius:12px}
+/* aviso de próximo episódio não fica atrás da barra maior */
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .nxb{bottom:190px}
+/* leve: sem brilhos/sombras grandes sobre o vídeo (pesam quando o player fica esticado) */
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-b,:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) #cb.cnp-b,:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-play,:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-bot,:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-pill,:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-menu{box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-bot{background:rgba(0,0,0,.45)}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-t,:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-row{text-shadow:0 1px 3px #000}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]::-webkit-slider-runnable-track{box-shadow:none}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]::-webkit-slider-thumb{box-shadow:0 0 2px #000}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-menu{background:rgba(0,0,0,.85)}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp{contain:layout style}
 </style>
 <style id="rcq-css">
 .rcq{position:absolute;top:6px;right:6px;z-index:6;width:28px;height:28px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;background:rgba(255,255,255,.92);color:#222;font:700 16px/1 system-ui,sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.6);-webkit-tap-highlight-color:transparent}
