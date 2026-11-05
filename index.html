@@ -768,18 +768,36 @@ function vmPick(L,q){
  if(!L||!L.length)return null;
  if(q!='auto'){const x=L.find(f=>f.h==+q);if(x)return x}
  const ok=L.filter(f=>f.h&&f.h<=720);return ok.length?ok[ok.length-1]:L[0]}
+const VME={};
+function vmLoadHls(){return new Promise(res=>{
+ if(window.Hls)return res(Hls.isSupported());
+ const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js';
+ sc.onload=()=>res(!!(window.Hls&&Hls.isSupported()));sc.onerror=()=>res(false);document.head.appendChild(sc)})}
+const vmNatHls=()=>{try{return !!document.createElement('video').canPlayType('application/vnd.apple.mpegurl')}catch(e){return false}};
 function vmPre(p){
  if(S.vmp==p.id)return;S.vmp=p.id;
- const done=L=>{if(S.vmp!=p.id)return;S.vmp=null;VMN[p.id]=L&&L.length?L:null;VMT[p.id]=Date.now();
+ const done=(L,why)=>{if(S.vmp!=p.id)return;S.vmp=null;VMN[p.id]=L&&L.length?L:null;VMT[p.id]=Date.now();VME[p.id]=L&&L.length?'':(why||'sem resposta');
   const n=vmNow();if(S.tab=='play'&&S.cur&&n&&n.id==p.id)draw()};
- const ctl=window.AbortController?new AbortController():null;
- const tm=setTimeout(()=>{try{ctl&&ctl.abort()}catch(e){}done(null)},7000);
- fetch('https://player.vimeo.com/video/'+p.id+'/config'+(p.h?'?h='+p.h:''),ctl?{signal:ctl.signal}:{}).then(r=>r.ok?r.json():null).then(j=>{
+ const tm=setTimeout(()=>done(null,'a função "vimeo" do Supabase demorou demais para responder'),12000);
+ Promise.resolve(sb.functions.invoke('vimeo',{body:{id:p.id,h:p.h,ref:location.origin+'/'}})).then(async r=>{
   clearTimeout(tm);
-  const F=(j&&j.request&&j.request.files)||{};
-  let L=(F.progressive||[]).filter(f=>f&&f.url).map(f=>({u:f.url,h:+f.height||parseInt(f.quality)||0})).sort((a,b)=>a.h-b.h);
-  if(!L.length&&F.hls){try{if(document.createElement('video').canPlayType('application/vnd.apple.mpegurl')){const c=F.hls.cdns||{},k=F.hls.default_cdn&&c[F.hls.default_cdn]?F.hls.default_cdn:Object.keys(c)[0];if(k&&c[k].url)L=[{u:c[k].url,h:0}]}}catch(e){}}
-  done(L)}).catch(()=>{clearTimeout(tm);done(null)})}
+  if(r&&r.error){const st=r.error.context&&r.error.context.status;done(null,st==404?'a função "vimeo" ainda não foi criada no Supabase':st==401?'desligue "Verify JWT" na função "vimeo" do Supabase':'erro ao chamar a função "vimeo" ('+(r.error.message||st||'?')+')');return}
+  const d=r&&r.data;
+  if(!d||!d.ok){done(null,d&&d.error?'o Vimeo respondeu: '+d.error:'resposta vazia da função "vimeo"');return}
+  let L=(d.progressive||[]).filter(f=>f&&f.u).map(f=>({u:f.u,h:+f.h||0}));
+  if(!L.length&&d.hls){if(await vmLoadHls()||vmNatHls())L=[{u:d.hls,h:0,hls:1}]}
+  done(L,'esse vídeo não libera mp4 nem HLS (privado ou com bloqueio de domínio)')
+ }).catch(e=>{clearTimeout(tm);done(null,'erro: '+(e&&e.message||e))})}
+/* Vimeo só em HLS (.m3u8): toca com hls.js, ou nativo se o aparelho já entende */
+setInterval(()=>{
+ const v=document.getElementById('vd');if(!v||v._hl)return;
+ const s=v.getAttribute('src')||'';if(!/\.m3u8(\?|#|$)/.test(s))return;v._hl=1;
+ if(window.Hls&&Hls.isSupported()){
+  try{if(window._vmH)window._vmH.destroy()}catch(e){}
+  const h=new Hls({maxBufferLength:30});window._vmH=h;v.removeAttribute('src');
+  h.loadSource(s.replace(/#.*$/,''));h.attachMedia(v);
+  h.on(Hls.Events.MANIFEST_PARSED,()=>{v.play().catch(()=>{})});
+  h.on(Hls.Events.ERROR,(e,d)=>{if(d&&d.fatal&&v.currentTime<=2)vmFail(true)})}},300);
 function vmNat(m){
  if(!m||m.k!='vm'||m.t!='if')return m;
  const p=vmP(m.s);if(!p||VMF[p.id])return m;
@@ -789,10 +807,12 @@ function vmNat(m){
  if(L===undefined){vmPre(p);return{t:'w',s:'',k:'vm'}}
  const x=vmPick(L,vmQ());if(!x)return m;
  let a=0;try{a=skG(cu()).a}catch(e){}
- return{t:'v',s:x.u+(a>0?'#t='+a:''),k:'mp',vm:1}}
-function vmFail(){const v=$('#vd'),n=vmNow();if(v&&v.currentTime>2)return;if(n&&VMN[n.id]){VMN[n.id]=null;draw()}}
+ return{t:'v',s:x.hls?x.u:x.u+(a>0?'#t='+a:''),k:'mp',vm:1}}
+function vmFail(force){const v=$('#vd'),n=vmNow();if(!force&&v&&(v.currentTime>2||(/\.m3u8/.test(v.getAttribute('src')||'')&&window.Hls&&Hls.isSupported())))return;if(n&&VMN[n.id]){VMN[n.id]=null;draw()}}
 function vmBarH(){
- const n=vmNow();if(!n)return'';const L=VMN[n.id];if(!L||!L.length)return'';
+ const n=vmNow();if(!n)return'';const L=VMN[n.id];
+ if(L===null&&!VMF[n.id]&&typeof adm=='function'&&adm())return `<p class="mu" style="margin:0 14px 6px;padding:0;font-size:12px">Só você vê: este Vimeo não tocou no player do app porque ${esc(VME[n.id]||'não foi possível')}. Está tocando no player do Vimeo.</p>`;
+ if(!L||!L.length)return'';
  const nat=!VMF[n.id],q=vmQ(),hs=L.filter(f=>f.h),
   b=(on,fn,t)=>`<button class="${on?'on':''}" onclick="${fn}">${t}</button>`,lb=t=>`<span class="mu" style="padding:0;align-self:center;white-space:nowrap">${t}</span>`;
  return `<div id="vmb"><div class="tabs arq">${lb('Player')}${b(nat,"vmPl('d')",'Direto')}${b(!nat,"vmPl('v')",'Vimeo')}</div>`
