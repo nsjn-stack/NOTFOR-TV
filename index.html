@@ -82,6 +82,7 @@ nav .ic{stroke:currentColor;width:24px;height:24px}
 .big{position:absolute;inset:0;margin:auto;width:64px;height:64px;border-radius:50%;border:2px solid #999;font-size:22px;background:rgba(0,0,0,.35);z-index:2}
 .ov{position:absolute;left:0;right:0;bottom:0;padding:8px 12px;background:linear-gradient(transparent,rgba(0,0,0,.85));display:flex;flex-direction:column;gap:4px;z-index:2}
 .ov input{margin:0;padding:0;accent-color:var(--r);background:none;border:0}
+.ov{transition:opacity .3s}.pw.ovh .ov{opacity:0;pointer-events:none}
 .pl{display:flex;justify-content:space-between;align-items:center;font-size:12px}
 .pill{display:flex;gap:2px;background:rgba(20,20,20,.85);border-radius:16px;padding:0 6px}
 .pill button{min-width:40px;height:36px;font-size:13px;font-weight:700;display:grid;place-items:center}
@@ -892,8 +893,10 @@ document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement
 function wire(){
  const v=$('#vd');if(!v)return;
  const bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),f=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
- const up=()=>bp.style.display=v.paused?'':'none';
- v.onplay=v.onpause=up;
+ const up=()=>bp.style.display=v.paused?'':'none',pw=$('#pw');
+ let ht;const show=()=>{pw.classList.remove('ovh');clearTimeout(ht);if(!v.paused)ht=setTimeout(()=>pw.classList.add('ovh'),3000)};
+ v.onplay=v.onpause=()=>{up();show()};
+ pw.addEventListener('pointerdown',show);pw.addEventListener('touchstart',show,{passive:true});
  if(pf('rs')){const sp=getPos(ckey());if(sp>10)v.addEventListener('loadedmetadata',()=>{if(v.duration&&sp<v.duration-15){v.currentTime=sp;const w=$('#pw'),m=document.createElement('div');m.className='nxb';m.style.cssText='top:12px;bottom:auto;padding:8px 14px';m.textContent='Continuando de '+f(sp);w.appendChild(m);setTimeout(()=>m.remove(),3000)}},{once:true})}
  v.onended=onEnd;v.play().catch(()=>{v.muted=true;v.play().catch(()=>{})});
  let lp=0;v.ontimeupdate=()=>{if(v.duration&&Date.now()-lp>3000){lp=Date.now();const p=prog(),c=S.cur;p[c.t.id+'_'+(c.e?c.e.id:0)]=Math.min(1,v.currentTime/v.duration);localStorage.cn_prog=JSON.stringify(p);if(v.currentTime>5)setPos(ckey(),v.currentTime);if(v.currentTime/v.duration>.9&&pf('sn')&&!lj('cn_seen')[ckey()])setSeen(ckey(),1)}sk.value=v.currentTime/(v.duration||1)*1000;tm.textContent=f(v.currentTime)+' / '+f(v.duration)};
