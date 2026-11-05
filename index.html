@@ -686,15 +686,24 @@ function arQ(t){
    Se o Drive não entregar o vídeo (cota, arquivo privado, página de aviso), volta sozinho para o player do Google. */
 const DRF={};
 const drId=u=>{const m=(u||'').match(/^https:\/\/drive\.google\.com\/file\/d\/([\w-]+)\/preview$/);return m?m[1]:null};
-const drUrl=id=>{let k='';try{k=localStorage.cn_gdk||''}catch(e){}return k?'https://www.googleapis.com/drive/v3/files/'+id+'?alt=media&key='+encodeURIComponent(k):'https://drive.usercontent.google.com/download?id='+id+'&export=download&confirm=t'};
+const DRI={},DRA={};
+const drUrls=id=>{let k='';try{k=localStorage.cn_gdk||''}catch(e){}const L=[];
+ if(k)L.push('https://www.googleapis.com/drive/v3/files/'+id+'?alt=media&key='+encodeURIComponent(k));
+ L.push('https://drive.usercontent.google.com/download?id='+id+'&export=download&confirm=t','https://drive.google.com/uc?export=download&confirm=t&id='+id,'https://drive.usercontent.google.com/download?id='+id+'&export=download&authuser=0&confirm=t');
+ return L};
 const drNow=()=>{try{const m=embed(cu());return m&&drId(m.s)}catch(e){return null}};
 function drNat(m){
  if(!m||m.k!='dr'||m.t!='if')return m;
  const id=drId(m.s);if(!id||DRF[id])return m;
  let a=0;try{a=skG(cu()).a}catch(e){}
- clearTimeout(S.drw);S.drw=setTimeout(()=>{const v=$('#vd');if(v&&S.cur&&drNow()==id&&v.readyState===0&&!v.currentTime)drFail(1)},12000);
- return{t:'v',s:drUrl(id)+(a>0?'#t='+a:''),k:'dr'}}
-function drFail(force){const v=$('#vd'),id=drNow();if(!force&&v&&v.currentTime>2)return;if(id&&!DRF[id]){DRF[id]=1;draw()}}
+ const L=drUrls(id),i=Math.min(DRI[id]||0,L.length-1);
+ clearTimeout(S.drw);S.drw=setTimeout(()=>{const v=$('#vd');if(v&&S.cur&&drNow()==id&&v.readyState===0&&!v.currentTime)drFail(1)},10000);
+ return{t:'v',s:L[i]+(a>0?'#t='+a:''),k:'dr'}}
+/* falhou: tenta o próximo link; se acabarem os links, volta para o player do Google */
+function drFail(force){const v=$('#vd'),id=drNow();if(!force&&v&&v.currentTime>2)return;if(!id||DRF[id])return;
+ const n=drUrls(id).length,i=(DRI[id]||0)+1;
+ if(i<n){DRI[id]=i;draw();return}
+ DRF[id]=1;DRA[id]=1;draw()}
 /* Opções do Drive no player do app: Player (Direto = arquivo original, como está hoje | Google = player do Drive com 360p–1080p) e Imagem (realce opcional, manual; "Normal" é igual ao que já era) */
 const drQ=()=>{try{return localStorage.cn_drq||'0'}catch(e){return'0'}};
 function drImg(v){
@@ -707,13 +716,13 @@ function drBarH(){
  if(!S.cur||S.cur.pk!='dr')return'';
  const id=drNow();if(!id)return'';
  const nat=!!S.cur.v,q=drQ(),b=(on,fn,n)=>`<button class="${on?'on':''}" onclick="${fn}">${n}</button>`,L=n=>`<span class="mu" style="padding:0;align-self:center;white-space:nowrap">${n}</span>`;
- return `<div id="drb"><div class="tabs arq">${L('Player')}${b(nat,"drPl('d')",'Direto')}${b(!nat,"drPl('g')",'Google (360p–1080p)')}</div>`
+ return `<div id="drb">${!nat&&DRA[id]?'<p class="mu" style="margin:0 14px 6px;padding:0;font-size:12px">O Drive não liberou o arquivo direto agora (limite de downloads ou link restrito) e o app voltou para o player do Google. Toque em Direto para tentar de novo.</p>':''}<div class="tabs arq">${L('Player')}${b(nat,"drPl('d')",'Direto')}${b(!nat,"drPl('g')",'Google (360p–1080p)')}</div>`
   +(nat?`<div class="tabs arq">${L('Imagem')}${b(q=='0',"drQs('0')",'Normal')}${b(q=='1',"drQs('1')",'Nítida')}${b(q=='2',"drQs('2')",'Máxima')}</div>`:'')+`</div>`}
 function drQs(k){try{localStorage.cn_drq=k}catch(e){}drImg();const b=document.getElementById('drb');if(b)b.outerHTML=drBarH()}
 function drPl(k){
  const id=drNow();if(!id)return;
  const v=$('#vd');if(v&&v.currentTime>5)setPos(ckey(),v.currentTime);
- if(k=='g')DRF[id]=1;else delete DRF[id];draw()}
+ if(k=='g'){DRF[id]=1;delete DRA[id]}else{delete DRF[id];delete DRA[id];DRI[id]=0}draw()}
 /* botão "Continuar de mm:ss" (vídeos que tocam dentro do app: mp4 e Archive) */
 const rsFmt=t=>{t=Math.floor(t);const h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s).padStart(2,'0')};
 function rsBtnH(){
