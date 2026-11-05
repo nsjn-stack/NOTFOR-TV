@@ -223,13 +223,14 @@ body.nolsfs .pw.ff .ob.ls:not(.cps),body.nolsfs .pw:fullscreen .ob.ls:not(.cps),
 .cfm h3{margin:0 0 6px;font-size:18px}.cfm p{margin:0 0 16px;color:#ccc;font-size:14px}
 .cfm .cfr{display:flex;gap:8px}.cfm .cfr .btn{flex:1}
 /* === TEMA NEON AKATSUKI — tela do player === */
-body[data-tab=play]::before{background:#000 url(fundo-player.jpg) center top/cover no-repeat}
-body[data-tab=play] #app{position:relative;padding-top:calc(68vw - 12px)}
+body[data-tab=play]::before{top:-8vw;background:#000 url(fundo-player.jpg) center top/cover no-repeat}
+body[data-tab=play] #app{position:relative;padding-top:68vw}
 body[data-tab=play] .top{position:absolute;left:0;right:0;top:0;z-index:5;background:none;border:0}
 body[data-tab=play] .top>img{display:none}
 body[data-tab=play] .ib{width:58px;height:58px;background:rgba(0,0,0,.8);border:2px dashed #ff3a2a;box-shadow:0 0 12px #ff1a0f,inset 0 0 10px rgba(255,26,15,.5)}
 body[data-tab=play] .ib .ic{width:32px;height:32px;stroke-width:2.6}
 body[data-tab=play] .pw{border:2px solid #ff3a2a;border-radius:18px;background:#000;box-shadow:0 0 14px #ff1a0f,0 0 32px rgba(255,26,15,.45),inset 0 0 16px rgba(255,26,15,.55)}
+body[data-tab=play] .pw:not(.ff):not(:fullscreen){position:sticky;top:68vw;z-index:30;margin:0 12px 12px}
 body[data-tab=play] .pw.ff,body[data-tab=play] .pw:fullscreen{border:0;border-radius:0;box-shadow:none}
 body[data-tab=play] .pt{border-left:0;padding-left:0;margin:10px 14px 0}
 body[data-tab=play] .pt h1{font-size:28px;font-weight:800;text-shadow:0 0 10px #000}
