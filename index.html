@@ -414,7 +414,17 @@ const rIc=()=>{const x=RI.find(a=>a[0]==S.set.ov_ir)||RI[0];return ic(x[2])};
 const xIc=()=>{const x=XI.find(a=>a[0]==S.set.ov_ix)||XI[0];return x[0]=='x'?'✕':ic(x[2],x[3])};
 let S={set:{},secs:[],T:[],E:[],L:[],F:new Set(),me:null,p:null,tab:'home',kind:'',at:'t',guest:false};
 const gd=(u,w)=>{const t=String(u||''),m=t.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=|thumbnail\?id=)([\w-]+)/)||t.match(/drive\.google\.com\/[^\s]*[?&]id=([\w-]+)/);if(m)return 'https://lh3.googleusercontent.com/d/'+m[1]+'=w'+({S:400,M:600,B:1000}[w]||1000);const k=t.match(/^(https:\/\/image\.tmdb\.org\/t\/p\/)(?:w\d+|original)(\/.+)$/);return k&&w?k[1]+({S:'w342',M:'w500',B:'w780'}[w])+k[2]:u};
-const bg=(u,w)=>u?`style="--bg:url('${esc(gd(u,w))}')"`:'';const im=(u,w,e)=>u?`<img ${e?'fetchpriority="high"':'loading="lazy"'} decoding="async" alt="" src="${esc(gd(u,w))}" onerror="this.remove()">`:'';
+const bg=(u,w)=>u?`style="--bg:url('${esc(gd(u,w))}')"`:'';/* cache das capas: guarda as capas já baixadas na memória, então ao voltar para a tela inicial elas aparecem na hora */
+const IC=new Map();
+function preCovers(){
+ const q=[],add=(u,w)=>{if(!u)return;const x=gd(u,w);if(x&&!IC.has(x)){IC.set(x,null);q.push(x)}},L=S.T||[];
+ L.forEach(t=>add(t.cover||t.banner,'S'));
+ const h=L.find(t=>t.featured)||L[0];if(h)add(h.banner||h.cover,'B');
+ last().forEach(x=>{const t=T(x.t);if(t)add(t.banner||t.cover,'M')});
+ const next=()=>{const x=q.shift();if(!x)return;const i=new Image();i.onload=()=>{IC.set(x,i);next()};i.onerror=()=>{IC.delete(x);next()};i.src=x};
+ for(let k=0;k<6;k++)next();
+}
+const im=(u,w,e)=>{if(!u)return'';const x=gd(u,w),c=IC.has(x);return `<img ${e?'fetchpriority="high"':c?'':'loading="lazy"'} decoding="${c?'sync':'async'}" alt="" src="${esc(x)}" onerror="this.remove()">`};
 const T=id=>(S.TA||S.T).find(t=>t.id==id),hid=id=>((S.set&&S.set.hid_titles)||'').split(',').includes(String(id)),adm=()=>S.p?.role==='admin',on=k=>S.set[k]==='true';
 const last=()=>JSON.parse(localStorage.cn_last||'[]');
 const gOn=()=>on('guest_enabled')&&(!S.set.guest_until||new Date(S.set.guest_until)>new Date());
@@ -430,6 +440,7 @@ function ready(){
  const ld=u=>new Promise(r=>{const i=new Image();i.onload=()=>{(i.decode?i.decode():Promise.resolve()).then(r,r)};i.onerror=r;i.src=u});
  return Promise.race([Promise.all([...us].map(ld)),new Promise(r=>setTimeout(r,3000))]);
 }
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 async function boot(){
  spOn();
  const{data:{session}}=await sb.auth.getSession();S.me=session?.user||null;
@@ -450,7 +461,7 @@ async function load(){
  const[t,s,l]=await Promise.all([sb.from('titles').select('*').order('created_at',{ascending:false}),sb.from('seasons').select('*,episodes(*)'),sb.from('links').select('*').order('id')]);
  S.TA=t.data||[];S.T=S.TA;S.L=l.data||[];
  S.E=(s.data||[]).flatMap(x=>(x.episodes||[]).map(e=>({id:e.id,title_id:x.title_id,season:x.number,num:e.number,name:e.name,url:e.url}))).sort((a,b)=>a.season-b.season||a.num-b.num);
- ordT();
+ ordT();setTimeout(preCovers,600);
  if(S.me)S.F=new Set(((await sb.from('favorites').select('title_id')).data||[]).map(x=>x.title_id));
 }
 function login(msg){
