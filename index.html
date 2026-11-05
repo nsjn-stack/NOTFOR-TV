@@ -4,7 +4,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{background:#000;touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{margin:0;background:transparent;color:var(--tx,#fff);font:15px/1.4 system-ui,Roboto,sans-serif;padding-bottom:96px}
-body::before{content:"";position:fixed;inset:0;z-index:-1;background:#000 url(fundo.jpg) center/cover no-repeat}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:#000 var(--abg,url(fundo.jpg)) center/cover no-repeat}
 body::after{content:"";position:fixed;inset:0;z-index:-1;background:var(--bgc,transparent);mix-blend-mode:color;opacity:var(--bga,0);pointer-events:none}
 a{color:inherit;text-decoration:none}
 button,input,select,textarea{font:inherit;color:var(--tx,#fff)}
@@ -223,13 +223,14 @@ body.nolsfs .pw.ff .ob.ls:not(.cps),body.nolsfs .pw:fullscreen .ob.ls:not(.cps),
 .cfm h3{margin:0 0 6px;font-size:18px}.cfm p{margin:0 0 16px;color:#ccc;font-size:14px}
 .cfm .cfr{display:flex;gap:8px}.cfm .cfr .btn{flex:1}
 /* === TEMA NEON AKATSUKI — tela do player === */
-body[data-tab=play]::before{background:#000 url(fundo-player.jpg) center top/cover no-repeat}
-body[data-tab=play] #app{position:relative;padding-top:calc(68vw - 12px)}
+body[data-tab=play]::before{top:-8vw;background:#000 var(--pbg,url(fundo-player.jpg)) center top/cover no-repeat}
+body[data-tab=play] #app{position:relative;padding-top:68vw}
 body[data-tab=play] .top{position:absolute;left:0;right:0;top:0;z-index:5;background:none;border:0}
 body[data-tab=play] .top>img{display:none}
 body[data-tab=play] .ib{width:58px;height:58px;background:rgba(0,0,0,.8);border:2px dashed #ff3a2a;box-shadow:0 0 12px #ff1a0f,inset 0 0 10px rgba(255,26,15,.5)}
 body[data-tab=play] .ib .ic{width:32px;height:32px;stroke-width:2.6}
 body[data-tab=play] .pw{border:2px solid #ff3a2a;border-radius:18px;background:#000;box-shadow:0 0 14px #ff1a0f,0 0 32px rgba(255,26,15,.45),inset 0 0 16px rgba(255,26,15,.55)}
+body[data-tab=play] .pw:not(.ff):not(:fullscreen){position:sticky;top:68vw;z-index:30;margin:0 12px 12px}
 body[data-tab=play] .pw.ff,body[data-tab=play] .pw:fullscreen{border:0;border-radius:0;box-shadow:none}
 body[data-tab=play] .pt{border-left:0;padding-left:0;margin:10px 14px 0}
 body[data-tab=play] .pt h1{font-size:28px;font-weight:800;text-shadow:0 0 10px #000}
@@ -448,7 +449,7 @@ async function out(){await sb.auth.signOut();localStorage.removeItem('cn_guest')
 
 function go(t,k){if(t=='home'&&S.tab=='home')S.adC={};S.keep=1;S.tab=t;if(k)S.kind=k;if(S.guest&&!gOn())return out();scrollTo(0,0);draw()}
 function draw(){
- const kp=S.keep;S.keep=0;document.body.dataset.tab=S.tab;
+ const kp=S.keep;S.keep=0;document.body.dataset.tab=S.tab;pbgApply();abgApply();
  {const o=document.getElementById('ad');if(o&&S.adShown){(S.adC=S.adC||{})[S.adShown]={n:o,y:window.scrollY};o.remove()}S.adShown=null}
  if(S.tab!='play')S.pbd=null;
  if((S.bled||S.oved)&&S.tab!='play'){blEdClose();oEdClose()}
@@ -1544,8 +1545,19 @@ const plOrd=()=>{const ks=PLB.map(x=>x[0]),o=(S.set.play_order||'').split(',').f
 const plBox=()=>`<div class="box"><b>Ordem da tela do vídeo</b><div class="mu" style="padding:4px 0">Toque em ▲ ▼ para mudar de lugar cada parte da tela do vídeo. O player e os botões Minha lista / Recomendado ficam sempre no topo. Vale para todos os usuários.</div>${plOrd().map((k,i,a)=>`<div class="row" style="align-items:center;flex-wrap:nowrap;gap:6px;border:1px solid #2a1212;border-radius:10px;padding:6px 8px;margin:6px 0"><span style="flex:1">${i+1}. ${PLB.find(x=>x[0]==k)[1]}</span><button class="btn o s" onclick="plMv('${k}',-2)">⤒</button><button class="btn o s" ${i?'':'disabled'} onclick="plMv('${k}',-1)">▲</button><button class="btn o s" ${i<a.length-1?'':'disabled'} onclick="plMv('${k}',1)">▼</button></div>`).join('')}<div class="row"><button class="btn o s" onclick="plRs()">Restaurar ordem original</button></div></div>`;
 async function plMv(k,v){const o=plOrd(),i=o.indexOf(k);if(v==-2){o.splice(i,1);o.unshift(k)}else{const j=i+v;if(j<0||j>=o.length)return;[o[i],o[j]]=[o[j],o[i]]}await cf('play_order',o.join(','));plDraw()}
 async function plRs(){await cf('play_order','');plDraw()}
-const plDraw=()=>{const d=$('#ad');if(d&&S.at=='p')d.innerHTML=plBox()};
+const abgApply=()=>{const u=S.set&&S.set.app_bg?gd(S.set.app_bg,'B'):'';document.documentElement.style.setProperty('--abg',u?'url("'+u.replace(/"/g,'%22')+'")':'')};
+const pbgApply=()=>{const u=S.set&&S.set.player_bg?gd(S.set.player_bg,'B'):'';document.documentElement.style.setProperty('--pbg',u?'url("'+u.replace(/"/g,'%22')+'")':'')};
+const pbgBox=()=>`<div class="box"><b>🖼 Fundo da tela do vídeo</b><div class="mu" style="padding:2px 0 6px">Imagem de fundo atrás do player. Use vertical (9:19,5, ex.: 1080×2340) e escura embaixo. Cole o link da imagem (aceita link do Google Drive). Vale para todos os usuários.</div><input id="pbg_u" placeholder="Link da imagem de fundo" value="${esc((S.set&&S.set.player_bg)||'')}" oninput="pbgPv()"><div style="margin:8px 0;height:200px;border-radius:12px;border:1px solid #3a1212;background:#000"><img id="pbg_pv" src="${esc(gd((S.set&&S.set.player_bg)||'','M'))}" style="width:100%;height:100%;object-fit:contain;${(S.set&&S.set.player_bg)?'':'display:none'}" onerror="this.style.display='none'"></div><div class="row"><button class="btn s" onclick="pbgSave()">Salvar fundo</button><button class="btn o s" onclick="pbgDel()">Voltar ao padrão</button></div></div>`;
+function pbgPv(){const i=$('#pbg_pv'),u=gd($('#pbg_u').value.trim(),'M');if(!i)return;i.style.display=u?'':'none';if(u)i.src=u}
+async function pbgSave(){const u=gd($('#pbg_u').value.trim());if(ok(await sb.from('settings').upsert([{key:'player_bg',value:u}]))){S.set.player_bg=u;pbgApply();alert(u?'Fundo salvo!':'Fundo removido (volta ao padrão).');plDraw()}}
+function pbgDel(){$('#pbg_u').value='';pbgSave()}
+const plDraw=()=>{const d=$('#ad');if(d&&S.at=='p')d.innerHTML=pbgBox()+plBox()};
 const _ad3=ad;ad=async function(){if(S.at=='p'){S.adShown='p';plDraw();return}return _ad3.apply(this,arguments)};
+const abgBox=()=>`<div class="box" id="abgb"><b>🖼 Fundo do aplicativo</b><div class="mu" style="padding:2px 0 6px">Imagem de fundo de Início, Favoritos, Perfil e Admin. Use vertical (ex.: 1080×2340) e escura. Cole o link (aceita Google Drive). Vale para todos. A tela do vídeo tem fundo próprio (aba Tela do vídeo).</div><input id="abg_u" placeholder="Link da imagem de fundo" value="${esc((S.set&&S.set.app_bg)||'')}" oninput="abgPv()"><div style="margin:8px 0;height:200px;border-radius:12px;border:1px solid #3a1212;background:#000"><img id="abg_pv" src="${esc(gd((S.set&&S.set.app_bg)||'','M'))}" style="width:100%;height:100%;object-fit:contain;${(S.set&&S.set.app_bg)?'':'display:none'}" onerror="this.style.display='none'"></div><div class="row"><button class="btn s" onclick="abgSave()">Salvar fundo</button><button class="btn o s" onclick="abgDel()">Voltar ao padrão</button></div></div>`;
+function abgPv(){const i=$('#abg_pv'),u=gd($('#abg_u').value.trim(),'M');if(!i)return;i.style.display=u?'':'none';if(u)i.src=u}
+async function abgSave(){const u=gd($('#abg_u').value.trim());if(ok(await sb.from('settings').upsert([{key:'app_bg',value:u}]))){S.set.app_bg=u;abgApply();alert(u?'Fundo salvo!':'Fundo removido (volta ao padrão).')}}
+function abgDel(){$('#abg_u').value='';abgSave()}
+{const _ad5=ad;ad=async function(){await _ad5.apply(this,arguments);if(S.at=='l'){const d=$('#ad');if(d&&!$('#abgb'))d.insertAdjacentHTML('afterbegin',abgBox())}}}
 const cfgOrg=()=>{const d=$('#ad'),bx=[...d.children].filter(e=>e.classList.contains('box'));bx.forEach((e,i)=>e.dataset.k=i);const o=(S.set.cfg_order||'').split(',').filter(x=>x!=='').map(Number),k=e=>{const j=o.indexOf(+e.dataset.k);return j<0?1e3+ +e.dataset.k:j};
  bx.sort((a,b)=>k(a)-k(b)).forEach(e=>{d.appendChild(e);e.insertAdjacentHTML('afterbegin','<span class="mv"><button onclick="cfgMv(this,-2)">⤒</button><button onclick="cfgMv(this,-1)">▲</button><button onclick="cfgMv(this,1)">▼</button></span>')})};
 function cfgMv(b,v){const e=b.closest('.box'),p=e.parentNode,x=v>0?e.nextElementSibling:e.previousElementSibling;if(v==-2)p.insertBefore(e,p.querySelector('.box'));else if(x&&x.classList.contains('box'))v>0?p.insertBefore(x,e):p.insertBefore(e,x);e.scrollIntoView({block:'center'});cf('cfg_order',[...p.children].filter(c=>c.dataset.k!==undefined).map(c=>c.dataset.k).join(','))}
