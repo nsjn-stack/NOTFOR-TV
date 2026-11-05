@@ -630,11 +630,13 @@ function embed0(u){
  return{t:'x',s:u,k:'ot'};
 }
 function embed(u){u=(u||'').trim();const m=u.match(SKR),sk=m?+m[1]:0,en=m&&m[2]?+m[2]:0,r=embed0(m?u.slice(0,m.index):u);if(r){if(sk>0){if(r.k=='yt'||r.k=='dm')r.s+='&start='+sk;else if(r.k=='mp')r.s+='#t='+sk;else if(r.k=='vm')r.s+='#t='+sk+'s'}if(en>0&&r.k=='yt')r.s+='&end='+en}return r}
+const recIds=()=>((S.set&&S.set.rec_list)||'').split(',').filter(Boolean),recOn=id=>recIds().includes(String(id));
+/* Recomendado: só aparecem os títulos que o administrador escolheu (Admin → Títulos → ☆ Recomendar). Lista vazia = sem botão. */
 function recom(t){
- const g=x=>(x.genres||'').toLowerCase().split(/[,•]/).map(a=>a.trim()).filter(Boolean);
- const mine=g(t);
- const c=S.T.filter(x=>x.id!=t.id).map(x=>({x,sc:(x.section==t.section?1:0)+g(x).filter(a=>mine.includes(a)).length*2+Math.random()*.9})).sort((a,b)=>b.sc-a.sc);
- return c.length?c[0].x:null}
+ const ids=recIds(),c=S.T.filter(x=>x.id!=t.id&&ids.includes(String(x.id)));
+ return c.length?c[Math.floor(Math.random()*c.length)]:null}
+async function recT(id){const a=recIds(),i=a.indexOf(String(id));if(i<0)a.push(String(id));else a.splice(i,1);await cf('rec_list',a.join(','));ad()}
+const recBox=()=>{const a=recIds().map(i=>T(i)).filter(Boolean);return `<div class="box"><b>⭐ Lista de Recomendados</b><div class="mu" style="padding:4px 0">O botão "Recomendado" do player só sugere os títulos desta lista. Lista vazia = o botão não aparece. Para adicionar, toque em ☆ Recomendar no título, logo abaixo, ou no botão ☆ em cima da capa.</div><label class="k"><input type="checkbox" ${rcqOn()?'checked':''} onchange="rcqSet(this.checked)"> Mostrar botão ☆ nas capas (só aparece para você)</label>${a.length?a.map(t=>`<div class="row" style="align-items:center;flex-wrap:nowrap;gap:6px;margin:4px 0"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.name)}</span><button class="btn o s" onclick="recT(${t.id})">Remover</button></div>`).join(''):'<div class="mu" style="padding:4px 0">Nenhum título recomendado ainda.</div>'}</div>`};
 const ovList=()=>{const v=S.set.ov_titles||'';return v=='all'?'all':v.split(',').filter(Boolean)};
 const ovOn=id=>{const l=ovList();return l=='all'||l.includes(String(id))};
 const ovn=(k,d)=>{const v=parseFloat(S.set[k]);return isNaN(v)?d:v};
@@ -755,12 +757,61 @@ function rsGo(q){
  else if(c.pk=='dm'){const u=f.getAttribute('src')||'';f.src=u.replace(/&start=\d+/,'')+'&start='+Math.floor(q)}
  if(S.sk){S.sk.p=q;S.sk.at=Date.now();S.sk.run=1}
  const b=document.querySelector('.rsb');if(b)b.style.display='none'}
+/* Vimeo no player do app (igual ao Archive e ao Drive): pega o arquivo mp4 do Vimeo e toca num <video> nativo,
+   assim valem os controles do app, os gestos, a legenda automática e "continuar de onde parou".
+   Se o Vimeo não liberar (vídeo privado, só streaming HLS, bloqueio de domínio), volta sozinho para o player do Vimeo. */
+const VMN={},VMT={},VMF={};
+const vmP=s=>{const m=(s||'').match(/^https:\/\/player\.vimeo\.com\/video\/(\d+)(?:\?([^#]*))?/);if(!m)return null;return{id:m[1],h:((m[2]||'').match(/(?:^|&)h=([0-9a-f]+)/i)||[])[1]||''}};
+const vmNow=()=>{try{const m=embed(cu());return m&&m.k=='vm'?vmP(m.s):null}catch(e){return null}};
+const vmQ=()=>{try{return localStorage.cn_vmq||'auto'}catch(e){return'auto'}};
+function vmPick(L,q){
+ if(!L||!L.length)return null;
+ if(q!='auto'){const x=L.find(f=>f.h==+q);if(x)return x}
+ const ok=L.filter(f=>f.h&&f.h<=720);return ok.length?ok[ok.length-1]:L[0]}
+function vmPre(p){
+ if(S.vmp==p.id)return;S.vmp=p.id;
+ const done=L=>{if(S.vmp!=p.id)return;S.vmp=null;VMN[p.id]=L&&L.length?L:null;VMT[p.id]=Date.now();
+  const n=vmNow();if(S.tab=='play'&&S.cur&&n&&n.id==p.id)draw()};
+ const ctl=window.AbortController?new AbortController():null;
+ const tm=setTimeout(()=>{try{ctl&&ctl.abort()}catch(e){}done(null)},7000);
+ fetch('https://player.vimeo.com/video/'+p.id+'/config'+(p.h?'?h='+p.h:''),ctl?{signal:ctl.signal}:{}).then(r=>r.ok?r.json():null).then(j=>{
+  clearTimeout(tm);
+  const F=(j&&j.request&&j.request.files)||{};
+  let L=(F.progressive||[]).filter(f=>f&&f.url).map(f=>({u:f.url,h:+f.height||parseInt(f.quality)||0})).sort((a,b)=>a.h-b.h);
+  if(!L.length&&F.hls){try{if(document.createElement('video').canPlayType('application/vnd.apple.mpegurl')){const c=F.hls.cdns||{},k=F.hls.default_cdn&&c[F.hls.default_cdn]?F.hls.default_cdn:Object.keys(c)[0];if(k&&c[k].url)L=[{u:c[k].url,h:0}]}}catch(e){}}
+  done(L)}).catch(()=>{clearTimeout(tm);done(null)})}
+function vmNat(m){
+ if(!m||m.k!='vm'||m.t!='if')return m;
+ const p=vmP(m.s);if(!p||VMF[p.id])return m;
+ let L=VMN[p.id];
+ if(L&&Date.now()-(VMT[p.id]||0)>25*60*1000)L=undefined;
+ if(L===null)return m;
+ if(L===undefined){vmPre(p);return{t:'w',s:'',k:'vm'}}
+ const x=vmPick(L,vmQ());if(!x)return m;
+ let a=0;try{a=skG(cu()).a}catch(e){}
+ return{t:'v',s:x.u+(a>0?'#t='+a:''),k:'mp',vm:1}}
+function vmFail(){const v=$('#vd'),n=vmNow();if(v&&v.currentTime>2)return;if(n&&VMN[n.id]){VMN[n.id]=null;draw()}}
+function vmBarH(){
+ const n=vmNow();if(!n)return'';const L=VMN[n.id];if(!L||!L.length)return'';
+ const nat=!VMF[n.id],q=vmQ(),hs=L.filter(f=>f.h),
+  b=(on,fn,t)=>`<button class="${on?'on':''}" onclick="${fn}">${t}</button>`,lb=t=>`<span class="mu" style="padding:0;align-self:center;white-space:nowrap">${t}</span>`;
+ return `<div id="vmb"><div class="tabs arq">${lb('Player')}${b(nat,"vmPl('d')",'Direto')}${b(!nat,"vmPl('v')",'Vimeo')}</div>`
+  +(nat&&hs.length>1?`<div class="tabs arq">${lb('Qualidade')}${b(q=='auto',"vmQs('auto')",'Auto')}${hs.map(f=>b(q==String(f.h),"vmQs('"+f.h+"')",f.h+'p')).join('')}</div>`:'')+`</div>`}
+function vmPl(k){
+ const n=vmNow();if(!n)return;
+ const v=$('#vd');if(v&&v.currentTime>5)setPos(ckey(),v.currentTime);
+ if(k=='v')VMF[n.id]=1;else delete VMF[n.id];draw()}
+function vmQs(k){
+ try{if(k=='auto')localStorage.removeItem('cn_vmq');else localStorage.cn_vmq=k}catch(e){}
+ const v=$('#vd'),n=vmNow(),L=n&&VMN[n.id],x=L&&vmPick(L,vmQ());
+ if(v&&x){const q=v.currentTime,pl=!v.paused;v.src=x.u;v.addEventListener('loadedmetadata',()=>{try{v.currentTime=q}catch(e){}if(pl)v.play().catch(()=>{})},{once:true})}
+ const b=document.getElementById('vmb');if(b)b.outerHTML=vmBarH()}
 function pPlay(){
  const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.pk='ot';
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
- else{const m=drNat(arNat(embed(u)));S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';
+ else{const m=drNat(arNat(vmNat(embed(u))));S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';
   S.tgh=0;p=m.t=='if'?`<iframe onload="pbLd()"${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(rsU(m))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>`
-  :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"${m.k=='ar'?' onerror="arFail()"':m.k=='dr'?' onerror="drFail()"':''}></video><button class="big" id="bp">▶</button><div class="ov"><input id="sk" type="range" min="0" max="1000" value="0"><div class="pl"><span id="tm">0:00</span><div class="pill"><button id="rt" onclick="fs()" aria-label="Girar tela">${rIc()}</button><button id="mu">${ic(I.v)}</button><button id="sp">1x</button></div></div></div>`
+  :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"${m.k=='ar'?' onerror="arFail()"':m.k=='dr'?' onerror="drFail()"':m.vm?' onerror="vmFail()"':''}></video><button class="big" id="bp">▶</button><div class="ov"><input id="sk" type="range" min="0" max="1000" value="0"><div class="pl"><span id="tm">0:00</span><div class="pill"><button id="rt" onclick="fs()" aria-label="Girar tela">${rIc()}</button><button id="mu">${ic(I.v)}</button><button id="sp">1x</button></div></div></div>`
   :m.t=='w'?`<p class="mu" style="padding:30px">Preparando vídeo…</p>`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
@@ -782,7 +833,7 @@ function pPlay(){
   rw=ppo('pb_row',pk,1)==1&&mf==0&&mc==0,
   bar=mf==0||mc==0?`<div class="${rw?'bar2':''}" ${rw?'':'style="display:flex;flex-direction:column;gap:8px;margin:0 14px 8px"'}>${mf==0?pF(0):''}${mc==0?pC(0):''}</div>`:'';
  const head=`<div class="pw${S.cur.pk=='tg'?' tgw':''}" id="pw">${p}${cvh}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div>${bar}`;
- const B={sbc:`<div id="sbc"></div>`,rep:`${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}`,lk:`${arBarH()}${drBarH()}${rsBtnH()}${dubU()?`<div class="tabs"><button class="${dubOn()?'':'on'}" onclick="dubSet(0)">Original</button><button class="${dubOn()?'on':''}" onclick="dubSet(1)">🎧 Dublado</button></div>`:''}${!e&&vs.length>1?`<div class="tabs">${vs.map((l,i)=>`<button class="${i==li?'on':''}" onclick="play(${t.id},0,${i})">${esc(l.label||'Link '+(i+1))}</button>`).join('')}</div>`:''}`,info:`<div class="pt"><h1>${esc(t.name)}</h1><p>${e?`Temporada ${e.season} • ${t.section=='novela'?'Capítulo':'Episódio'} ${e.num}${e.name?' — '+esc(e.name):''}`:esc([t.year,t.country,t.audio].filter(Boolean).join(' • '))}</p></div><div class="chips" style="margin:10px 14px"><span class="chip">HD</span><span class="chip r">${esc(t.rating||'Livre')}</span>${t.genres?`<span class="chip">${esc(t.genres)}</span>`:''}</div>`,btn:`<div class="row" style="margin:0 14px"><button class="nbp3" style="flex:1" onclick="pn(${t.id}${e?','+(n||e).id:''},${n?1:0})">${n?nxI+'<b>Próximo episódio</b>':rsI+'<b>Recomeçar</b>'}<i class="pgb"><u style="width:${Math.round(Math.min(1,prog()[ckey()]||0)*100)}%"></u></i></button>${pf('sn')?`<button class="nbp3 mk" id="mkb" style="flex:1" onclick="mk()">${mkH(isSeen(t.id,e?e.id:0))}</button>`:''}</div>`,syn:`${t.synopsis?`<p class="mu">${esc(t.synopsis)}</p>`:''}`,eps:`${es.length?`<h2>Em seguida</h2><div class="sc">${es.map(x=>`<button class="ep ${e&&x.id==e.id?'on':''}" onclick="play(${t.id},${x.id})"><b>T${x.season} • E${x.num}${pf('sn')&&isSeen(t.id,x.id)?' ✓':''}</b><br>${esc(x.name||'')}</button>`).join('')}</div>`:''}`,cm:`<h2>Comentários</h2><div class="box"><div id="cf"></div><div id="cm"></div></div>`};
+ const B={sbc:`<div id="sbc"></div>`,rep:`${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}`,lk:`${arBarH()}${drBarH()}${vmBarH()}${rsBtnH()}${dubU()?`<div class="tabs"><button class="${dubOn()?'':'on'}" onclick="dubSet(0)">Original</button><button class="${dubOn()?'on':''}" onclick="dubSet(1)">🎧 Dublado</button></div>`:''}${!e&&vs.length>1?`<div class="tabs">${vs.map((l,i)=>`<button class="${i==li?'on':''}" onclick="play(${t.id},0,${i})">${esc(l.label||'Link '+(i+1))}</button>`).join('')}</div>`:''}`,info:`<div class="pt"><h1>${esc(t.name)}</h1><p>${e?`Temporada ${e.season} • ${t.section=='novela'?'Capítulo':'Episódio'} ${e.num}${e.name?' — '+esc(e.name):''}`:esc([t.year,t.country,t.audio].filter(Boolean).join(' • '))}</p></div><div class="chips" style="margin:10px 14px"><span class="chip">HD</span><span class="chip r">${esc(t.rating||'Livre')}</span>${t.genres?`<span class="chip">${esc(t.genres)}</span>`:''}</div>`,btn:`<div class="row" style="margin:0 14px"><button class="nbp3" style="flex:1" onclick="pn(${t.id}${e?','+(n||e).id:''},${n?1:0})">${n?nxI+'<b>Próximo episódio</b>':rsI+'<b>Recomeçar</b>'}<i class="pgb"><u style="width:${Math.round(Math.min(1,prog()[ckey()]||0)*100)}%"></u></i></button>${pf('sn')?`<button class="nbp3 mk" id="mkb" style="flex:1" onclick="mk()">${mkH(isSeen(t.id,e?e.id:0))}</button>`:''}</div>`,syn:`${t.synopsis?`<p class="mu">${esc(t.synopsis)}</p>`:''}`,eps:`${es.length?`<h2>Em seguida</h2><div class="sc">${es.map(x=>`<button class="ep ${e&&x.id==e.id?'on':''}" onclick="play(${t.id},${x.id})"><b>T${x.season} • E${x.num}${pf('sn')&&isSeen(t.id,x.id)?' ✓':''}</b><br>${esc(x.name||'')}</button>`).join('')}</div>`:''}`,cm:`<h2>Comentários</h2><div class="box"><div id="cf"></div><div id="cm"></div></div>`};
  return head+plOrd().map(k=>B[k]||'').join('');
 }
 function tgFit(){const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[data-tg]');if(!f||!S.tgh)return;const FS=w.classList.contains('ff')||document.fullscreenElement===w||document.webkitFullscreenElement===w,FW=Math.max(260,Math.min(document.documentElement.clientWidth,720)-26);f.style.width=FS?FW+'px':'';const W=w.clientWidth,H=w.clientHeight,h=S.tgh,T=ovn('tg_t',44),B=ovn('tg_b',46),hv=Math.max(40,h-T-B),cw=hv*16/9,k=Math.min(W/cw,H/hv)*.99;const VZ=vzV('tg','vz',1),VX=vzV('tg','vx',0)/100*W,VY=vzV('tg','vy',0)/100*H;f.style.height=h+'px';const ET=ovn('tg_et',6),EB=ovn('tg_eb',10);f.style.clipPath='inset('+(T+ET)+'px 0 '+(B+EB)+'px 0)';f.style.transform='translate('+(-8*k+VX).toFixed(1)+'px,'+((B-T)/2*k+VY).toFixed(1)+'px) scale('+(k*VZ).toFixed(4)+')';w.classList.add('tgm')}
@@ -1017,7 +1068,7 @@ async function ad(f){
 <div class="mfg2"><select id="f_section">${secOrd().map(s=>`<option value="${s.key}" ${e.section==s.key?'selected':''}>${esc(s.label)}</option>`).join('')}</select><select id="f_rating">${['Livre','10+','12+','14+','16+','18+'].map(x=>`<option ${e.rating==x?'selected':''}>${x}</option>`).join('')}</select></div>
 <select id="f_audio"><option value="">Áudio</option>${['dublado','legendado'].map(x=>`<option ${(e.audio||(S.ed?'':'dublado'))==x?'selected':''}>${x}</option>`).join('')}</select>
 <div class="mfk"><label class="k"><input type="checkbox" id="f_featured" ${e.featured?'checked':''}> Destaque</label><label class="k"><input type="checkbox" id="f_coff" ${e.comments_off?'checked':''}> Sem comentários</label></div>
-<div class="row" style="margin-top:6px;flex-wrap:nowrap"><button class="btn" style="flex:1" onclick="svT()">${S.ed?'Salvar alterações':'Adicionar título'}</button><button class="btn o" onclick="tmG()" title="Google Imagens">🖼</button><button class="btn o" onclick="tmKey()" title="Chave do TMDB">🔑</button></div></div>`+`<div class="box sbx"><span>🔎</span><input id="t_q" placeholder="Pesquisar títulos…" oninput="fq('t_q','.tbx')"></div>`+S.TA.map(t=>`<div class="box tbx trw" style="flex-wrap:wrap${hid(t.id)?';opacity:.6':''}"><div class="trn" style="flex:1 1 100%"><b>${esc(t.name)}</b><small class="mu">${esc(lab(t.section))}${hid(t.id)?' • 🙈 oculto':''}</small></div><button class="btn o s" onclick="S.ed=T(${t.id});ad();scrollTo(0,0)">Editar</button><button class="btn o s" onclick="ordTi(${t.id})">${({f:'⬆ Início',l:'⬇ Fim'})[S.set['ord:'+t.id]]||'↕ Normal'}</button><button class="btn o s" onclick="hdT(${t.id})">${hid(t.id)?'👁 Mostrar':'🙈 Ocultar'}</button><button class="btn o s" onclick="dT(${t.id})">Apagar</button></div>`).join('');
+<div class="row" style="margin-top:6px;flex-wrap:nowrap"><button class="btn" style="flex:1" onclick="svT()">${S.ed?'Salvar alterações':'Adicionar título'}</button><button class="btn o" onclick="tmG()" title="Google Imagens">🖼</button><button class="btn o" onclick="tmKey()" title="Chave do TMDB">🔑</button></div></div>`+recBox()+`<div class="box sbx"><span>🔎</span><input id="t_q" placeholder="Pesquisar títulos…" oninput="fq('t_q','.tbx')"></div>`+S.TA.map(t=>`<div class="box tbx trw" style="flex-wrap:wrap${hid(t.id)?';opacity:.6':''}"><div class="trn" style="flex:1 1 100%"><b>${esc(t.name)}</b><small class="mu">${esc(lab(t.section))}${hid(t.id)?' • 🙈 oculto':''}</small></div><button class="btn o s" onclick="S.ed=T(${t.id});ad();scrollTo(0,0)">Editar</button><button class="btn o s" onclick="ordTi(${t.id})">${({f:'⬆ Início',l:'⬇ Fim'})[S.set['ord:'+t.id]]||'↕ Normal'}</button><button class="btn o s" onclick="recT(${t.id})">${recOn(t.id)?'⭐ Recomendado':'☆ Recomendar'}</button><button class="btn o s" onclick="hdT(${t.id})">${hid(t.id)?'👁 Mostrar':'🙈 Ocultar'}</button><button class="btn o s" onclick="dT(${t.id})">Apagar</button></div>`).join('');
  }
  if(a=='v'){const et=S.et&&T(S.et)?S.et:S.TA[0]?.id;S.et=et;
   const vq0=(S.vq||'').toLowerCase(),tl=vq0?S.TA.filter(t=>t.name.toLowerCase().includes(vq0)):S.TA;if(tl.length&&!tl.some(t=>t.id==S.et)){S.et=tl[0].id}const et2=S.et,qm=!vq0||(T(et2)&&T(et2).name.toLowerCase().includes(vq0));
@@ -1976,5 +2027,123 @@ document.addEventListener('pointermove',e=>{if(!D)return;e.preventDefault();cons
 const end=()=>{if(!D)return;D.b.classList.remove('dgg');save();D=null};
 document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',end,true);
 })();
+</script>
+<style id="gx-css">
+#pw.gxp{touch-action:none;-webkit-user-select:none;user-select:none}
+#gxb{position:absolute;inset:0;z-index:1;background:#000;opacity:0;pointer-events:none}
+#gxh{position:absolute;z-index:99;pointer-events:none;display:none;align-items:center;gap:8px;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:8px 12px;color:#fff;font:700 13px system-ui,sans-serif;white-space:nowrap}
+#gxh.on{display:flex}
+#gxh.l{left:8%;top:50%;transform:translateY(-50%)}
+#gxh.r{right:8%;top:50%;transform:translateY(-50%)}
+#gxh i{display:block;width:80px;height:5px;border-radius:3px;background:rgba(255,255,255,.3);overflow:hidden}
+#gxh i u{display:block;height:100%;background:#ff2a1a}
+</style>
+<script id="gx-js">
+/* Gestos no player do app (vídeo nativo: mp4, Archive, Drive "Direto"):
+   direita ↕ = volume · esquerda ↕ = brilho · 2 toques na esquerda = volta 10s · 2 toques na direita = avança 10s
+   (toques seguidos continuam pulando de 10 em 10s). Toque simples e toque no centro funcionam como antes. */
+(()=>{
+const cl=(x,a,b)=>Math.max(a,Math.min(b,x));
+let vol=-1,br=1;
+try{const a=parseFloat(localStorage.cn_gxv),b=parseFloat(localStorage.cn_gxb);if(a>=0&&a<=1)vol=a;if(b>=.1&&b<=1)br=b}catch(e){}
+const sv=()=>{try{localStorage.cn_gxv=vol;localStorage.cn_gxb=br}catch(e){}};
+const ed=()=>typeof S!='undefined'&&(S.oved||S.bled);
+let D=null,ht=0,tap=null,chain={s:'',t:0,acc:0},last={z:'',t:0};
+/* posição do dedo dentro do player, mesmo com a tela girada (tela cheia forçada) */
+function loc(pw,x,y){
+ let m;try{const s=getComputedStyle(pw).transform;m=s&&s!='none'?new DOMMatrix(s):new DOMMatrix()}catch(e){m={a:1,b:0,c:0,d:1}}
+ const r=pw.getBoundingClientRect(),w=pw.offsetWidth,h=pw.offsetHeight,cx=r.left+r.width/2,cy=r.top+r.height/2,
+  ox=cx-(m.a*w/2+m.c*h/2),oy=cy-(m.b*w/2+m.d*h/2);
+ return{x:m.a*(x-ox)+m.b*(y-oy),y:m.c*(x-ox)+m.d*(y-oy),w,h}}
+function hud(pw,cls,html,pct){
+ let h=pw.querySelector('#gxh');if(!h){h=document.createElement('div');h.id='gxh';pw.appendChild(h)}
+ h.className='on '+cls;
+ h.innerHTML='<span>'+html+'</span>'+(pct==null?'':'<i><u style="width:'+Math.round(pct*100)+'%"></u></i><span>'+Math.round(pct*100)+'%</span>');
+ clearTimeout(ht);ht=setTimeout(()=>{h.className=''},700)}
+const dim=pw=>{const b=pw.querySelector('#gxb');if(b)b.style.opacity=((1-br)*.9).toFixed(3)};
+function init(){
+ const v=document.getElementById('vd'),pw=document.getElementById('pw');
+ if(!v||!pw||!pw.contains(v))return;
+ if(!pw.querySelector('#gxb')){const b=document.createElement('div');b.id='gxb';pw.insertBefore(b,v.nextSibling)}
+ pw.classList.add('gxp');dim(pw);
+ if(!v._gx){v._gx=1;if(vol>=0)try{v.volume=vol}catch(e){}}}
+setInterval(()=>{try{init()}catch(e){}},500);
+document.addEventListener('pointerdown',e=>{
+ D=null;if(e.pointerType=='mouse'&&e.button!==0)return;
+ const pw=document.getElementById('pw'),v=document.getElementById('vd');
+ if(!pw||!v||ed()||!pw.classList.contains('gxp'))return;
+ const t=e.target;if(t!==v&&t!==pw&&t.id!='gxb')return;
+ const p=loc(pw,e.clientX,e.clientY),f=p.x/p.w;
+ D={pw,v,id:e.pointerId,x:p.x,y:p.y,sx:e.clientX,sy:e.clientY,z:f<.4?'L':f>.6?'R':'C',m:0,t:Date.now(),v0:v.muted?0:v.volume,b0:br}},true);
+document.addEventListener('pointermove',e=>{
+ if(!D||e.pointerId!=D.id)return;
+ const p=loc(D.pw,e.clientX,e.clientY),dx=p.x-D.x,dy=p.y-D.y;
+ if(!D.m){
+  if(D.z=='C')return;
+  if(Math.abs(dy)>12&&Math.abs(dy)>Math.abs(dx)*1.2){D.m=1;D.y=p.y;try{D.pw.setPointerCapture(e.pointerId)}catch(x){}}
+  else{if(Math.abs(dx)>25)D.m=-1;return}}
+ if(D.m!=1)return;
+ const d=(D.y-p.y)/(p.h*.8);
+ if(D.z=='R'){
+  vol=cl(D.v0+d,0,1);try{D.v.volume=vol}catch(x){}if(vol>0)D.v.muted=false;
+  if(Math.abs(D.v.volume-vol)>.03)hud(D.pw,'r','Use os botões de volume do aparelho');
+  else hud(D.pw,'r',vol==0?'🔇':'🔊',vol)
+ }else{br=cl(D.b0+d,.1,1);dim(D.pw);hud(D.pw,'l','☀️',br)}},true);
+document.addEventListener('pointercancel',()=>{D=null},true);
+document.addEventListener('pointerup',e=>{
+ if(!D||e.pointerId!=D.id)return;const d=D;D=null;
+ if(d.m==1){last={z:'x',t:Date.now()};sv();return}
+ if(d.z=='C'||ed())return;
+ if(Date.now()-d.t>350||Math.hypot(e.clientX-d.sx,e.clientY-d.sy)>20)return;
+ last={z:d.z,t:Date.now()};sideTap(d)},true);
+/* toque simples na lateral espera 300 ms (para ver se vem o 2º toque); depois age como sempre */
+document.addEventListener('click',e=>{
+ if(e._gx)return;const v=document.getElementById('vd');if(!v||e.target!==v)return;
+ if(last.z&&Date.now()-last.t<150){e.stopImmediatePropagation();e.preventDefault()}},true);
+const fire=v=>{const ev=new MouseEvent('click',{bubbles:true,cancelable:true,view:window});ev._gx=1;v.dispatchEvent(ev)};
+function seek(d,s){
+ const v=d.v,k=s=='L'?-10:10;chain.acc+=k;
+ try{v.currentTime=cl(v.currentTime+k,0,isFinite(v.duration)?v.duration:1e9)}catch(x){}
+ const a=Math.abs(chain.acc)+'s';
+ hud(d.pw,s=='L'?'l':'r',s=='L'?'⏪ −'+a:'+'+a+' ⏩')}
+function sideTap(d){
+ const now=Date.now(),s=d.z;
+ if(chain.s==s&&now-chain.t<450){chain.t=now;seek(d,s);return}
+ if(tap&&tap.s==s&&now-tap.t<300){clearTimeout(tap.h);tap=null;chain={s,t:now,acc:0};seek(d,s);return}
+ if(tap){clearTimeout(tap.h);fire(tap.v);tap=null}
+ tap={s,t:now,v:d.v,h:setTimeout(()=>{const v=tap&&tap.v;tap=null;if(v)fire(v)},300)}}
+})();
+</script>
+<style id="rcq-css">
+.rcq{position:absolute;top:6px;right:6px;z-index:6;width:28px;height:28px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;background:rgba(255,255,255,.92);color:#222;font:700 16px/1 system-ui,sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.6);-webkit-tap-highlight-color:transparent}
+.rcq.on{background:#ffd23a}
+.rcq:active{transform:scale(.9)}
+.ci .rcq{top:12px;right:12px;width:34px;height:34px;font-size:19px}
+</style>
+<script id="rcq-js">
+/* Botão ☆ nas capas (só o administrador vê): toca para pôr / tirar o título da lista de Recomendados.
+   Para esconder o botão: Admin → Títulos → caixa "Lista de Recomendados" → desmarcar "Mostrar botão ☆ nas capas". */
+function rcqOn(){try{return localStorage.cn_rcq!=='0'}catch(e){return true}}
+function rcqSet(v){try{localStorage.cn_rcq=v?'1':'0'}catch(e){}rcqSync()}
+async function rcqTog(id){
+ const a=recIds(),i=a.indexOf(String(id));if(i<0)a.push(String(id));else a.splice(i,1);
+ await cf('rec_list',a.join(','));rcqSync();if(S.tab=='admin')ad()}
+function rcqSync(){
+ const show=!!(typeof adm=='function'&&adm()&&rcqOn());
+ document.querySelectorAll('.rcq').forEach(b=>{if(!show)b.remove()});
+ if(!show)return;
+ document.querySelectorAll('.cd[onclick^="play("],.ci[onclick^="play("]').forEach(c=>{
+  const m=(c.getAttribute('onclick')||'').match(/^play\((\d+)\)$/);if(!m)return;
+  const id=m[1],on=recOn(id);let b=c.querySelector(':scope>.rcq');
+  if(!b){
+   b=document.createElement('button');b.type='button';b.className='rcq';
+   b.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();rcqTog(id)});
+   if(getComputedStyle(c).position=='static')c.style.position='relative';
+   c.appendChild(b)}
+  b.classList.toggle('on',on);b.textContent=on?'★':'☆';
+  b.setAttribute('aria-label',on?'Tirar dos Recomendados':'Pôr nos Recomendados');b.title=b.getAttribute('aria-label')})}
+{let t=0;const q=()=>{clearTimeout(t);t=setTimeout(()=>{try{rcqSync()}catch(e){}},60)};
+ new MutationObserver(q).observe(document.body,{childList:true,subtree:true});
+ setInterval(q,1500)}
 </script>
 </body></html>
