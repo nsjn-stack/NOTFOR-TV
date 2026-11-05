@@ -1968,14 +1968,29 @@ boot();
   const b=e.querySelector('b'),h=document.createElement('div');h.className='xh';h.innerHTML='<s class="dgh" title="Arraste para mudar de lugar">⠿</s><span></span><i>›</i>';h.querySelector('span').textContent=(b?b.textContent:'Opções').trim();
   h.onclick=()=>e.classList.toggle('xo');
   const mv=e.querySelector(':scope>.mv');mv?mv.after(h):e.prepend(h)})}
+ /* ===== lupa: pesquisar nas configurações ===== */
+ const nz=x=>(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ function cfqOff(){const w=document.getElementById('cfq');if(w)w.remove();S.cfq='';document.querySelectorAll('#ad>.cfq-h').forEach(e=>e.classList.remove('cfq-h'))}
+ function cfqApply(){const d=document.getElementById('ad'),i=document.getElementById('cfq_i');if(!d||!i)return;
+  const q=nz(i.value.trim());S.cfq=i.value;let n=0,last=null;
+  [...d.children].forEach(e=>{if(!e.classList.contains('box'))return;
+   const h=e.querySelector(':scope>.xh span'),ok=!q||nz(h?h.textContent:'').includes(q)||nz(e.textContent).includes(q);
+   e.classList.toggle('cfq-h',!ok);if(ok){n++;last=e}});
+  const c=document.getElementById('cfq_c');if(c)c.textContent=q?(n?n+(n==1?' encontrada':' encontradas'):'nenhuma'):'';
+  if(q&&n==1&&last)last.classList.add('xo')}
+ function cfqInit(d){let w=document.getElementById('cfq');
+  if(!w){w=document.createElement('div');w.id='cfq';
+   w.innerHTML='<span>🔍</span><input id="cfq_i" type="search" placeholder="Pesquisar nas configurações" autocomplete="off" autocapitalize="off" spellcheck="false"><em id="cfq_c"></em>';
+   d.parentNode.insertBefore(w,d);w.querySelector('input').addEventListener('input',cfqApply)}
+  const i=document.getElementById('cfq_i');if(S.cfq&&i.value!==S.cfq)i.value=S.cfq;cfqApply()}
  function avInit(){const d=document.getElementById('ad');if(!d)return;
   const t=S.at,okT=['t','v','s'].includes(t);let bar=document.getElementById('avt');
-  if(!okT){if(bar)bar.remove();d.classList.remove('avg','cfgc');return}
+  if(!okT){if(bar)bar.remove();d.classList.remove('avg','cfgc');cfqOff();return}
   if(!bar){bar=document.createElement('div');bar.id='avt';bar.className='avt';d.parentNode.insertBefore(bar,d)}
   const m=avm();
   bar.innerHTML='<button class="btn '+(m=='l'?'':'o')+' s" onclick="avSet(\'l\')">☰ Lista</button><button class="btn '+(m=='g'?'':'o')+' s" onclick="avSet(\'g\')">▦ Grade (2 colunas)</button>';
   d.classList.toggle('avg',m=='g');d.classList.toggle('cfgc',t=='s');
-  if(t=='s')avCfg(d)}
+  if(t=='s'){avCfg(d);cfqInit(d)}else cfqOff()}
  const _ad3=ad;ad=async function(){await _ad3.apply(this,arguments);avInit()};
 
  /* ===== botão voltar flutuante (arrastável) com histórico ===== */
@@ -2088,20 +2103,35 @@ document.addEventListener('focusin',e=>{const t=e.target;if(t&&t.id=='ct'){docum
 document.addEventListener('focusout',e=>{const t=e.target;if(t&&t.id=='ct')setTimeout(()=>{if(document.activeElement!==t)document.body.classList.remove('typing')},250)});
 </script>
 <script id="drag-js">
-(()=>{let D=null;
-const save=()=>{if(!D)return;const p=D.p;try{cf('cfg_order',[...p.children].filter(c=>c.dataset&&c.dataset.k!==undefined).map(c=>c.dataset.k).join(','))}catch(x){}};
-document.addEventListener('pointerdown',e=>{const h=e.target.closest&&e.target.closest('.dgh');if(!h)return;const b=h.closest('.box');if(!b||!b.parentNode)return;e.preventDefault();D={b,p:b.parentNode};b.classList.add('dgg');try{h.setPointerCapture(e.pointerId)}catch(x){}},true);
-document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('.dgh')){e.stopPropagation();e.preventDefault()}},true);
-document.addEventListener('pointermove',e=>{if(!D)return;e.preventDefault();const{b,p}=D;
+(()=>{let D=null,LP=null,lastEnd=0;
+const XH='#ad.cfgc>.box>.xh';
+const save=()=>{if(!D||!D.moved)return;const p=D.p;try{cf('cfg_order',[...p.children].filter(c=>c.dataset&&c.dataset.k!==undefined).map(c=>c.dataset.k).join(','))}catch(x){}};
+document.addEventListener('pointerdown',e=>{const t=e.target;if(!t||!t.closest)return;
+ const h=t.closest('.dgh');
+ if(h){const b=h.closest('.box');if(!b||!b.parentNode)return;e.preventDefault();D={b,p:b.parentNode};b.classList.add('dgg');try{h.setPointerCapture(e.pointerId)}catch(x){}return}
+ /* clicar e SEGURAR no título da caixa também arrasta (toque rápido continua abrindo/fechando) */
+ const xh=t.closest(XH);if(!xh||e.button>0)return;
+ const b=xh.parentNode;if(LP)clearTimeout(LP.t);
+ LP={x:e.clientX,y:e.clientY,t:setTimeout(()=>{const l=LP;LP=null;if(!l)return;
+  try{if(navigator.vibrate)navigator.vibrate(18)}catch(x){}
+  b.classList.remove('xo');D={b,p:b.parentNode};b.classList.add('dgg');try{xh.setPointerCapture(e.pointerId)}catch(x){}},380)}
+},true);
+document.addEventListener('click',e=>{const t=e.target;if(!t||!t.closest)return;
+ if(t.closest('.dgh')||(Date.now()-lastEnd<500&&t.closest(XH))){e.stopPropagation();e.preventDefault()}},true);
+document.addEventListener('contextmenu',e=>{if(e.target&&e.target.closest&&e.target.closest(XH))e.preventDefault()},true);
+document.addEventListener('touchmove',e=>{if(D&&e.cancelable)e.preventDefault()},{passive:false});
+document.addEventListener('pointermove',e=>{
+ if(LP&&!D){if(Math.hypot(e.clientX-LP.x,e.clientY-LP.y)>10){clearTimeout(LP.t);LP=null}return}
+ if(!D)return;e.preventDefault();const{b,p}=D;
  if(e.clientY<110)scrollBy(0,-14);else if(e.clientY>innerHeight-150)scrollBy(0,14);
  const bt=b.getBoundingClientRect().top;
  for(const c of p.children){if(c===b||!c.classList.contains('box')||c.dataset.k===undefined)continue;
-  const r=c.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)continue;
+  const r=c.getBoundingClientRect();if(!r.height||e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)continue;
   const mid=r.top+r.height/2,fol=!!(b.compareDocumentPosition(c)&Node.DOCUMENT_POSITION_FOLLOWING),same=Math.abs(r.top-bt)<6,mx=r.left+r.width/2;
-  if(fol){if(e.clientY>mid||(same&&e.clientX>mx))c.after(b)}else{if(e.clientY<mid||(same&&e.clientX<mx))c.before(b)}
+  if(fol){if(e.clientY>mid||(same&&e.clientX>mx)){c.after(b);D.moved=1}}else{if(e.clientY<mid||(same&&e.clientX<mx)){c.before(b);D.moved=1}}
   break}
 },{passive:false,capture:true});
-const end=()=>{if(!D)return;D.b.classList.remove('dgg');save();D=null};
+const end=()=>{if(LP){clearTimeout(LP.t);LP=null}if(!D)return;D.b.classList.remove('dgg');save();D=null;lastEnd=Date.now()};
 document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',end,true);
 })();
 </script>
@@ -2308,6 +2338,14 @@ function sideTap(d){
 :is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]::-webkit-slider-thumb{box-shadow:0 0 2px #000}
 :is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-menu{background:rgba(0,0,0,.85)}
 :is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp{contain:layout style}
+</style>
+<style id="cfq-css">
+#cfq{display:flex;align-items:center;gap:8px;margin:8px 14px;padding:0 14px;border-radius:14px;background:rgba(10,10,10,.92);border:1px solid #4a0a0a;position:sticky;top:6px;z-index:20}
+#cfq span{font-size:18px;flex:none}
+#cfq input{flex:1;min-width:0;height:46px;margin:0;padding:0;background:transparent;border:0;outline:0;color:#fff;font-size:16px}
+#cfq em{font-style:normal;font-size:12px;color:var(--g);flex:none}
+.cfq-h{display:none!important}
+#ad.cfgc>.box>.xh{-webkit-touch-callout:none}
 </style>
 <style id="rcq-css">
 .rcq{position:absolute;top:6px;right:6px;z-index:6;width:28px;height:28px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;background:rgba(255,255,255,.92);color:#222;font:700 16px/1 system-ui,sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.6);-webkit-tap-highlight-color:transparent}
