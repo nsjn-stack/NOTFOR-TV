@@ -86,6 +86,7 @@ nav .ic{stroke:currentColor;width:24px;height:24px}
 .pl{display:flex;justify-content:space-between;align-items:center;font-size:12px}
 .pill{display:flex;gap:2px;background:rgba(20,20,20,.85);border-radius:16px;padding:0 6px}
 .pill button{min-width:40px;height:36px;font-size:13px;font-weight:700;display:grid;place-items:center}
+.pill #rt .ic{width:20px;height:20px}
 .pt{margin:6px 14px 0;padding-left:10px;border-left:4px solid var(--r)}
 .pt h1{margin:0;font-size:22px}
 .pt p{margin:2px 0 0;color:var(--g)}
@@ -703,7 +704,7 @@ function pPlay(){
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
  else{const m=arNat(embed(u));S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';
   S.tgh=0;p=m.t=='if'?`<iframe onload="pbLd()"${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(rsU(m))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>`
-  :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"${m.k=='ar'?' onerror="arFail()"':''}></video><button class="big" id="bp">▶</button><div class="ov"><input id="sk" type="range" min="0" max="1000" value="0"><div class="pl"><span id="tm">0:00</span><div class="pill"><button id="mu">${ic(I.v)}</button><button id="sp">1x</button></div></div></div>`
+  :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"${m.k=='ar'?' onerror="arFail()"':''}></video><button class="big" id="bp">▶</button><div class="ov"><input id="sk" type="range" min="0" max="1000" value="0"><div class="pl"><span id="tm">0:00</span><div class="pill"><button id="rt" onclick="fs()" aria-label="Girar tela">${rIc()}</button><button id="mu">${ic(I.v)}</button><button id="sp">1x</button></div></div></div>`
   :m.t=='w'?`<p class="mu" style="padding:30px">Preparando vídeo…</p>`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
