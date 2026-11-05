@@ -251,17 +251,17 @@ body[data-tab=play] nav button.on::after{display:none}
 .nbp3 .pgb{display:block;width:78%;height:6px;border-radius:4px;background:rgba(255,255,255,.22);overflow:hidden;margin-top:2px}.nbp3 .pgb u{display:block;height:100%;background:#fff;border-radius:4px}
 .nbp3.mk .ni{width:26px;height:26px}
 /* === TELA INICIAL NEON AKATSUKI === */
-body[data-tab=home]::before{background:#000 var(--abg,url(fundo-inicio.jpg)) center/cover no-repeat}
-body[data-tab=home] .ib{width:52px;height:52px;background:rgba(0,0,0,.8);border:2px solid #ff3a2a;box-shadow:0 0 12px #ff1a0f,inset 0 0 10px rgba(255,26,15,.5)}
-body[data-tab=home] .hero{margin:10px 14px 8px;border:2px solid #ff3a2a;border-radius:22px;overflow:hidden;box-shadow:0 0 14px #ff1a0f,0 0 30px rgba(255,26,15,.4),inset 0 0 18px rgba(255,26,15,.45)}
-body[data-tab=home] .hero .btn,body[data-tab=home] .hero .btn.o{border:2px solid #ff2a1a;background:rgba(0,0,0,.65);color:#fff;box-shadow:0 0 10px rgba(255,26,15,.8),inset 0 0 8px rgba(255,26,15,.35)}
-body[data-tab=home] h2{justify-content:flex-start;gap:8px;font-size:20px;font-weight:800;padding-left:8px;border-left:4px solid #ff2a1a;box-shadow:-4px 0 10px -4px #ff1a0f}
-body[data-tab=home] h2::before{content:"";flex:none;width:42px;height:28px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 40'%3E%3Cpath d='M12 35c-7 0-10-6-7-10 2-3 7-4 10-2-1-6 5-12 11-10 2-6 11-7 14-1 6-2 12 3 10 9 6 0 9 6 5 10-2 3-7 4-10 3z' fill='%23a8000c' stroke='%23ff5a48' stroke-width='2.4' stroke-linejoin='round'/%3E%3Cpath d='M26 24c-3-4 1-9 5-8 4 1 4 6 0 7' fill='none' stroke='%23ffb0a8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 0 6px #ff1a0f)}
-body[data-tab=home] h2 a{margin-left:auto;color:#fff;font-weight:500}
-body[data-tab=home] .cd i{border:2px solid #ff2a1a;border-radius:14px;box-shadow:0 0 10px rgba(255,26,15,.85),inset 0 0 8px rgba(255,26,15,.35)}
-body[data-tab=home] .cd b{text-shadow:0 1px 6px #000}
-body[data-tab=home] nav{border:2px solid #ff2a1a;border-radius:28px;background:rgba(8,0,0,.9);box-shadow:0 0 14px #ff1a0f,0 0 28px rgba(255,26,15,.4),inset 0 0 14px rgba(255,26,15,.4)}
-body[data-tab=home] nav button{color:#fff;font-size:14px;font-weight:600}
+body:not([data-tab=play])::before{background:#000 var(--abg,url(fundo-inicio.jpg)) center/cover no-repeat}
+body:not([data-tab=play]) .ib{width:52px;height:52px;background:rgba(0,0,0,.8);border:2px solid #ff3a2a;box-shadow:0 0 12px #ff1a0f,inset 0 0 10px rgba(255,26,15,.5)}
+body:not([data-tab=play]) .hero{margin:10px 14px 8px;border:2px solid #ff3a2a;border-radius:22px;overflow:hidden;box-shadow:0 0 14px #ff1a0f,0 0 30px rgba(255,26,15,.4),inset 0 0 18px rgba(255,26,15,.45)}
+body:not([data-tab=play]) .hero .btn,body:not([data-tab=play]) .hero .btn.o{border:2px solid #ff2a1a;background:rgba(0,0,0,.65);color:#fff;box-shadow:0 0 10px rgba(255,26,15,.8),inset 0 0 8px rgba(255,26,15,.35)}
+body:not([data-tab=play]) h2{justify-content:flex-start;gap:8px;font-size:20px;font-weight:800;padding-left:8px;border-left:4px solid #ff2a1a;box-shadow:-4px 0 10px -4px #ff1a0f}
+body:not([data-tab=play]) h2::before{content:"";flex:none;width:42px;height:28px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 40'%3E%3Cpath d='M12 35c-7 0-10-6-7-10 2-3 7-4 10-2-1-6 5-12 11-10 2-6 11-7 14-1 6-2 12 3 10 9 6 0 9 6 5 10-2 3-7 4-10 3z' fill='%23a8000c' stroke='%23ff5a48' stroke-width='2.4' stroke-linejoin='round'/%3E%3Cpath d='M26 24c-3-4 1-9 5-8 4 1 4 6 0 7' fill='none' stroke='%23ffb0a8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 0 6px #ff1a0f)}
+body:not([data-tab=play]) h2 a{margin-left:auto;color:#fff;font-weight:500}
+body:not([data-tab=play]) .cd i{border:2px solid #ff2a1a;border-radius:14px;box-shadow:0 0 10px rgba(255,26,15,.85),inset 0 0 8px rgba(255,26,15,.35)}
+body:not([data-tab=play]) .cd b{text-shadow:0 1px 6px #000}
+body:not([data-tab=play]) nav{border:2px solid #ff2a1a;border-radius:28px;background:rgba(8,0,0,.9);box-shadow:0 0 14px #ff1a0f,0 0 28px rgba(255,26,15,.4),inset 0 0 14px rgba(255,26,15,.4)}
+body:not([data-tab=play]) nav button{color:#fff;font-size:14px;font-weight:600}
 </style><style id="gest-css">
 .tz.pt:not(.ed){pointer-events:none!important}
 .tz.pt,.bkz.pt{border:0!important;margin:0!important;padding:0!important;box-shadow:none!important}
