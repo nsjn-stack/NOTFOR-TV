@@ -414,6 +414,23 @@ body.typing{padding-bottom:40vh}
 #ad.cfgc>.box.dgg{outline:2px solid #ff2a1a;box-shadow:0 0 18px #ff1a0f;opacity:.92;position:relative;z-index:5}
 #ad.cfgc>.box.dgg .dgh{cursor:grabbing;opacity:1}
 </style>
+<style id="cn-extra">
+details.rcd{padding:10px 12px}
+details.rcd>summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:28px;-webkit-tap-highlight-color:transparent}
+details.rcd>summary::-webkit-details-marker{display:none}
+details.rcd>summary::after{content:'›';font-size:24px;line-height:1;opacity:.6;transition:transform .2s}
+details.rcd[open]>summary::after{transform:rotate(90deg)}
+details.rcd[open]>summary{margin-bottom:6px;color:var(--r)}
+#tlt{flex:none;width:40px;height:36px;padding:0;font-size:24px;line-height:1;background:none;border:1px solid #3a1212;border-radius:8px;color:#fff;transition:transform .2s}
+#tlt.on{transform:rotate(90deg)}
+#tlw[hidden]{display:none}
+#fw.rs{max-height:none}
+#fw.rs .fwb,#fw.fx .fwb{flex:1;min-height:0;max-height:none}
+#fw.fx{left:0!important;top:0!important;right:0!important;bottom:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;max-height:none!important;border-radius:0}
+#fw.fx .fwh{border-radius:0;padding-top:calc(8px + env(safe-area-inset-top))}
+#fw .fwz{position:absolute;right:0;bottom:0;width:36px;height:36px;touch-action:none;cursor:nwse-resize;z-index:3;border-radius:0 0 14px 0;background:linear-gradient(135deg,transparent 52%,#ff3a2a 52%,#ff3a2a 60%,transparent 60%,transparent 72%,#ff3a2a 72%,#ff3a2a 80%,transparent 80%)}
+#fw.mn .fwz,#fw.pip .fwz,#fw.fx .fwz{display:none}
+</style>
 </head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -636,7 +653,7 @@ function recom(t){
  const ids=recIds(),c=S.T.filter(x=>x.id!=t.id&&ids.includes(String(x.id)));
  return c.length?c[Math.floor(Math.random()*c.length)]:null}
 async function recT(id){const a=recIds(),i=a.indexOf(String(id));if(i<0)a.push(String(id));else a.splice(i,1);await cf('rec_list',a.join(','));ad()}
-const recBox=()=>{const a=recIds().map(i=>T(i)).filter(Boolean);return `<div class="box"><b>⭐ Lista de Recomendados</b><div class="mu" style="padding:4px 0">O botão "Recomendado" do player só sugere os títulos desta lista. Lista vazia = o botão não aparece. Para adicionar, toque em ☆ Recomendar no título, logo abaixo, ou no botão ☆ em cima da capa.</div><label class="k"><input type="checkbox" ${rcqOn()?'checked':''} onchange="rcqSet(this.checked)"> Mostrar botão ☆ nas capas (só aparece para você)</label>${a.length?a.map(t=>`<div class="row" style="align-items:center;flex-wrap:nowrap;gap:6px;margin:4px 0"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.name)}</span><button class="btn o s" onclick="recT(${t.id})">Remover</button></div>`).join(''):'<div class="mu" style="padding:4px 0">Nenhum título recomendado ainda.</div>'}</div>`};
+const recBox=()=>{const a=recIds().map(i=>T(i)).filter(Boolean);return `<details class="box rcd" ${S.rco?'open':''} ontoggle="S.rco=this.open"><summary>⭐ Lista de Recomendados</summary><div class="mu" style="padding:4px 0">O botão "Recomendado" do player só sugere os títulos desta lista. Lista vazia = o botão não aparece. Para adicionar, toque em ☆ Recomendar no título, logo abaixo, ou no botão ☆ em cima da capa.</div><label class="k"><input type="checkbox" ${rcqOn()?'checked':''} onchange="rcqSet(this.checked)"> Mostrar botão ☆ nas capas (só aparece para você)</label>${a.length?a.map(t=>`<div class="row" style="align-items:center;flex-wrap:nowrap;gap:6px;margin:4px 0"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.name)}</span><button class="btn o s" onclick="recT(${t.id})">Remover</button></div>`).join(''):'<div class="mu" style="padding:4px 0">Nenhum título recomendado ainda.</div>'}</details>`};
 const ovList=()=>{const v=S.set.ov_titles||'';return v=='all'?'all':v.split(',').filter(Boolean)};
 const ovOn=id=>{const l=ovList();return l=='all'||l.includes(String(id))};
 const ovn=(k,d)=>{const v=parseFloat(S.set[k]);return isNaN(v)?d:v};
@@ -1145,7 +1162,7 @@ async function ad(f){
 <div class="mfg2"><select id="f_section">${secOrd().map(s=>`<option value="${s.key}" ${e.section==s.key?'selected':''}>${esc(s.label)}</option>`).join('')}</select><select id="f_rating">${['Livre','10+','12+','14+','16+','18+'].map(x=>`<option ${e.rating==x?'selected':''}>${x}</option>`).join('')}</select></div>
 <select id="f_audio"><option value="">Áudio</option>${['dublado','legendado'].map(x=>`<option ${(e.audio||(S.ed?'':'dublado'))==x?'selected':''}>${x}</option>`).join('')}</select>
 <div class="mfk"><label class="k"><input type="checkbox" id="f_featured" ${e.featured?'checked':''}> Destaque</label><label class="k"><input type="checkbox" id="f_coff" ${e.comments_off?'checked':''}> Sem comentários</label></div>
-<div class="row" style="margin-top:6px;flex-wrap:nowrap"><button class="btn" style="flex:1" onclick="svT()">${S.ed?'Salvar alterações':'Adicionar título'}</button><button class="btn o" onclick="tmG()" title="Google Imagens">🖼</button><button class="btn o" onclick="tmKey()" title="Chave do TMDB">🔑</button></div></div>`+recBox()+`<div class="box sbx"><span>🔎</span><input id="t_q" placeholder="Pesquisar títulos…" oninput="fq('t_q','.tbx')"></div>`+S.TA.map(t=>`<div class="box tbx trw" style="flex-wrap:wrap${hid(t.id)?';opacity:.6':''}"><div class="trn" style="flex:1 1 100%"><b>${esc(t.name)}</b><small class="mu">${esc(lab(t.section))}${hid(t.id)?' • 🙈 oculto':''}</small></div><button class="btn o s" onclick="S.ed=T(${t.id});ad();scrollTo(0,0)">Editar</button><button class="btn o s" onclick="ordTi(${t.id})">${({f:'⬆ Início',l:'⬇ Fim'})[S.set['ord:'+t.id]]||'↕ Normal'}</button><button class="btn o s" onclick="recT(${t.id})">${recOn(t.id)?'⭐ Recomendado':'☆ Recomendar'}</button><button class="btn o s" onclick="hdT(${t.id})">${hid(t.id)?'👁 Mostrar':'🙈 Ocultar'}</button><button class="btn o s" onclick="dT(${t.id})">Apagar</button></div>`).join('');
+<div class="row" style="margin-top:6px;flex-wrap:nowrap"><button class="btn" style="flex:1" onclick="svT()">${S.ed?'Salvar alterações':'Adicionar título'}</button><button class="btn o" onclick="tmG()" title="Google Imagens">🖼</button><button class="btn o" onclick="tmKey()" title="Chave do TMDB">🔑</button></div></div>`+recBox()+`<div class="box sbx"><span>🔎</span><input id="t_q" placeholder="Pesquisar títulos…" oninput="tlIn()"><button type="button" id="tlt" class="${S.tlo?'on':''}" onclick="tlTog()" aria-label="Mostrar ou esconder a lista">›</button></div><div id="tlw" ${S.tlo?'':'hidden'}>`+S.TA.map(t=>`<div class="box tbx trw" style="flex-wrap:wrap${hid(t.id)?';opacity:.6':''}"><div class="trn" style="flex:1 1 100%"><b>${esc(t.name)}</b><small class="mu">${esc(lab(t.section))}${hid(t.id)?' • 🙈 oculto':''}</small></div><button class="btn o s" onclick="S.ed=T(${t.id});ad();scrollTo(0,0)">Editar</button><button class="btn o s" onclick="ordTi(${t.id})">${({f:'⬆ Início',l:'⬇ Fim'})[S.set['ord:'+t.id]]||'↕ Normal'}</button><button class="btn o s" onclick="recT(${t.id})">${recOn(t.id)?'⭐ Recomendado':'☆ Recomendar'}</button><button class="btn o s" onclick="hdT(${t.id})">${hid(t.id)?'👁 Mostrar':'🙈 Ocultar'}</button><button class="btn o s" onclick="dT(${t.id})">Apagar</button></div>`).join('')+'</div>';
  }
  if(a=='v'){const et=S.et&&T(S.et)?S.et:S.TA[0]?.id;S.et=et;
   const vq0=(S.vq||'').toLowerCase(),tl=vq0?S.TA.filter(t=>t.name.toLowerCase().includes(vq0)):S.TA;if(tl.length&&!tl.some(t=>t.id==S.et)){S.et=tl[0].id}const et2=S.et,qm=!vq0||(T(et2)&&T(et2).name.toLowerCase().includes(vq0));
@@ -1194,7 +1211,7 @@ async function subDel(i){if(!await cnConfirm('Apagar esta legenda?'))return;cons
 const sbNow=()=>{const vd=document.querySelector('#pw video');if(vd)return vd.currentTime;const k=S.sk;return k.p+(k.run?(Date.now()-k.at)/1000:0)};
 function sbTick(){const el=$('#sbt');if(!el){clearInterval(S.sbi);return}if(S.mn&&S.ev){S.mn=0;sbBar()}const tr=S.sv[S.si],tmE=$('#sbtm');if(tmE)tmE.textContent='⏱ '+hmF(sbNow());let x='';if(tr){const t=sbMap(sbNow());for(const q of tr.c)if(t>=q[0]&&t<=q[1]){x=q[2];break}}if(el._x!==x){el._x=x;el.textContent=x}}
 function vmHQ0(){const c=S.cur;if(!c||c.pk!='vm')return;const f=document.querySelector('#pw iframe');if(f)vmHQ(f,c)}
-function vmHQ(f,c){if(!f||ovn('vm_hq',1)!=1)return;const go=()=>{try{const pl=new Vimeo.Player(f);let done=0,busy=0;
+function vmHQ(f,c){if(!f||ovn('vm_hq',0)!=1)return;const go=()=>{try{const pl=new Vimeo.Player(f);let done=0,busy=0;
  const rk=q=>q=='auto'?0:q=='4K'?2160:q=='2K'?1440:parseInt(q)||0;
  const set=async()=>{if(done||busy||S.cur!==c)return;busy=1;try{const qs=((await pl.getQualities())||[]).map(x=>x.id).filter(x=>x&&x!='auto').sort((a,b)=>rk(b)-rk(a));if(qs.length){await pl.setQuality(qs[0]);done=1}}catch(e){}busy=0};
  pl.on('loaded',set);pl.on('play',set);setTimeout(set,2500);setTimeout(set,6000);setTimeout(set,12000)}catch(e){}};
@@ -1430,7 +1447,7 @@ function fwOpen(){
  const d=S.fwd||fwG(),ty=d.ty||'f',old=fwEl();if(old)old.remove();
  const x=document.createElement('div');x.id='fw';if(d.min)x.classList.add('mn');const pipOn=!!(window._pipw&&!_pipw.closed);
  const v=k=>esc(d[k]||''),so=secOrd(),sec=d.section||(ty=='f'?'movies':'series');
- x.innerHTML=`<div class="fwh" id="fwh"><b>＋ Novo ${ty=='f'?'filme':'série'}</b><span>${window.documentPictureInPicture&&!pipOn?'<button onclick="fwPop()" title="Levar para fora do app">⧉</button>':''}<button onclick="fwMin()">${d.min?'▢':'—'}</button><button onclick="fwTog()">✕</button></span></div><div class="fwb">
+ x.innerHTML=`<div class="fwh" id="fwh"><b>＋ Novo ${ty=='f'?'filme':'série'}</b><span>${window.documentPictureInPicture&&!pipOn?'<button onclick="fwPop()" title="Levar para fora do app">⧉</button>':''}${!pipOn&&!d.min?`<button onclick="fwFull()" title="Tela cheia">${d.full?'⤡':'⛶'}</button>`:''}<button onclick="fwMin()">${d.min?'▢':'—'}</button><button onclick="fwTog()">✕</button></span></div><div class="fwb">
 <div class="seg"><button class="${ty=='f'?'on':''}" onclick="fwTy('f')">Filme</button><button class="${ty=='s'?'on':''}" onclick="fwTy('s')">Série</button></div>
 <div class="fwg"><div class="fwc"><div id="fw_pv" onclick="$('#fw_cover').focus()" style="${d.cover?"background-image:url('"+esc(gd(d.cover))+"')":''}">${d.cover?'':'Capa'}</div></div>
 <div class="fwr"><input id="fw_cover" placeholder="Link da capa" value="${v('cover')}" oninput="pvW();fwSave()"><div class="nmw"><input id="fw_name" placeholder="Nome (digite para buscar a capa)" value="${v('name')}" oninput="fwSave();fwAuto()" onkeydown="if(event.key=='Enter')fwGo()"><button type="button" id="fw_lupa" onclick="fwGo()" aria-label="Buscar informações automaticamente">🔍</button></div><input id="fw_url" placeholder="🎬 Link do vídeo" value="${v('url')}" oninput="fwSave()"><input id="fw_skip" type="number" min="0" max="99999" placeholder="⏩ Pular o início (em segundos)" value="${v('skip')}" oninput="fwSave()"></div></div>
@@ -1441,13 +1458,25 @@ ${ty=='s'?`<div class="fwg2"><input id="fw_season" type="number" placeholder="Te
 <div class="fwg2"><select id="fw_section" onchange="fwSave()">${so.map(s=>`<option value="${s.key}" ${sec==s.key?'selected':''}>${esc(s.label)}</option>`).join('')}</select><select id="fw_rating" onchange="fwSave()">${['Livre','10+','12+','14+','16+','18+'].map(r=>`<option ${(d.rating||'Livre')==r?'selected':''}>${r}</option>`).join('')}</select></div>
 <select id="fw_audio" onchange="fwSave()">${['dublado','legendado'].map(a=>`<option ${(d.audio||'dublado')==a?'selected':''}>${a}</option>`).join('')}</select>
 <div class="row" style="margin-top:6px"><button class="btn" style="flex:1" onclick="svW()">${d.tid?'Adicionar episódio':'Salvar'}</button><button class="btn o" onclick="fwNew()">Limpar</button></div><div id="fw_m" class="mu" style="padding:6px 0 0"></div></div>`;
- (pipOn?_pipw.document.body:document.body).appendChild(x);if(!pipOn)fwPos(x);else x.classList.add('pip');
+ (pipOn?_pipw.document.body:document.body).appendChild(x);if(!pipOn){fwPos(x);fwSize(x)}else x.classList.add('pip');
  const h=x.querySelector('#fwh');let dr=null;
  h.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;const r=x.getBoundingClientRect();dr={dx:e.clientX-r.left,dy:e.clientY-r.top};h.setPointerCapture(e.pointerId)});
  h.addEventListener('pointermove',e=>{if(!dr||x.classList.contains('pip'))return;const W=innerWidth,H=innerHeight,r=x.getBoundingClientRect();const l=Math.max(70-r.width,Math.min(W-70,e.clientX-dr.dx)),t=Math.max(0,Math.min(H-40,e.clientY-dr.dy));x.style.left=l+'px';x.style.top=t+'px';x.style.right='auto';x.style.bottom='auto'});
  const end=()=>{if(!dr)return;dr=null;fwSet({x:parseFloat(x.style.left),y:parseFloat(x.style.top)})};h.addEventListener('pointerup',end);h.addEventListener('pointercancel',end)}
 function fwPos(x){const d=S.fwd||{};if(typeof d.x=='number'&&typeof d.y=='number'){x.style.left=Math.max(-300,Math.min(innerWidth-70,d.x))+'px';x.style.top=Math.max(0,Math.min(innerHeight-60,d.y))+'px';x.style.right='auto';x.style.bottom='auto'}}
 function fwMin(){fwSave();fwSet({min:S.fwd.min?0:1});fwOpen()}
+function fwFull(){fwSave();fwSet({full:S.fwd.full?0:1});fwOpen()}
+function fwSize(x){const d=S.fwd||{};if(d.min)return;
+ x.insertAdjacentHTML('beforeend','<div class="fwz" aria-label="Arraste para aumentar"></div>');
+ if(d.full){x.classList.add('fx');return}
+ if(d.w>0&&d.h>0){x.style.width=Math.min(d.w,innerWidth-4)+'px';x.style.height=Math.min(d.h,innerHeight-4)+'px';x.style.maxHeight='none';x.classList.add('rs')}
+ const z=x.querySelector('.fwz');let rz=null;
+ z.addEventListener('pointerdown',e=>{const r=x.getBoundingClientRect();rz={sx:e.clientX,sy:e.clientY,w:r.width,h:r.height};x.style.left=r.left+'px';x.style.top=r.top+'px';x.style.right='auto';x.style.bottom='auto';z.setPointerCapture(e.pointerId);e.preventDefault()});
+ z.addEventListener('pointermove',e=>{if(!rz)return;const r=x.getBoundingClientRect();const w=Math.max(240,Math.min(innerWidth-r.left,rz.w+e.clientX-rz.sx)),h=Math.max(160,Math.min(innerHeight-r.top,rz.h+e.clientY-rz.sy));x.style.width=w+'px';x.style.height=h+'px';x.style.maxHeight='none';x.classList.add('rs')});
+ const en=()=>{if(!rz)return;rz=null;fwSet({w:parseFloat(x.style.width),h:parseFloat(x.style.height),x:parseFloat(x.style.left),y:parseFloat(x.style.top)})};
+ z.addEventListener('pointerup',en);z.addEventListener('pointercancel',en)}
+function tlTog(){S.tlo=!S.tlo;const w=$('#tlw'),b=$('#tlt');if(w)w.hidden=!S.tlo;if(b)b.classList.toggle('on',!!S.tlo)}
+function tlIn(){const q=($('#t_q')||{}).value;if(q&&!S.tlo)tlTog();fq('t_q','.tbx')}
 function fwTy(t){fwSave();fwSet({ty:t,section:t=='f'?'movies':'series'});fwOpen()}
 function fwNew(){const k=S.fwd||{};S.fwd={ty:k.ty,open:1,x:k.x,y:k.y};try{localStorage[FWK]=JSON.stringify(S.fwd)}catch(e){}fwOpen()}
 let fwT=0;function fwAuto(){clearTimeout(fwT);const q=($('#fw_name')||{}).value;if(!q||q.trim().length<3||!TMK())return;fwT=setTimeout(fwFind,700)}
