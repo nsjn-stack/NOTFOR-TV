@@ -220,17 +220,6 @@ body.hb .pw.vmo .ob.ex{opacity:0!important;pointer-events:none!important}
 img,video,picture{-webkit-touch-callout:none;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
 /* escudos invisíveis (todos os players, menos o Internet Archive) sobre as áreas do player com título, links e botões (coração, relógio, compartilhar, </>) */
 .pw{touch-action:manipulation}
-.pw .vcap{position:absolute;inset:0;z-index:50;background:#000 center/cover no-repeat;cursor:pointer;display:grid;place-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}.pw .vcap i{width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid #fff;display:grid;place-items:center}/* ===== capa do player (esconde título, canal, "Mais vídeos" e logo do YouTube) ===== */
-.pw .ytcv{position:absolute;inset:0;z-index:55;pointer-events:none;overflow:hidden;border-radius:inherit}
-.pw .ytcv>*{position:absolute;opacity:0;transition:opacity .35s .12s}
-.pw .ytcv-f{inset:0;background:#070000 center/cover no-repeat}
-.pw .ytcv-f::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 45%,rgba(225,6,0,.22),rgba(0,0,0,0) 60%),linear-gradient(180deg,rgba(0,0,0,.72) 0,rgba(0,0,0,.18) 34%,rgba(0,0,0,.25) 58%,rgba(0,0,0,.92) 100%)}
-.pw .ytcv-f::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 60px rgba(0,0,0,.85),inset 0 -2px 0 rgba(255,42,26,.55)}
-.pw .ytcv-f b{position:absolute;right:12px;top:14px;font:italic 900 clamp(11px,3.2vw,18px)/1 system-ui;letter-spacing:.14em;color:#ff2a1a;text-shadow:0 0 8px rgba(255,26,15,.7),0 1px 2px #000}
-.pw .ytcv-t{left:0;right:0;top:0;height:30%;background:linear-gradient(180deg,#000 0,#000 62%,rgba(0,0,0,0) 100%)}
-.pw .ytcv-b{left:0;right:0;bottom:0;height:42%;background:linear-gradient(0deg,#000 0,#000 66%,rgba(0,0,0,0) 100%)}
-.pw.ytfull .ytcv-f,.pw.ytbands .ytcv-t,.pw.ytbands .ytcv-b{opacity:1;transition:none}
-.pw .vcap i::before{content:"";border-left:20px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:6px}
 .pw:has(iframe:not([src*="archive.org"]):not([src*="vimeo.com"]):not([src*="youtube.com"]))::before{content:"";position:absolute;top:0;left:0;right:0;height:22%;z-index:2}
 .pw:has(iframe:not([src*="archive.org"]):not([src*="vimeo.com"]):not([src*="youtube.com"]))::after{content:"";position:absolute;top:0;right:0;width:20%;height:65%;z-index:2}
 .pw:has(iframe[src*="archive.org"])::before{content:"";position:absolute;top:15%;left:0;width:15%;height:55%;z-index:2}
@@ -317,221 +306,7 @@ body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!im
   best(decodeURIComponent(m[1])).then(n=>{if(n&&f.isConnected)f.src='https://archive.org/embed/'+m[1]+'/'+n.split('/').map(encodeURIComponent).join('/')})};
  new MutationObserver(()=>document.querySelectorAll('iframe[src^="https://archive.org/embed/"]').forEach(arFix)).observe(document.documentElement,{childList:true,subtree:true});
 })();
-</script><style id="cnp-port">
-
-.ov{transition:opacity .3s}.pw.ovh .ov{opacity:0;pointer-events:none}
-.pw:has(.cnp){border:2px solid #ff3a2a;border-radius:18px;box-shadow:0 0 14px #ff1a0f,0 0 32px rgba(255,26,15,.45),inset 0 0 16px rgba(255,26,15,.55)}
-.pw.ff:has(.cnp),.pw:fullscreen:has(.cnp){border:0;border-radius:0;box-shadow:none}
-.pw .ytsh{position:absolute;inset:0;z-index:2;background:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-/* === Player novo (CINE NOTFOR): botões redondos, barras vermelhas e fundo quase invisível === */
-.pw .ov.cnp{inset:0;padding:6px 8px;justify-content:space-between;gap:0;background:linear-gradient(180deg,rgba(0,0,0,.14),rgba(0,0,0,0) 28%);pointer-events:none;color:#fff}
-.cnp button,.cnp input,.cnp .cnp-vt{pointer-events:auto}
-.pw.ovh .cnp button,.pw.ovh .cnp input,.pw.ovh .cnp .cnp-vt{pointer-events:none}
-.cnp-top{display:flex;align-items:center;gap:8px}
-.cnp-t{flex:1;min-width:0;line-height:1.15;text-shadow:0 1px 4px #000,0 0 8px rgba(0,0,0,.7)}
-.cnp-t b{display:block;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cnp-t small{display:block;font-size:10.5px;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cnp-b{flex:none;width:30px;height:30px;min-width:0;padding:0;border-radius:50%;display:grid;place-items:center;color:#fff;background:rgba(0,0,0,.32);border:1.5px solid rgba(255,255,255,.3);-webkit-tap-highlight-color:transparent;font:800 11px system-ui,sans-serif}
-#cb.cnp-b{width:32px;height:32px;border-color:rgba(255,42,26,.9);box-shadow:0 0 8px rgba(255,26,15,.7),inset 0 0 6px rgba(255,26,15,.35)}
-.cnp-b:active,.cnp-play:active,.cnp-pill:active{transform:scale(.9)}
-.cnp-b .ic{width:16px;height:16px}
-.cnp-b svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.cnp-sp{width:auto;min-width:32px;padding:0 7px;border-radius:15px}
-.cnp-mid{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;gap:24px;pointer-events:none}
-.cnp-mid .cnp-s{width:40px;height:40px;background:rgba(0,0,0,.42)}
-.cnp-mid .cnp-s svg{width:28px;height:28px}
-.cnp-play{position:relative;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;color:#fff;background:rgba(0,0,0,.55);border:0;box-shadow:0 0 14px rgba(255,26,15,.5);-webkit-tap-highlight-color:transparent}
-.cnp-play::before{content:"";position:absolute;inset:0;border-radius:50%;padding:3px;background:conic-gradient(#ff2a1a 0 72%,rgba(255,255,255,.18) 72% 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
-.cnp-play svg{width:28px;height:28px}
-/* sliders laterais: brilho (esquerda) e volume (direita) */
-.cnp-vs{position:absolute;top:44px;bottom:66px;width:28px;display:flex;flex-direction:column;align-items:center;padding:6px 0;border-radius:16px;background:rgba(0,0,0,.38);border:1px solid rgba(255,255,255,.18);box-sizing:border-box;pointer-events:none}
-.cnp-vs.l{left:8px}.cnp-vs.r{right:8px}
-.cnp-vi{flex:none;display:grid;place-items:center;width:18px;height:18px;margin-bottom:4px}
-.cnp-vi svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.cnp-vi .ic{width:16px;height:16px}
-.cnp-vt{position:relative;flex:1;width:100%;min-height:30px;touch-action:none;--f:.5}
-.cnp-vt::before{content:"";position:absolute;left:50%;top:6px;bottom:6px;width:4px;margin-left:-2px;border-radius:3px;background:rgba(255,255,255,.3)}
-.cnp-vt u{position:absolute;left:50%;bottom:6px;width:4px;margin-left:-2px;border-radius:3px;height:calc((100% - 12px)*var(--f));background:#fff;pointer-events:none}
-.cnp-vs.r .cnp-vt u{background:#ff1a0f;box-shadow:0 0 6px rgba(255,26,15,.7)}
-.cnp-vt s{position:absolute;left:50%;bottom:calc(6px + (100% - 12px)*var(--f));width:12px;height:12px;margin:0 0 -6px -6px;border-radius:50%;background:#fff;box-shadow:0 0 5px #000;pointer-events:none}
-/* barra de baixo: faixa preta bem leve */
-.cnp-bot{position:relative;z-index:1;margin-top:auto;display:flex;flex-direction:column;gap:2px;padding:3px 8px 4px;border-radius:14px;background:rgba(0,0,0,.26);border:1px solid rgba(255,42,26,.38);box-shadow:0 0 10px rgba(255,26,15,.22),inset 0 0 8px rgba(255,26,15,.12)}
-.cnp-row{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;text-shadow:0 1px 3px #000}
-.cnp-row span{flex:none;min-width:32px;text-align:center}
-.cnp-r2{gap:8px}
-.cnp-pill{flex:none;width:48px;height:28px;border-radius:15px;display:grid;place-items:center;color:#fff;background:rgba(0,0,0,.35);border:1.5px solid #ff2a1a;box-shadow:0 0 8px rgba(255,26,15,.7),inset 0 0 6px rgba(255,26,15,.3);-webkit-tap-highlight-color:transparent}
-.cnp-pill svg{width:16px;height:16px}
-.cnp-m{width:28px;height:28px;border-color:transparent;background:transparent}
-.cnp-r2 .cnp-b{width:28px;height:28px}
-.cnp-r2 .cnp-sp{width:auto;min-width:32px}
-.cnp-r2 #vl{max-width:130px}
-.cnp input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:20px;margin:0;padding:0;background:transparent;border:0}
-.cnp input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:3px;background:linear-gradient(90deg,#ff1a0f var(--p,0%),rgba(255,255,255,.3) var(--p,0%));box-shadow:0 0 6px rgba(255,26,15,.5)}
-.cnp input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;margin-top:-4.5px;border-radius:50%;background:#fff;box-shadow:0 0 6px #ff2a1a,0 0 2px #000}
-.cnp input[type=range]::-moz-range-track{height:4px;border-radius:3px;background:rgba(255,255,255,.3)}
-.cnp input[type=range]::-moz-range-progress{height:4px;border-radius:3px;background:#ff1a0f}
-.cnp input[type=range]::-moz-range-thumb{width:13px;height:13px;border:0;border-radius:50%;background:#fff}
-.cnp-menu{position:absolute;top:44px;right:8px;z-index:6;min-width:128px;max-width:72%;max-height:calc(100% - 112px);overflow:auto;padding:6px;border-radius:12px;background:rgba(0,0,0,.72);border:1px solid rgba(255,42,26,.55);box-shadow:0 0 12px rgba(255,26,15,.35);display:flex;flex-direction:column;gap:3px;pointer-events:auto;color:#fff}
-.cnp-menu[hidden]{display:none}
-.pw:has(.cnp) .ob.ls{display:none!important}
-.pw.ovh .cnp-menu{display:none}
-.cnp-menu b{font-size:11px;color:#ff7a6e;margin:3px 4px 1px}
-.cnp-menu small{font-size:10.5px;color:#bbb;margin:2px 4px}
-.cnp-menu button{text-align:left;padding:6px 9px;border-radius:8px;background:transparent;color:#fff;font-size:12px;font-weight:600;border:1px solid transparent}
-.cnp-menu button.on{border-color:#ff2a1a;background:rgba(255,26,15,.25)}
-/* === Tela cheia / deitada: botões maiores e barra de baixo mais centralizada e mais alta === */
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .ov.cnp{padding:14px 20px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-top{gap:18px;align-items:center}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-t b{font-size:27px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-t small{font-size:18px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-b{width:60px;height:60px;border-width:2px;font-size:19px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) #cb.cnp-b{width:66px;height:66px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-b .ic{width:30px;height:30px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-b svg{width:32px;height:32px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-sp{width:auto;min-width:66px;padding:0 16px;border-radius:32px;font-size:20px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-play{width:108px;height:108px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-play::before{padding:5px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-play svg{width:54px;height:54px}
-/* barra de baixo: afastada das bordas (centralizada) e bem mais grossa */
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-bot{margin:auto 6% 3%;padding:12px 24px 14px;gap:8px;border-radius:28px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-row{gap:18px;font-size:20px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-row span{min-width:68px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-r2{gap:18px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-pill{width:100px;height:58px;border-radius:30px;border-width:2px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-pill svg{width:32px;height:32px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-r2 .cnp-b,:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-m{width:58px;height:58px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-r2 .cnp-sp{width:auto;min-width:68px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-r2 #vl{max-width:320px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]{height:46px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]::-webkit-slider-runnable-track{height:9px;border-radius:5px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]::-webkit-slider-thumb{width:30px;height:30px;margin-top:-10.5px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]::-moz-range-track{height:9px;border-radius:5px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]::-moz-range-progress{height:9px;border-radius:5px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]::-moz-range-thumb{width:30px;height:30px}
-/* menu de legendas / qualidade */
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-menu{top:104px;right:20px;min-width:240px;padding:10px;gap:6px;border-radius:18px;max-height:calc(100% - 104px - 220px)}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-menu b{font-size:19px;margin:5px 6px 2px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-menu small{font-size:16px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-menu button{padding:12px 16px;font-size:20px;border-radius:12px}
-/* aviso de próximo episódio não fica atrás da barra maior */
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .nxb{bottom:190px}
-/* leve: sem brilhos/sombras grandes sobre o vídeo (pesam quando o player fica esticado) */
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-b,:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) #cb.cnp-b,:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-play,:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-bot,:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-pill,:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-menu{box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-bot{background:rgba(0,0,0,.45)}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-t,:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-row{text-shadow:0 1px 3px #000}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]::-webkit-slider-runnable-track{box-shadow:none}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp input[type=range]::-webkit-slider-thumb{box-shadow:0 0 2px #000}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-menu{background:rgba(0,0,0,.85)}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp{contain:layout style}
-/* ===== Player novo v3: barra grande, transparente, borda vermelha; mesma coisa em pé e deitado ===== */
-.pw .ov.cnp{--tb:52px;--cbs:56px;--bb:52px;--ic:28px;--tf:21px;--sf:14px;--rowf:16px;--tmw:58px;--sk:40px;--tk:8px;--th:28px;--sp:68px;--spf:18px;--bpad:8px 18px 12px;--br:28px;--gap:12px;--bgap:6px;--pad:10px 10px 10px;z-index:100;padding:var(--pad)}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .ov.cnp{--tb:64px;--cbs:72px;--bb:78px;--ic:40px;--tf:30px;--sf:20px;--rowf:24px;--tmw:92px;--sk:56px;--tk:11px;--th:38px;--sp:104px;--spf:28px;--bpad:16px 40px 20px;--br:44px;--gap:18px;--bgap:10px;--pad:14px 14px 20px;padding:var(--pad)}
-.cnp input[type=range]{touch-action:none}
-/* topo: voltar + girar + título + CC + engrenagem */
-.pw .ov.cnp .cnp-top{gap:var(--gap)}
-.pw .ov.cnp .cnp-top .cnp-b{width:var(--tb);height:var(--tb);border-width:2px}
-.pw .ov.cnp #cb.cnp-b{width:var(--cbs);height:var(--cbs)}
-.pw .ov.cnp #rt.cnp-b{border-color:rgba(255,42,26,.9)}
-.pw .ov.cnp .cnp-b svg,.pw .ov.cnp .cnp-b .ic{width:var(--ic);height:var(--ic)}
-.pw .ov.cnp .cnp-t b{font-size:var(--tf)}
-.pw .ov.cnp .cnp-t small{font-size:var(--sf)}
-/* barra de baixo */
-.pw .ov.cnp .cnp-bot{margin:auto 0 0;padding:var(--bpad);gap:var(--bgap);border-radius:var(--br);background:transparent;border:2px solid rgba(255,42,26,.95);box-shadow:none}
-.pw .ov.cnp .cnp-row{gap:var(--gap);font-size:var(--rowf)}
-.pw .ov.cnp .cnp-row span{min-width:var(--tmw)}
-.pw .ov.cnp .cnp-r2 .cnp-b{width:var(--bb);height:var(--bb);border-width:2px}
-.pw .ov.cnp .cnp-r2 .cnp-sp{width:auto;min-width:var(--sp);padding:0 18px;font-size:var(--spf);border-radius:999px}
-.pw .ov.cnp .cnp-r2 .cnp-m{margin-left:auto;background:transparent;border-color:transparent}
-.pw .ov.cnp .cnp-row input[type=range]{height:var(--sk)}
-.pw .ov.cnp .cnp-row input[type=range]::-webkit-slider-runnable-track{height:var(--tk);border-radius:6px}
-.pw .ov.cnp .cnp-row input[type=range]::-webkit-slider-thumb{width:var(--th);height:var(--th);margin-top:calc((var(--tk) - var(--th))/2)}
-.pw .ov.cnp .cnp-row input[type=range]::-moz-range-track,.pw .ov.cnp .cnp-row input[type=range]::-moz-range-progress{height:var(--tk)}
-.pw .ov.cnp .cnp-row input[type=range]::-moz-range-thumb{width:var(--th);height:var(--th)}
-/* menu de legendas/qualidade abaixo dos botões maiores; avisos acima da barra maior */
-.pw .ov.cnp .cnp-menu{top:82px;right:12px;max-height:calc(100% - 82px - 150px)}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .ov.cnp .cnp-menu{top:112px;right:20px;max-height:calc(100% - 112px - 250px)}
-.pw:has(.cnp) .nxb{bottom:150px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .nxb{bottom:240px}
-/* ===== indicadores de volume (direita) e brilho (esquerda) ao arrastar: maiores e centralizados ===== */
-#pw #gxh.l{left:16px;top:50%;transform:translateY(-50%)}
-#pw #gxh.r{right:16px;top:50%;transform:translateY(-50%)}
-#pw #gxh.v{width:68px;height:min(72%,240px);padding:12px 0 10px;gap:8px;border-radius:34px;font-size:18px;background:rgba(0,0,0,.55);border:2px solid rgba(255,42,26,.85);box-shadow:none}
-#pw #gxh .gi{width:36px;height:36px}
-#pw #gxh svg{width:30px;height:30px}
-#pw #gxh .gt::before{top:8px;bottom:8px;width:8px;margin-left:-4px;border-radius:5px}
-#pw #gxh .gt u{bottom:8px;width:8px;margin-left:-4px;border-radius:5px;height:calc((100% - 16px)*var(--f))}
-#pw #gxh .gt s{bottom:calc(8px + (100% - 16px)*var(--f));width:26px;height:26px;margin:0 0 -13px -13px}
-#pw #gxh em{font-size:18px}
-#pw #gxh .gk{width:68px;height:68px}
-#pw #gxh .gk svg{width:42px;height:42px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh.l{left:3%}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh.r{right:3%}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh.v{width:104px;height:min(66%,400px);padding:18px 0 14px;gap:12px;border-radius:52px;font-size:28px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gi{width:56px;height:56px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh svg{width:46px;height:46px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gt::before{top:12px;bottom:12px;width:12px;margin-left:-6px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gt u{bottom:12px;width:12px;margin-left:-6px;height:calc((100% - 24px)*var(--f))}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gt s{bottom:calc(12px + (100% - 24px)*var(--f));width:38px;height:38px;margin:0 0 -19px -19px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh em{font-size:28px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gk{width:100px;height:100px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gk svg{width:64px;height:64px}
-/* enquanto arrasta volume/brilho, os controles ficam bem fracos para o indicador aparecer limpo */
-.pw:has(#gxh.on.v) .ov.cnp{opacity:.12}
-.pw .ytsh{position:absolute;inset:0;z-index:2;background:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-
-/* ===== ajustes pedidos: barra de baixo menor, botão play maior, barras de volume/brilho menores ===== */
-.pw .ov.cnp{--bb:38px;--sk:30px;--tk:6px;--th:22px;--sp:54px;--spf:15px;--bpad:5px 14px 7px;--br:22px;--gap:10px;--bgap:3px;--rowf:14px;--tmw:50px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .ov.cnp{--bb:54px;--sk:40px;--tk:8px;--th:28px;--sp:76px;--spf:21px;--bpad:9px 28px 12px;--br:32px;--gap:14px;--bgap:6px;--rowf:19px;--tmw:70px}
-.pw .ov.cnp .cnp-play{width:70px;height:70px}
-.pw .ov.cnp .cnp-play svg{width:36px;height:36px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .ov.cnp .cnp-play{width:134px;height:134px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .ov.cnp .cnp-play svg{width:68px;height:68px}
-.pw:has(.cnp) .nxb{bottom:112px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .nxb{bottom:170px}
-/* ===== indicadores de volume (direita) e brilho (esquerda) ao arrastar: maiores e centralizados ===== */
-#pw #gxh.l{left:13px;top:50%;transform:translateY(-50%)}
-#pw #gxh.r{right:13px;top:50%;transform:translateY(-50%)}
-#pw #gxh.v{width:54px;height:min(72%,192px);padding:10px 0 8px;gap:6px;border-radius:27px;font-size:14px;background:rgba(0,0,0,.55);border:2px solid rgba(255,42,26,.85);box-shadow:none}
-#pw #gxh .gi{width:29px;height:29px}
-#pw #gxh svg{width:24px;height:24px}
-#pw #gxh .gt::before{top:6px;bottom:6px;width:6px;margin-left:-3px;border-radius:4px}
-#pw #gxh .gt u{bottom:6px;width:6px;margin-left:-3px;border-radius:4px;height:calc((100% - 13px)*var(--f))}
-#pw #gxh .gt s{bottom:calc(6px + (100% - 13px)*var(--f));width:21px;height:21px;margin:0 0 -10px -10px}
-#pw #gxh em{font-size:14px}
-#pw #gxh .gk{width:54px;height:54px}
-#pw #gxh .gk svg{width:34px;height:34px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh.l{left:3%}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh.r{right:3%}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh.v{width:83px;height:min(66%,320px);padding:14px 0 11px;gap:10px;border-radius:42px;font-size:22px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gi{width:45px;height:45px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh svg{width:37px;height:37px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gt::before{top:10px;bottom:10px;width:10px;margin-left:-5px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gt u{bottom:10px;width:10px;margin-left:-5px;height:calc((100% - 19px)*var(--f))}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gt s{bottom:calc(10px + (100% - 19px)*var(--f));width:30px;height:30px;margin:0 0 -15px -15px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh em{font-size:22px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gk{width:80px;height:80px}
-:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gk svg{width:51px;height:51px}
-#pw.gxp{touch-action:none;-webkit-user-select:none;user-select:none}
-#gxb{position:absolute;inset:0;z-index:1;background:#000;opacity:0;pointer-events:none}
-#gxh{position:absolute;z-index:99;pointer-events:none;display:none;flex-direction:column;align-items:center;gap:5px;color:#fff;font:700 11px system-ui,sans-serif;text-shadow:0 1px 3px #000;white-space:nowrap}
-#gxh.on{display:flex}
-#gxh.l{left:12px;top:50%;transform:translateY(-50%)}
-#gxh.r{right:12px;top:50%;transform:translateY(-50%)}
-#gxh em{font-style:normal}
-#gxh.v{width:34px;height:min(64%,150px);padding:8px 0 6px;border-radius:18px;box-sizing:border-box;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.22);box-shadow:0 0 10px rgba(255,26,15,.3)}
-#gxh .gi{display:grid;place-items:center;width:18px;height:18px;flex:none}
-#gxh svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-#gxh .gt{position:relative;flex:1;width:100%;min-height:24px;display:block}
-#gxh .gt::before{content:"";position:absolute;left:50%;top:5px;bottom:5px;width:4px;margin-left:-2px;border-radius:3px;background:rgba(255,255,255,.3)}
-#gxh .gt u{position:absolute;left:50%;bottom:5px;width:4px;margin-left:-2px;border-radius:3px;height:calc((100% - 10px)*var(--f));background:#ff1a0f;box-shadow:0 0 6px rgba(255,26,15,.7)}
-#gxh.sun .gt u{background:#fff;box-shadow:none}
-#gxh .gt s{position:absolute;left:50%;bottom:calc(5px + (100% - 10px)*var(--f));width:11px;height:11px;margin:0 0 -5.5px -5.5px;border-radius:50%;background:#fff;box-shadow:0 0 5px #000}
-#gxh.sk.l{left:14%}#gxh.sk.r{right:14%}
-#gxh .gk{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.5);border:1.5px solid rgba(255,255,255,.35)}
-#gxh .gk svg{width:30px;height:30px}
-#gxh.txt{padding:6px 10px;border-radius:12px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.25)}
-</style>
-<style>/* Drive/Archive no player do app: sem faixa preta atrás dos controles */.pw.nbd .cnp-bot{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.pw.nbd .ov.cnp{background:none!important}.pw.nbd .bl,.pw.nbd .tz:not(.ed){display:none!important}.pw.nbd .cnp-row,.pw.nbd .cnp-row span{text-shadow:0 1px 3px #000,0 0 6px #000}</style></head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
+</script></head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
@@ -619,7 +394,7 @@ function go(t,k){if(t=='home'&&S.tab=='home')S.adC={};S.keep=1;S.tab=t;if(k)S.ki
 function draw(){
  const kp=S.keep;S.keep=0;
  {const o=document.getElementById('ad');if(o&&S.adShown){(S.adC=S.adC||{})[S.adShown]={n:o,y:window.scrollY};o.remove()}S.adShown=null}
- if(S.tab!='play')S.pbd=S.vcd=null;
+ if(S.tab!='play')S.pbd=null;
  if((S.bled||S.oved)&&S.tab!='play'){blEdClose();oEdClose()}
  S.ff=0;document.documentElement.style.overflow='';
  const t=S.tab,b={home:pHome,list:pList,search:pSearch,fav:pFav,me:pMe,admin:pAdmin,play:pPlay}[t]();
@@ -756,43 +531,12 @@ function play(id,eid,li){
 const cu=()=>{const c=S.cur;return c.e?c.e.url:(vids(c.t)[c.li]||{}).url};
 const dl=()=>on('downloads_on')&&S.cur?.v?`<a class="ib" href="${esc(cu())}" download target="_blank">${ic(I.d)}</a>`:'';
 const dzv=k=>ovn('ov_dz_'+k,k=='dr'?ovn('ov_dz',2):1),dzs=z=>{return ` class="dz" style="width:${z*100}%;height:${z*100}%;transform:scale(${(1/z).toFixed(4)})"`};
-const cnpH=(t,e)=>`<div class="ov cnp"><div class="cnp-top"><button class="cnp-b" id="cb" aria-label="Voltar">${ic(I.b,2)}</button><button class="cnp-b" id="rt" onclick="fs()" aria-label="Girar tela">${rIc()}</button><div class="cnp-t"><b>${esc(t.name)}</b><small>${e?`T${e.season} • ${t.section=='novela'?'Cap.':'Ep.'} ${e.num}${e.name?' - '+esc(e.name):''}`:esc([t.year,t.audio].filter(Boolean).join(' • '))}</small></div></div><div class="cnp-mid"><button class="cnp-play" id="bp" aria-label="Reproduzir ou pausar"></button></div><div class="cnp-bot"><div class="cnp-row"><span id="tm">0:00</span><input id="sk" type="range" min="0" max="1000" value="0" style="--p:0%"><span id="tt">0:00</span></div><div class="cnp-row cnp-r2"><button class="cnp-b cnp-sp" id="spd" aria-label="Velocidade">1x</button><button class="cnp-b cnp-m" id="mu" aria-label="Som">${ic(I.v)}</button></div></div></div>`;
-/* ---------- capa do vídeo (poster antes do play) ---------- */
-const vcKey=(t,e,li)=>e?'vcap_e'+e.id:((vids(t)[li||0]||{}).id?'vcap_l'+vids(t)[li||0].id:'');
-const vcUrl=(t,e,li)=>{const k=vcKey(t,e,li);return (k&&S.set[k])||(S.set.vcap_auto=='1'?(t.banner||t.cover||''):'')};
-const vcId=()=>S.cur?S.cur.t.id+':'+(S.cur.e?S.cur.e.id:'')+':'+S.cur.li:'';
-function vcHide(){S.vcd=vcId();const c=document.getElementById('vcap');if(c)c.remove()}
-function vcTap(){vcHide();pbGo()}
-document.addEventListener('play',e=>{if(e.target&&e.target.id=='vd')vcHide()},true);
-document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#bp,.ob.ppb'))vcHide()},true);
-window.addEventListener('message',e=>{if(!document.getElementById('vcap'))return;const w=document.getElementById('pw'),f=w&&w.querySelector('iframe');if(!f||e.source!==f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
- if((d.event=='onStateChange'&&d.info==1)||(d.event=='infoDelivery'&&d.info&&d.info.playerState==1)||(d.event=='timeupdate'&&d.data&&d.data.seconds>0.05))vcHide()});
-async function svVC(k,i){const v=gd($('#'+i).value.trim());if(ok(await sb.from('settings').upsert({key:k,value:v}))){S.set[k]=v;alert(v?'Capa salva.':'Capa removida.')}}
-/* Drive/Archive com o player do app (vídeo nativo, sem faixa preta). Se não carregar, volta ao player original. O YouTube não é afetado. */
-function natSrc(m){
- if(!m||m.t!='if'||(m.k!='dr'&&m.k!='ar'))return null;
- if((S.ndOff||{})[m.s])return null;
- let x;
- if(m.k=='dr'&&(x=m.s.match(/\/d\/([\w-]+)\//)))return{s:'https://drive.usercontent.google.com/download?id='+x[1]+'&export=download&confirm=t'};
- if(m.k=='ar'&&(x=m.s.match(/archive\.org\/embed\/([^\/?#]+)(?:\/([^?#]+))?/)))return x[2]?{s:'https://archive.org/download/'+x[1]+'/'+x[2]}:{s:'',aid:x[1]};
- return null;
-}
-function ndWire(v){
- const o=v.dataset.o,fb=()=>{(S.ndOff=S.ndOff||{})[o]=1;if(document.contains(v)&&S.tab=='play')draw()};
- let ok=0;v.addEventListener('loadedmetadata',()=>{ok=1},{once:true});
- v.addEventListener('error',()=>{if(!ok)fb()});
- setTimeout(()=>{if(!ok&&document.contains(v)&&v.readyState<1)fb()},15000);
- if(v.dataset.aid&&!v.getAttribute('src'))fetch('https://archive.org/metadata/'+encodeURIComponent(v.dataset.aid)).then(r=>r.json()).then(j=>{
-  const f=(j.files||[]).filter(x=>/\.(mp4|m4v|webm)$/i.test(x.name)&&!/_(thumb|small|preview)\./i.test(x.name)).sort((a,b)=>(+b.size||0)-(+a.size||0))[0];
-  if(!f)throw 0;if(!document.contains(v))return;
-  v.src='https://archive.org/download/'+j.metadata.identifier+'/'+f.name.split('/').map(encodeURIComponent).join('/')}).catch(fb);
-}
 function pPlay(){
- const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.nd=false;S.cur.pk='ot';
+ const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.pk='ot';
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
- else{let m=embed(u);{const nt=natSrc(m);if(nt)m={t:'v',s:nt.s,k:m.k,nd:1,o:m.s,aid:nt.aid}}S.cur.nd=!!m.nd;S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0;
-  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(yc?'&controls=0'+(/^https?:$/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):''):'')+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>${yc?'<div class="ytsh"></div>'+cnpH(t,e):''}`
-  :m.t=='v'?`<video id="vd"${m.s?` src="${esc(m.s)}"`:''}${m.nd?` data-nd="1" data-o="${esc(m.o)}"${m.aid?` data-aid="${esc(m.aid)}"`:''}`:''} playsinline preload="metadata"></video>${cnpH(t,e)}`
+ else{const m=embed(u);S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';
+  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>`
+  :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"></video><button class="big" id="bp">▶</button><div class="ov"><input id="sk" type="range" min="0" max="1000" value="0"><div class="pl"><span id="tm">0:00</span><div class="pill"><button id="mu">${ic(I.v)}</button><button id="sp">1x</button></div></div></div>`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
  const rc=recom(t)||(S.oved&&S.oved.w=='c'?S.T.find(x=>x.id!=t.id):null);S.cur.rec=rc;
@@ -809,12 +553,8 @@ function pPlay(){
   bzh=hasV&&!S.bled&&(!S.oved||S.oved.w=='bz')?`<div class="bkz${S.oved?' ed':''}" style="${S.oved?oeSty('bz',pk):bzSty(pk)}"></div>`:'',
   ovh=(S.oved&&'fc'.includes(S.oved.w)?'':lsb)+(mf==1?pF(1):'')+(mc==1?pC(1):'')+ppbh+nbh+tzh+bzh,
   rw=ppo('pb_row',pk,1)==1&&mf==0&&mc==0,
-  vcu=hasV&&!S.oved&&!S.bled&&S.vcd!=vcId()?vcUrl(t,e,li):'',
-  ycu=vcUrl(t,e,li)||t.banner||t.cover||'',
-  ycv=p.includes('ytsh')?`<div class="ytcv"><div class="ytcv-f"${ycu?` style="background-image:url('${esc(gd(ycu,'B').replace(/'/g,'%27'))}')"`:''}><b>CINE NOTFOR</b></div><div class="ytcv-t"></div><div class="ytcv-b"></div></div>`:'',
-  vch=vcu?`<div class="vcap" id="vcap" style="background-image:url('${esc(gd(vcu,'B').replace(/'/g,'%27'))}')" onclick="vcTap()">${p.includes('ov cnp')?'':'<i></i>'}</div>`:'',
   bar=mf==0||mc==0?`<div class="${rw?'bar2':''}" ${rw?'':'style="display:flex;flex-direction:column;gap:8px;margin:0 14px 8px"'}>${mf==0?pF(0):''}${mc==0?pC(0):''}</div>`:'';
- return `<div class="pw${S.cur.pk=='tg'?' tgw':''}${p.includes('ytsh')?' ytfull':''}${S.cur.nd?' nbd':''}" id="pw">${p}${vch}${ycv}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div>${bar}<div id="sbc"></div>${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}
+ return `<div class="pw${S.cur.pk=='tg'?' tgw':''}" id="pw">${p}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div>${bar}<div id="sbc"></div>${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}
  ${!e&&vs.length>1?`<div class="tabs">${vs.map((l,i)=>`<button class="${i==li?'on':''}" onclick="play(${t.id},0,${i})">${esc(l.label||'Link '+(i+1))}</button>`).join('')}</div>`:''}
  <div class="pt"><h1>${esc(t.name)}</h1><p>${e?`Temporada ${e.season} • ${t.section=='novela'?'Capítulo':'Episódio'} ${e.num}${e.name?' — '+esc(e.name):''}`:esc([t.year,t.country,t.audio].filter(Boolean).join(' • '))}</p></div>
  <div class="chips" style="margin:10px 14px"><span class="chip">HD</span><span class="chip r">${esc(t.rating||'Livre')}</span>${t.genres?`<span class="chip">${esc(t.genres)}</span>`:''}</div>
@@ -975,64 +715,18 @@ addEventListener('resize',()=>setTimeout(arApply,150));
 function fs(){return fkOn()?fkToggle():fsReal()}
 function fsExit(){return S.ff?fkExit():fsExitReal()}
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement){try{screen.orientation.unlock()}catch(x){}}setTimeout(blSync,250)});
-/* ---------- YouTube com o player do app: o player oficial fica por baixo (controls=0) e os controles do app ficam por cima ---------- */
-const YT={st:null,h:0};
-function ytWire(){
- const w=$('#pw'),f=w&&w.querySelector('iframe[src*="youtube.com/embed"]'),bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),mu=$('#mu'),sp=$('#spd'),cb=$('#cb');
- if(!f||!bp||!sk||!w.querySelector('.cnp'))return;
- const fm=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
- const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>';
- const st={f,ps:-1,cur:0,dur:0,muted:false,rate:1,drag:0,rdy:0};YT.st=st;
- const post=o=>{try{f.contentWindow.postMessage(JSON.stringify(o),'*')}catch(e){}};
- const cmd=(fn,a)=>post({event:'command',func:fn,args:a||[]});
- const listen=()=>post({event:'listening',id:1,channel:'widget'});
- let ht;const show=()=>{w.classList.remove('ovh');clearTimeout(ht);if(st.ps===1)ht=setTimeout(()=>w.classList.add('ovh'),3000)};
- st.show=show;
- st.ui=()=>{
-  const pl=st.ps===1||st.ps===3;bp.innerHTML=pl?PAI:PLI;
-  {const fu=st.ps===0||(st.ps===3&&st.cur<.5)||(!pl&&st.cur<.5);w.classList.toggle('ytfull',fu);w.classList.toggle('ytbands',!pl&&!fu)}
-  if(!st.drag){if(st.dur>0){sk.value=Math.min(1000,st.cur/st.dur*1000);sk.style.setProperty('--p',(sk.value/10)+'%')}tm.textContent=fm(st.cur)}
-  if(tt)tt.textContent=fm(st.dur);
-  if(mu)mu.style.opacity=st.muted?.4:1;
-  if(sp)sp.textContent=st.rate+'x'};
- st.ev=d=>{const i=d&&d.info;if(!i)return;
-  if(typeof i.currentTime=='number')st.cur=i.currentTime;
-  if(typeof i.duration=='number'&&i.duration>0)st.dur=i.duration;
-  if(typeof i.muted=='boolean')st.muted=i.muted;
-  if(typeof i.playbackRate=='number')st.rate=i.playbackRate;
-  if('playerState' in i){const o=st.ps;st.ps=i.playerState;if(o!==st.ps)show()}
-  st.rdy=1;st.ui()};
- if(!YT.h){YT.h=1;window.addEventListener('message',e=>{const s=YT.st;if(!s||!document.contains(s.f)||e.source!==s.f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}
-  if(d&&d.event=='onStateChange'&&typeof d.info=='number'){const o=s.ps;s.ps=d.info;if(o!==s.ps&&s.show)s.show();s.ui&&s.ui()}
-  else if(d&&d.event=='infoDelivery')s.ev(d)})}
- f.addEventListener('load',listen);listen();
- let n=0;const iv=setInterval(()=>{if(st.rdy||!document.contains(f)||++n>20){clearInterval(iv);return}listen()},500);
- w.addEventListener('pointerdown',show);w.addEventListener('touchstart',show,{passive:true});
- bp.onclick=()=>{if(st.ps===1||st.ps===3){st.ps=2;cmd('pauseVideo')}else{st.ps=1;cmd('playVideo')}st.ui();show()};
- sk.oninput=()=>{st.drag=1;sk.style.setProperty('--p',(sk.value/10)+'%');tm.textContent=fm(sk.value/1000*st.dur);show()};
- sk.onchange=()=>{if(st.dur>0){st.cur=sk.value/1000*st.dur;cmd('seekTo',[st.cur,true])}setTimeout(()=>{st.drag=0},400)};
- if(sp)sp.onclick=()=>{const r=[1,1.25,1.5,2,.75],k=r[(r.indexOf(st.rate)+1)%r.length];st.rate=k;cmd('setPlaybackRate',[k]);st.ui()};
- if(mu)mu.onclick=()=>{st.muted=!st.muted;cmd(st.muted?'mute':'unMute');st.ui()};
- if(cb)cb.onclick=()=>{if(S.ff||document.fullscreenElement||document.webkitFullscreenElement)fsExit();else go(S.prev||'home')};
- st.ui();show();
-}
 function wire(){
- const v=$('#vd');if(!v){ytWire();return}if(v.dataset.nd)ndWire(v);
- const bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),pw=$('#pw'),f=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
- const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>';
- const up=()=>{bp.innerHTML=v.paused?PLI:PAI};
- let ht;const show=()=>{pw.classList.remove('ovh');clearTimeout(ht);if(!v.paused)ht=setTimeout(()=>pw.classList.add('ovh'),3000)};
- v.onplay=v.onpause=()=>{up();show()};up();
- pw.addEventListener('pointerdown',show);pw.addEventListener('touchstart',show,{passive:true});
+ const v=$('#vd');if(!v)return;
+ const bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),f=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
+ const up=()=>bp.style.display=v.paused?'':'none';
+ v.onplay=v.onpause=up;
  if(pf('rs')){const sp=getPos(ckey());if(sp>10)v.addEventListener('loadedmetadata',()=>{if(v.duration&&sp<v.duration-15){v.currentTime=sp;const w=$('#pw'),m=document.createElement('div');m.className='nxb';m.style.cssText='top:12px;bottom:auto;padding:8px 14px';m.textContent='Continuando de '+f(sp);w.appendChild(m);setTimeout(()=>m.remove(),3000)}},{once:true})}
  v.onended=onEnd;
- let lp=0;v.ontimeupdate=()=>{if(v.duration&&Date.now()-lp>3000){lp=Date.now();const p=prog(),c=S.cur;p[c.t.id+'_'+(c.e?c.e.id:0)]=Math.min(1,v.currentTime/v.duration);localStorage.cn_prog=JSON.stringify(p);if(v.currentTime>5)setPos(ckey(),v.currentTime);if(v.currentTime/v.duration>.9&&pf('sn')&&!lj('cn_seen')[ckey()])setSeen(ckey(),1)}sk.value=v.currentTime/(v.duration||1)*1000;sk.style.setProperty('--p',(sk.value/10)+'%');tm.textContent=f(v.currentTime);if(tt)tt.textContent=f(v.duration)};
- v.addEventListener('loadedmetadata',()=>{if(tt)tt.textContent=f(v.duration)});
- sk.oninput=()=>{v.currentTime=sk.value/1000*(v.duration||0);sk.style.setProperty('--p',(sk.value/10)+'%')};
- const cb=$('#cb');if(cb)cb.onclick=()=>{if(S.ff||document.fullscreenElement||document.webkitFullscreenElement)fsExit();else go(S.prev||'home')};
- bp.onclick=()=>{v.paused?v.play():v.pause()};v.onclick=null;
+ let lp=0;v.ontimeupdate=()=>{if(v.duration&&Date.now()-lp>3000){lp=Date.now();const p=prog(),c=S.cur;p[c.t.id+'_'+(c.e?c.e.id:0)]=Math.min(1,v.currentTime/v.duration);localStorage.cn_prog=JSON.stringify(p);if(v.currentTime>5)setPos(ckey(),v.currentTime);if(v.currentTime/v.duration>.9&&pf('sn')&&!lj('cn_seen')[ckey()])setSeen(ckey(),1)}sk.value=v.currentTime/(v.duration||1)*1000;tm.textContent=f(v.currentTime)+' / '+f(v.duration)};
+ sk.oninput=()=>v.currentTime=sk.value/1000*(v.duration||0);
+ bp.onclick=v.onclick=()=>v.paused?v.play():v.pause();
  $('#mu').onclick=()=>{v.muted=!v.muted;$('#mu').style.opacity=v.muted?.4:1};
- $('#spd').onclick=()=>{const r=[1,1.25,1.5,2,.75],n=r[(r.indexOf(v.playbackRate)+1)%5];v.playbackRate=n;$('#spd').textContent=n+'x'};
+ $('#sp').onclick=()=>{const r=[1,1.25,1.5,2,.75],n=r[(r.indexOf(v.playbackRate)+1)%5];v.playbackRate=n;$('#sp').textContent=n+'x'};
 }
 
 /* ---------- comentários ---------- */
@@ -1056,7 +750,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-08 · player com capa total';
+const APP_V='2026-10-19 · capas com carregamento sob demanda, abertura mais rápida';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -1085,10 +779,9 @@ async function ad(f){
   const vq0=(S.vq||'').toLowerCase(),tl=vq0?S.T.filter(t=>t.name.toLowerCase().includes(vq0)):S.T;if(tl.length&&!tl.some(t=>t.id==S.et)){S.et=tl[0].id}const et2=S.et,qm=!vq0||(T(et2)&&T(et2).name.toLowerCase().includes(vq0));
   const mv=!!(T(et2)&&T(et2).section=='movies');
   d.innerHTML=S.T.length?`<div class="box mf"><div class="nmw"><input id="v_q" placeholder="Pesquisar vídeos…" value="${esc(S.vq||'')}" onkeydown="if(event.key=='Enter')vq()"><button type="button" onclick="vq()" aria-label="Buscar">🔍</button></div><select id="v_t" onchange="S.et=+this.value;ad()">${tl.map(t=>`<option value="${t.id}" ${et2==t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></div>
-<div class="box mf"><label class="k"><input type="checkbox" ${S.set.vcap_auto=='1'?'checked':''} onchange="cf('vcap_auto',this.checked?1:0)"> Se o vídeo não tiver capa própria, usar o banner/capa do título</label><div class="mu" style="padding:2px 0">A capa aparece na tela inicial do vídeo e some quando ele começa. Para cada vídeo, cole o link da imagem no campo "Link da capa" abaixo do episódio/link.</div></div>
 <details class="box mf dt" ${mv?'':'open'}><summary>＋ Episódio</summary><div class="mfg2"><input id="e_s" type="number" placeholder="Temporada" value="1"><input id="e_n" type="number" placeholder="Episódio"></div><input id="e_m" placeholder="Nome (opcional)"><input id="e_u" placeholder="Link do vídeo"><button class="btn" style="width:100%;margin-top:4px" onclick="svE()">Adicionar episódio</button></details>
 <details class="box mf dt" ${mv?'open':''}><summary>＋ Link do filme</summary><input id="l_l" placeholder="Nome do link (ex.: Link 1)"><input id="l_u" placeholder="Link do vídeo"><button class="btn" style="width:100%;margin-top:4px" onclick="svL()">Adicionar link</button></details>
-<details class="box mf dt"><summary>＋ Vários episódios de uma vez</summary><div class="mu" style="padding:2px 0 4px">Um link por linha, em ordem.</div><div class="mfg2"><input id="m_s" type="number" placeholder="Temporada" value="1"><input id="m_n" type="number" placeholder="1º episódio" value="1"></div><textarea id="m_u" rows="5" placeholder="https://...&#10;https://..."></textarea><button class="btn" style="width:100%;margin-top:4px" onclick="svM()">Adicionar todos</button></details>`+S.E.filter(x=>x.title_id==et2&&(qm||(`t${x.season} e${x.num} ${x.name||''}`).toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>T${x.season} • E${x.num}</b><small class="mu">${esc(x.name||'')}</small></div><button class="btn o s" onclick="dE(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_e${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_e${x.id}','vc_e${x.id}')">Salvar capa</button></div></div>`).join('')+S.L.filter(x=>x.title_id==et2&&(qm||(x.label||x.url||'').toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>Link</b><small class="mu">${esc(x.label||x.url)}</small></div><button class="btn o s" onclick="dL(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_l${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_l${x.id}','vc_l${x.id}')">Salvar capa</button></div></div>`).join(''):'<p class="mu">Cadastre um título primeiro.</p>';
+<details class="box mf dt"><summary>＋ Vários episódios de uma vez</summary><div class="mu" style="padding:2px 0 4px">Um link por linha, em ordem.</div><div class="mfg2"><input id="m_s" type="number" placeholder="Temporada" value="1"><input id="m_n" type="number" placeholder="1º episódio" value="1"></div><textarea id="m_u" rows="5" placeholder="https://...&#10;https://..."></textarea><button class="btn" style="width:100%;margin-top:4px" onclick="svM()">Adicionar todos</button></details>`+S.E.filter(x=>x.title_id==et2&&(qm||(`t${x.season} e${x.num} ${x.name||''}`).toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>T${x.season} • E${x.num}</b><small class="mu">${esc(x.name||'')}</small></div><button class="btn o s" onclick="dE(${x.id})">Apagar</button></div>`).join('')+S.L.filter(x=>x.title_id==et2&&(qm||(x.label||x.url||'').toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>Link</b><small class="mu">${esc(x.label||x.url)}</small></div><button class="btn o s" onclick="dL(${x.id})">Apagar</button></div>`).join(''):'<p class="mu">Cadastre um título primeiro.</p>';
   if(S.T.length)subAdm();
  }
  if(a=='l'){d.innerHTML=lyAdm();return}
@@ -1734,85 +1427,6 @@ boot();
  b.addEventListener('click',e=>{if(Date.now()-sup<400){e.preventDefault();return}gbkBack()});
  setInterval(()=>{const hide=!SHOW.includes(S.tab)||S.ff||document.fullscreenElement||document.webkitFullscreenElement||S.oved||S.bled||document.getElementById('vzp');
   b.style.display=hide?'none':'grid'},200);
-})();
-</script>
-<script id="gx-js">
-/* Gestos no player do app (vídeo nativo: mp4, Archive, Drive "Direto"):
-   direita ↕ = volume · esquerda ↕ = brilho · 2 toques na esquerda = volta 10s · 2 toques na direita = avança 10s
-   (toques seguidos continuam pulando de 10 em 10s). Toque simples e toque no centro funcionam como antes. */
-(()=>{
-const cl=(x,a,b)=>Math.max(a,Math.min(b,x));
-let vol=-1,br=1;
-try{const a=parseFloat(localStorage.cn_gxv),b=parseFloat(localStorage.cn_gxb);if(a>=0&&a<=1)vol=a;if(b>=.1&&b<=1)br=b}catch(e){}
-const sv=()=>{try{localStorage.cn_gxv=vol;localStorage.cn_gxb=br}catch(e){}};
-const ed=()=>typeof S!='undefined'&&(S.oved||S.bled);
-let D=null,ht=0,tap=null,chain={s:'',t:0,acc:0},last={z:'',t:0};
-/* posição do dedo dentro do player, mesmo com a tela girada (tela cheia forçada) */
-function loc(pw,x,y){
- let m;try{const s=getComputedStyle(pw).transform;m=s&&s!='none'?new DOMMatrix(s):new DOMMatrix()}catch(e){m={a:1,b:0,c:0,d:1}}
- const r=pw.getBoundingClientRect(),w=pw.offsetWidth,h=pw.offsetHeight,cx=r.left+r.width/2,cy=r.top+r.height/2,
-  ox=cx-(m.a*w/2+m.c*h/2),oy=cy-(m.b*w/2+m.d*h/2);
- return{x:m.a*(x-ox)+m.b*(y-oy),y:m.c*(x-ox)+m.d*(y-oy),w,h}}
-function hud(pw,cls,html,pct,kind){
- let h=pw.querySelector('#gxh');if(!h){h=document.createElement('div');h.id='gxh';pw.appendChild(h)}
- const SUN='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>',SPK='<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4zM17 8a5 5 0 010 8"/></svg>',MUT='<svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4zM17 9l5 6M22 9l-5 6"/></svg>',BK='<svg viewBox="0 0 24 24"><path d="M5 12a7 7 0 107-7H8.5M10.5 2.5L8 5l2.5 2.5"/><text x="12" y="15" font-size="7" text-anchor="middle" fill="currentColor" stroke="none" font-weight="800">10</text></svg>',FW='<svg viewBox="0 0 24 24"><path d="M19 12a7 7 0 11-7-7h3.5M13.5 2.5L16 5l-2.5 2.5"/><text x="12" y="15" font-size="7" text-anchor="middle" fill="currentColor" stroke="none" font-weight="800">10</text></svg>';
- if(kind=='b'||kind=='f'){h.className='on sk '+cls;h.innerHTML='<span class="gk">'+(kind=='b'?BK:FW)+'</span><em>'+(kind=='b'?'−':'+')+html+'</em>'}
- else if(pct!=null){const p=Math.round(pct*100),sun=cls=='l';h.className='on v '+cls+(sun?' sun':'');h.innerHTML='<span class="gi">'+(sun?SUN:(p==0?MUT:SPK))+'</span><b class="gt" style="--f:'+pct.toFixed(3)+'"><u></u><s></s></b><em>'+p+'%</em>'}
- else{h.className='on txt '+cls;h.innerHTML='<span>'+html+'</span>'}
- clearTimeout(ht);ht=setTimeout(()=>{h.className=''},700)}
-const dim=pw=>{const b=pw.querySelector('#gxb');if(b){const o=(1-br)*.9;b.style.opacity=o.toFixed(3);b.style.visibility=o>.001?'visible':'hidden'}};
-window.cnGx={gb:()=>br,sb:x=>{br=cl(x,.1,1);const p=document.getElementById('pw');if(p)dim(p);sv()},sv:x=>{vol=cl(x,0,1);sv()}};
-function init(){
- const v=document.getElementById('vd'),pw=document.getElementById('pw');
- if(!v||!pw||!pw.contains(v))return;
- if(!pw.querySelector('#gxb')){const b=document.createElement('div');b.id='gxb';pw.insertBefore(b,v.nextSibling)}
- pw.classList.add('gxp');dim(pw);
- if(!v._gx){v._gx=1;if(vol>=0)try{v.volume=vol}catch(e){}}}
-setInterval(()=>{try{init()}catch(e){}},500);
-document.addEventListener('pointerdown',e=>{
- D=null;if(e.pointerType=='mouse'&&e.button!==0)return;
- const pw=document.getElementById('pw'),v=document.getElementById('vd');
- if(!pw||!v||ed()||!pw.classList.contains('gxp'))return;
- const t=e.target;if(t!==v&&t!==pw&&t.id!='gxb')return;
- const p=loc(pw,e.clientX,e.clientY),f=p.x/p.w;
- D={pw,v,id:e.pointerId,x:p.x,y:p.y,sx:e.clientX,sy:e.clientY,z:f<.4?'L':f>.6?'R':'C',m:0,t:Date.now(),v0:v.muted?0:v.volume,b0:br}},true);
-document.addEventListener('pointermove',e=>{
- if(!D||e.pointerId!=D.id)return;
- const p=loc(D.pw,e.clientX,e.clientY),dx=p.x-D.x,dy=p.y-D.y;
- if(!D.m){
-  if(D.z=='C')return;
-  if(Math.abs(dy)>12&&Math.abs(dy)>Math.abs(dx)*1.2){D.m=1;D.y=p.y;try{D.pw.setPointerCapture(e.pointerId)}catch(x){}}
-  else{if(Math.abs(dx)>25)D.m=-1;return}}
- if(D.m!=1)return;
- const d=(D.y-p.y)/(p.h*.8);
- if(D.z=='R'){
-  vol=cl(D.v0+d,0,1);try{D.v.volume=vol}catch(x){}if(vol>0)D.v.muted=false;
-  if(Math.abs(D.v.volume-vol)>.03)hud(D.pw,'r','Use os botões de volume do aparelho');
-  else hud(D.pw,'r',vol==0?'🔇':'🔊',vol)
- }else{br=cl(D.b0+d,.1,1);dim(D.pw);hud(D.pw,'l','☀️',br)}},true);
-document.addEventListener('pointercancel',()=>{D=null},true);
-document.addEventListener('pointerup',e=>{
- if(!D||e.pointerId!=D.id)return;const d=D;D=null;
- if(d.m==1){last={z:'x',t:Date.now()};sv();return}
- if(d.z=='C'||ed())return;
- if(Date.now()-d.t>350||Math.hypot(e.clientX-d.sx,e.clientY-d.sy)>20)return;
- last={z:d.z,t:Date.now()};sideTap(d)},true);
-/* toque simples na lateral espera 300 ms (para ver se vem o 2º toque); depois age como sempre */
-document.addEventListener('click',e=>{
- if(e._gx)return;const v=document.getElementById('vd');if(!v||e.target!==v)return;
- if(last.z&&Date.now()-last.t<150){e.stopImmediatePropagation();e.preventDefault()}},true);
-const fire=v=>{const ev=new MouseEvent('click',{bubbles:true,cancelable:true,view:window});ev._gx=1;v.dispatchEvent(ev)};
-function seek(d,s){
- const v=d.v,k=s=='L'?-10:10;chain.acc+=k;
- try{v.currentTime=cl(v.currentTime+k,0,isFinite(v.duration)?v.duration:1e9)}catch(x){}
- const a=Math.abs(chain.acc)+'s';
- hud(d.pw,s=='L'?'l':'r',a,null,s=='L'?'b':'f')}
-function sideTap(d){
- const now=Date.now(),s=d.z;
- if(chain.s==s&&now-chain.t<450){chain.t=now;seek(d,s);return}
- if(tap&&tap.s==s&&now-tap.t<300){clearTimeout(tap.h);tap=null;chain={s,t:now,acc:0};seek(d,s);return}
- if(tap){clearTimeout(tap.h);fire(tap.v);tap=null}
- tap={s,t:now,v:d.v,h:setTimeout(()=>{const v=tap&&tap.v;tap=null;if(v)fire(v)},300)}}
 })();
 </script>
 </body></html>
