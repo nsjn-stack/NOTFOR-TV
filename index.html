@@ -793,7 +793,7 @@ function ndWire(v){
  const nx=()=>{let a=[];try{a=JSON.parse(v.dataset.alt||'[]')}catch(e){}const n=a.shift();if(!n)return 0;v.dataset.alt=JSON.stringify(a);v.src=n;try{v.load()}catch(e){}return 1};
  const fail=c=>{if(!document.contains(v))return;const pw=document.getElementById('pw');if(!pw||pw.querySelector('#ndm'))return;const k=v.error?v.error.code:0,dr=/drive\.google/.test(o||''),d=document.createElement('div');d.id='ndm';d.style.cssText='position:absolute;inset:0;z-index:200;display:grid;place-content:center;gap:10px;padding:16px;text-align:center;background:rgba(0,0,0,.9);color:#fff;font:600 13px system-ui';d.innerHTML='<div>'+(dr?'O Google Drive não liberou este vídeo para o player do app':'O vídeo não carregou no player do app')+' ('+(c||'erro '+k)+').'+(dr?'<br><small>Confira se o arquivo está como “Qualquer pessoa com o link” e cole a chave do Drive no Admin.</small>':'')+'</div><div style="display:flex;gap:8px;justify-content:center"><button class="btn s" id="ndr">Tentar de novo</button><button class="btn o s" id="ndo">Player original</button></div>';pw.appendChild(d);d.querySelector('#ndr').onclick=()=>{draw()};d.querySelector('#ndo').onclick=fb};
  const drv=/drive\.google/.test(o||'');
- v.addEventListener('error',()=>{if(!ok&&!nx())fb()});
+ let rt=0;v.addEventListener('error',()=>{if(ok)return;if(nx())return;if(drv&&rt<2){rt++;setTimeout(()=>{if(!ok&&document.contains(v)){try{v.load()}catch(e){}}},1500*rt);return}fb()});
  setTimeout(()=>{if(!ok&&document.contains(v)&&v.readyState<1)nx()},12000);
  setTimeout(()=>{if(!ok&&document.contains(v)&&v.readyState<1)fb()},drv?25000:20000);
  if(v.dataset.aid&&!v.getAttribute('src'))fetch('https://archive.org/metadata/'+encodeURIComponent(v.dataset.aid)).then(r=>r.json()).then(j=>{
@@ -1070,7 +1070,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-08 (9) · Qualidade do YouTube pela engrenagem, Vimeo e Drive';
+const APP_V='2026-11-08 (10) · Drive tenta de novo antes de trocar de player';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
