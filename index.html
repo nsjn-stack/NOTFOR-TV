@@ -222,7 +222,7 @@ img,video,picture{-webkit-touch-callout:none;-webkit-user-drag:none;user-select:
 .pw{touch-action:manipulation}
 .pw .vcap{position:absolute;inset:0;z-index:50;background:#000 center/cover no-repeat;cursor:pointer;display:grid;place-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}.pw .vcap i{width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid #fff;display:grid;place-items:center}/* ===== capa do player (esconde título, canal, "Mais vídeos" e logo do YouTube) ===== */
 .pw .ytcv{position:absolute;inset:0;z-index:55;pointer-events:none;overflow:hidden;border-radius:inherit}
-.pw .ytcv>*{position:absolute;opacity:0;transition:opacity .35s .12s}
+.pw .ytcv>*{position:absolute;opacity:0;transition:opacity .35s 1.12s}
 .pw .ytcv-f{inset:0;background:#070000 center/cover no-repeat}
 .pw .ytcv-f::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 45%,rgba(225,6,0,.22),rgba(0,0,0,0) 60%),linear-gradient(180deg,rgba(0,0,0,.72) 0,rgba(0,0,0,.18) 34%,rgba(0,0,0,.25) 58%,rgba(0,0,0,.92) 100%)}
 .pw .ytcv-f::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 60px rgba(0,0,0,.85),inset 0 -2px 0 rgba(255,42,26,.55)}
@@ -322,7 +322,7 @@ body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!im
 .ov{transition:opacity .3s}.pw.ovh .ov{opacity:0;pointer-events:none}
 .pw:has(.cnp){border:2px solid #ff3a2a;border-radius:18px;box-shadow:0 0 14px #ff1a0f,0 0 32px rgba(255,26,15,.45),inset 0 0 16px rgba(255,26,15,.55)}
 .pw.ff:has(.cnp),.pw:fullscreen:has(.cnp){border:0;border-radius:0;box-shadow:none}
-.pw .ytsh{position:absolute;inset:0;z-index:2;background:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.pw .ytsh,.pw .vmsh{position:absolute;inset:0;z-index:2;background:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 /* === Player novo (CINE NOTFOR): botões redondos, barras vermelhas e fundo quase invisível === */
 .pw .ov.cnp{inset:0;padding:6px 8px;justify-content:space-between;gap:0;background:linear-gradient(180deg,rgba(0,0,0,.14),rgba(0,0,0,0) 28%);pointer-events:none;color:#fff}
 .cnp button,.cnp input,.cnp .cnp-vt{pointer-events:auto}
@@ -477,7 +477,7 @@ body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!im
 :is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gk svg{width:64px;height:64px}
 /* enquanto arrasta volume/brilho, os controles ficam bem fracos para o indicador aparecer limpo */
 .pw:has(#gxh.on.v) .ov.cnp{opacity:.12}
-.pw .ytsh{position:absolute;inset:0;z-index:2;background:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.pw .ytsh,.pw .vmsh{position:absolute;inset:0;z-index:2;background:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 
 /* ===== ajustes pedidos: barra de baixo menor, botão play maior, barras de volume/brilho menores ===== */
 .pw .ov.cnp{--bb:38px;--sk:30px;--tk:6px;--th:22px;--sp:54px;--spf:15px;--bpad:5px 14px 7px;--br:22px;--gap:10px;--bgap:3px;--rowf:14px;--tmw:50px}
@@ -722,7 +722,7 @@ function qr(){$('#qr').innerHTML='<div class="qr" id="qc"></div>';new QRCode($('
 function embed(u){
  u=(u||'').trim();let m;
  if(m=u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/))return{t:'if',s:'https://www.youtube.com/embed/'+m[1]+'?playsinline=1&rel=0&enablejsapi=1&fs=0&modestbranding=1&iv_load_policy=3&disablekb=1',k:'yt'};
- if(m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]+)/))return{t:'if',s:'https://drive.google.com/file/d/'+m[1]+'/preview',k:'dr'};
+ if(m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/)||u.match(/drive\.google\.com\/[^\s]*[?&]id=([\w-]+)/)||u.match(/drive\.usercontent\.google\.com\/[^\s]*[?&]id=([\w-]+)/))return{t:'if',s:'https://drive.google.com/file/d/'+m[1]+'/preview',k:'dr'};
  if(m=u.match(/archive\.org\/(?:details|embed)\/([^\/?#]+)(?:\/([^?#]+))?/))return{t:'if',s:'https://archive.org/embed/'+m[1]+(m[2]?'/'+m[2]:''),k:'ar'};
  if(m=u.match(/vimeo\.com\/(?:[^?#]*\/)?(\d{6,})(?:\/([0-9a-f]{8,}))?/i)){const h=m[2]||(u.match(/[?&]h=([0-9a-f]+)/i)||[])[1];return{t:'if',s:'https://player.vimeo.com/video/'+m[1]+'?api=1&title=0&byline=0&portrait=0'+(h?'&h='+h:''),k:'vm'}}
  if(m=u.match(/(?:dailymotion\.com\/(?:embed\/)?video\/|dai\.ly\/|dailymotion\.com\/player[^?]*\?[^#]*video=)([a-z0-9]+)/i))return{t:'if',s:'https://www.dailymotion.com/embed/video/'+m[1],k:'dm'};
@@ -773,7 +773,7 @@ function natSrc(m){
  if(!m||m.t!='if'||(m.k!='dr'&&m.k!='ar'))return null;
  if((S.ndOff||{})[m.s])return null;
  let x;
- if(m.k=='dr'&&(x=m.s.match(/\/d\/([\w-]+)\//)))return{s:'https://drive.usercontent.google.com/download?id='+x[1]+'&export=download&confirm=t'};
+ if(m.k=='dr'&&(x=m.s.match(/\/d\/([\w-]+)\//)))return{s:S.set.gd_key?'https://www.googleapis.com/drive/v3/files/'+x[1]+'?alt=media&key='+encodeURIComponent(S.set.gd_key):'https://drive.usercontent.google.com/download?id='+x[1]+'&export=download&confirm=t'};
  if(m.k=='ar'&&(x=m.s.match(/archive\.org\/embed\/([^\/?#]+)(?:\/([^?#]+))?/)))return x[2]?{s:'https://archive.org/download/'+x[1]+'/'+x[2]}:{s:'',aid:x[1]};
  return null;
 }
@@ -781,7 +781,7 @@ function ndWire(v){
  const o=v.dataset.o,fb=()=>{(S.ndOff=S.ndOff||{})[o]=1;if(document.contains(v)&&S.tab=='play')draw()};
  let ok=0;v.addEventListener('loadedmetadata',()=>{ok=1},{once:true});
  v.addEventListener('error',()=>{if(!ok)fb()});
- setTimeout(()=>{if(!ok&&document.contains(v)&&v.readyState<1)fb()},15000);
+ setTimeout(()=>{if(!ok&&document.contains(v)&&v.readyState<1)fb()},30000);
  if(v.dataset.aid&&!v.getAttribute('src'))fetch('https://archive.org/metadata/'+encodeURIComponent(v.dataset.aid)).then(r=>r.json()).then(j=>{
   const f=(j.files||[]).filter(x=>/\.(mp4|m4v|webm)$/i.test(x.name)&&!/_(thumb|small|preview)\./i.test(x.name)).sort((a,b)=>(+b.size||0)-(+a.size||0))[0];
   if(!f)throw 0;if(!document.contains(v))return;
@@ -790,8 +790,8 @@ function ndWire(v){
 function pPlay(){
  const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.nd=false;S.cur.pk='ot';
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
- else{let m=embed(u);{const nt=natSrc(m);if(nt)m={t:'v',s:nt.s,k:m.k,nd:1,o:m.s,aid:nt.aid}}S.cur.nd=!!m.nd;S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0;
-  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(yc?'&controls=0'+(/^https?:$/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):''):'')+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>${yc?'<div class="ytsh"></div>'+cnpH(t,e):''}`
+ else{let m=embed(u);{const nt=natSrc(m);if(nt)m={t:'v',s:nt.s,k:m.k,nd:1,o:m.s,aid:nt.aid}}S.cur.nd=!!m.nd;S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0,vmc=m.k=='vm'&&m.t=='if'&&ovn('vm_cn',1)!=0;
+  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(yc?'&controls=0'+(/^https?:$/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):''):'')+(vmc?'&controls=0&playsinline=1':'')+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>${yc?'<div class="ytsh"></div>'+cnpH(t,e):vmc?'<div class="vmsh"></div>'+cnpH(t,e):''}`
   :m.t=='v'?`<video id="vd"${m.s?` src="${esc(m.s)}"`:''}${m.nd?` data-nd="1" data-o="${esc(m.o)}"${m.aid?` data-aid="${esc(m.aid)}"`:''}`:''} playsinline preload="metadata"></video>${cnpH(t,e)}`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
@@ -986,7 +986,7 @@ function ytWire(){
  const post=o=>{try{f.contentWindow.postMessage(JSON.stringify(o),'*')}catch(e){}};
  const cmd=(fn,a)=>post({event:'command',func:fn,args:a||[]});
  const listen=()=>post({event:'listening',id:1,channel:'widget'});
- let ht;const show=()=>{w.classList.remove('ovh');clearTimeout(ht);if(st.ps===1)ht=setTimeout(()=>w.classList.add('ovh'),3000)};
+ let ht;const show=()=>{w.classList.remove('ovh');clearTimeout(ht);if(st.ps===1)ht=setTimeout(()=>w.classList.add('ovh'),4000)};
  st.show=show;
  st.ui=()=>{
   const pl=st.ps===1||st.ps===3;bp.innerHTML=pl?PAI:PLI;
@@ -1017,11 +1017,11 @@ function ytWire(){
  st.ui();show();
 }
 function wire(){
- const v=$('#vd');if(!v){ytWire();return}if(v.dataset.nd)ndWire(v);
+ const v=$('#vd');if(!v){ytWire();vmWire();return}if(v.dataset.nd)ndWire(v);
  const bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),pw=$('#pw'),f=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
  const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>';
  const up=()=>{bp.innerHTML=v.paused?PLI:PAI};
- let ht;const show=()=>{pw.classList.remove('ovh');clearTimeout(ht);if(!v.paused)ht=setTimeout(()=>pw.classList.add('ovh'),3000)};
+ let ht;const show=()=>{pw.classList.remove('ovh');clearTimeout(ht);if(!v.paused)ht=setTimeout(()=>pw.classList.add('ovh'),4000)};
  v.onplay=v.onpause=()=>{up();show()};up();
  pw.addEventListener('pointerdown',show);pw.addEventListener('touchstart',show,{passive:true});
  if(pf('rs')){const sp=getPos(ckey());if(sp>10)v.addEventListener('loadedmetadata',()=>{if(v.duration&&sp<v.duration-15){v.currentTime=sp;const w=$('#pw'),m=document.createElement('div');m.className='nxb';m.style.cssText='top:12px;bottom:auto;padding:8px 14px';m.textContent='Continuando de '+f(sp);w.appendChild(m);setTimeout(()=>m.remove(),3000)}},{once:true})}
@@ -1088,7 +1088,7 @@ async function ad(f){
 <div class="box mf"><label class="k"><input type="checkbox" ${S.set.vcap_auto=='1'?'checked':''} onchange="cf('vcap_auto',this.checked?1:0)"> Se o vídeo não tiver capa própria, usar o banner/capa do título</label><div class="mu" style="padding:2px 0">A capa aparece na tela inicial do vídeo e some quando ele começa. Para cada vídeo, cole o link da imagem no campo "Link da capa" abaixo do episódio/link.</div></div>
 <details class="box mf dt" ${mv?'':'open'}><summary>＋ Episódio</summary><div class="mfg2"><input id="e_s" type="number" placeholder="Temporada" value="1"><input id="e_n" type="number" placeholder="Episódio"></div><input id="e_m" placeholder="Nome (opcional)"><input id="e_u" placeholder="Link do vídeo"><button class="btn" style="width:100%;margin-top:4px" onclick="svE()">Adicionar episódio</button></details>
 <details class="box mf dt" ${mv?'open':''}><summary>＋ Link do filme</summary><input id="l_l" placeholder="Nome do link (ex.: Link 1)"><input id="l_u" placeholder="Link do vídeo"><button class="btn" style="width:100%;margin-top:4px" onclick="svL()">Adicionar link</button></details>
-<details class="box mf dt"><summary>＋ Vários episódios de uma vez</summary><div class="mu" style="padding:2px 0 4px">Um link por linha, em ordem.</div><div class="mfg2"><input id="m_s" type="number" placeholder="Temporada" value="1"><input id="m_n" type="number" placeholder="1º episódio" value="1"></div><textarea id="m_u" rows="5" placeholder="https://...&#10;https://..."></textarea><button class="btn" style="width:100%;margin-top:4px" onclick="svM()">Adicionar todos</button></details>`+S.E.filter(x=>x.title_id==et2&&(qm||(`t${x.season} e${x.num} ${x.name||''}`).toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>T${x.season} • E${x.num}</b><small class="mu">${esc(x.name||'')}</small></div><button class="btn o s" onclick="dE(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_e${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_e${x.id}','vc_e${x.id}')">Salvar capa</button></div></div>`).join('')+S.L.filter(x=>x.title_id==et2&&(qm||(x.label||x.url||'').toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>Link</b><small class="mu">${esc(x.label||x.url)}</small></div><button class="btn o s" onclick="dL(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_l${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_l${x.id}','vc_l${x.id}')">Salvar capa</button></div></div>`).join(''):'<p class="mu">Cadastre um título primeiro.</p>';
+<details class="box mf dt"><summary>＋ Vários episódios de uma vez</summary><div class="mu" style="padding:2px 0 4px">Um link por linha, em ordem.</div><div class="mfg2"><input id="m_s" type="number" placeholder="Temporada" value="1"><input id="m_n" type="number" placeholder="1º episódio" value="1"></div><textarea id="m_u" rows="5" placeholder="https://...&#10;https://..."></textarea><button class="btn" style="width:100%;margin-top:4px" onclick="svM()">Adicionar todos</button></details>`+S.E.filter(x=>x.title_id==et2&&(qm||(`t${x.season} e${x.num} ${x.name||''}`).toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>T${x.season} • E${x.num}</b><small class="mu">${esc(x.name||'')}</small></div><button class="btn o s" onclick="dE(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_e${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_e${x.id}','vc_e${x.id}')">Salvar capa</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="db_e${x.id}" placeholder="🎧 Link da dublagem (Drive ou .mp3/.m4a)" value="${esc(S.set['dub_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svDub('dub_e${x.id}','db_e${x.id}')">Salvar dublagem</button></div></div>`).join('')+S.L.filter(x=>x.title_id==et2&&(qm||(x.label||x.url||'').toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>Link</b><small class="mu">${esc(x.label||x.url)}</small></div><button class="btn o s" onclick="dL(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_l${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_l${x.id}','vc_l${x.id}')">Salvar capa</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="db_l${x.id}" placeholder="🎧 Link da dublagem (Drive ou .mp3/.m4a)" value="${esc(S.set['dub_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svDub('dub_l${x.id}','db_l${x.id}')">Salvar dublagem</button></div></div>`).join(''):'<p class="mu">Cadastre um título primeiro.</p>';
   if(S.T.length)subAdm();
  }
  if(a=='l'){d.innerHTML=lyAdm();return}
@@ -1110,7 +1110,7 @@ async function sbLoad(t,e,f){const k=SBK(t,e);S.sbc=S.sbc||{};if(S.sbc[k]&&!f)re
 async function subSave(t,e,v){S.sbc=S.sbc||{};if(ok(await sb.from('settings').upsert([{key:SBK(t,e),value:JSON.stringify(v)}]))){S.sbc[SBK(t,e)]=v;return 1}}
 const sbTg=()=>[S.et,+$('#sb_e').value||0];
 async function subList(){const[t,e]=sbTg(),v=await sbLoad(t,e,1);$('#sb_ls').innerHTML=v.map((x,i)=>`<div class="mu" style="padding:4px 0">${esc(x.l)} · ${x.c.length} falas <button class="btn o s" onclick="subDel(${i})">Apagar</button></div>`).join('')||'<div class="mu">Nenhuma legenda neste vídeo.</div>'}
-function subAdm(){const es=S.E.filter(x=>x.title_id==S.et);$('#ad').insertAdjacentHTML('beforeend',`<div class="box"><b>Legendas</b><div class="mu" style="padding:4px 0">Para o título escolhido acima. Escolha o vídeo, dê um nome (ex.: Português BR) e adicione por link (site ou Google Drive) ou com um arquivo .srt/.vtt do celular. Se o site bloquear o link, baixe o arquivo e use “Escolher do celular”.</div><select id="sb_e" onchange="subList()"><option value="0">Filme / link único</option>${es.map(x=>`<option value="${x.id}">T${x.season} • E${x.num}</option>`).join('')}</select><input id="sb_l" placeholder="Nome (ex.: Português BR)"><input id="sb_u" placeholder="Link da legenda (.srt / .vtt)"><div class="row"><button class="btn s" onclick="sbUrl()">Adicionar por link</button><button class="btn o s" onclick="$('#sb_f').click()">Escolher do celular</button></div><input id="sb_f" type="file" accept=".srt,.vtt,.txt" style="display:none" onchange="sbFile(this)"><div id="sb_ls"></div></div>`);subList()}
+function subAdm(){const es=S.E.filter(x=>x.title_id==S.et);$('#ad').insertAdjacentHTML('beforeend',`<div class="box"><b>🔑 Chave do Google Drive</b><div class="mu" style="padding:4px 0">Com a chave (API key do Google Cloud, com a Drive API ativada) os vídeos do Drive carregam mais rápido e sem faixa preta. O arquivo precisa estar como “Qualquer pessoa com o link”.</div><input id="gd_k" placeholder="Cole a chave aqui" value="${esc(S.set.gd_key||'')}"><button class="btn s" onclick="svGdKey()">Salvar chave</button></div>`+`<div class="box"><b>Legendas</b><div class="mu" style="padding:4px 0">Para o título escolhido acima. Escolha o vídeo, dê um nome (ex.: Português BR) e adicione por link (site ou Google Drive) ou com um arquivo .srt/.vtt do celular. Se o site bloquear o link, baixe o arquivo e use “Escolher do celular”.</div><select id="sb_e" onchange="subList()"><option value="0">Filme / link único</option>${es.map(x=>`<option value="${x.id}">T${x.season} • E${x.num}</option>`).join('')}</select><input id="sb_l" placeholder="Nome (ex.: Português BR)"><input id="sb_u" placeholder="Link da legenda (.srt / .vtt)"><div class="row"><button class="btn s" onclick="sbUrl()">Adicionar por link</button><button class="btn o s" onclick="$('#sb_f').click()">Escolher do celular</button></div><input id="sb_f" type="file" accept=".srt,.vtt,.txt" style="display:none" onchange="sbFile(this)"><div id="sb_ls"></div></div>`);subList()}
 async function sbAdd(tx){const c=sbParse(tx);if(!c.length)return alert('Não achei falas nesse arquivo. Use .srt ou .vtt.');const[t,e]=sbTg(),v=await sbLoad(t,e,1);v.push({l:$('#sb_l').value.trim()||'Legenda '+(v.length+1),c});if(await subSave(t,e,v)){$('#sb_u').value='';subList();alert('Legenda adicionada.')}}
 async function sbGet(u){const m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]+)/)||u.match(/[?&]id=([\w-]+)/),L=[];if(m){const id=m[1];L.push('https://drive.usercontent.google.com/download?id='+id+'&export=download','https://drive.google.com/uc?export=download&id='+id)}else L.push(u);const P=[x=>x,x=>'https://corsproxy.io/?url='+encodeURIComponent(x),x=>'https://api.allorigins.win/raw?url='+encodeURIComponent(x),x=>'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(x)];let html=0;for(const p of P)for(const x of L){try{const r=await fetch(p(x));if(!r.ok)continue;const t=await sbTxt(await r.arrayBuffer());if(/^\s*<(!doctype|html)/i.test(t)){html=1;continue}if(t.includes('-->'))return t}catch(e){}}throw html?'html':'fail'}
 async function sbUrl(){const u=$('#sb_u').value.trim();if(!u)return;const b=event&&event.target;if(b)b.disabled=true;try{sbAdd(await sbGet(u))}catch(x){alert(x=='html'?'O Google Drive devolveu uma página em vez do arquivo. No Drive, toque em Compartilhar e deixe como “Qualquer pessoa com o link” (Leitor), depois tente de novo.':'Não consegui ler a legenda por esse link. Baixe o arquivo e use “Escolher do celular”.')}if(b)b.disabled=false}
@@ -1761,7 +1761,7 @@ function hud(pw,cls,html,pct,kind){
  else{h.className='on txt '+cls;h.innerHTML='<span>'+html+'</span>'}
  clearTimeout(ht);ht=setTimeout(()=>{h.className=''},700)}
 const dim=pw=>{const b=pw.querySelector('#gxb');if(b){const o=(1-br)*.9;b.style.opacity=o.toFixed(3);b.style.visibility=o>.001?'visible':'hidden'}};
-window.cnGx={gb:()=>br,sb:x=>{br=cl(x,.1,1);const p=document.getElementById('pw');if(p)dim(p);sv()},sv:x=>{vol=cl(x,0,1);sv()}};
+window.cnGx={hud,loc,gb:()=>br,sb:x=>{br=cl(x,.1,1);const p=document.getElementById('pw');if(p)dim(p);sv()},sv:x=>{vol=cl(x,0,1);sv()}};
 function init(){
  const v=document.getElementById('vd'),pw=document.getElementById('pw');
  if(!v||!pw||!pw.contains(v))return;
@@ -1813,6 +1813,116 @@ function sideTap(d){
  if(tap&&tap.s==s&&now-tap.t<300){clearTimeout(tap.h);tap=null;chain={s,t:now,acc:0};seek(d,s);return}
  if(tap){clearTimeout(tap.h);fire(tap.v);tap=null}
  tap={s,t:now,v:d.v,h:setTimeout(()=>{const v=tap&&tap.v;tap=null;if(v)fire(v)},300)}}
+})();
+
+/* ===== Chave do Drive + Dublagem (áudio extra) ===== */
+async function svGdKey(){const v=$('#gd_k').value.trim();if(ok(await sb.from('settings').upsert({key:'gd_key',value:v}))){S.set.gd_key=v;alert(v?'Chave salva.':'Chave removida.')}}
+function dubUrl(u){u=String(u||'').trim();const m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/)||u.match(/[?&]id=([\w-]+)/);
+ if(m&&/google\.com/.test(u))return S.set.gd_key?'https://www.googleapis.com/drive/v3/files/'+m[1]+'?alt=media&key='+encodeURIComponent(S.set.gd_key):'https://drive.usercontent.google.com/download?id='+m[1]+'&export=download&confirm=t';
+ return u}
+async function svDub(k,i){const v=$('#'+i).value.trim();if(ok(await sb.from('settings').upsert({key:k,value:v}))){S.set[k]=v;alert(v?'Dublagem salva.':'Dublagem removida.')}}
+
+/* ===== Vimeo com os controles do app (mesmo estilo do YouTube, sem faixa preta) ===== */
+const VM={st:null,h:0};
+function vmWire(){
+ const w=$('#pw'),f=w&&w.querySelector('iframe[src*="player.vimeo.com"]'),bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),mu=$('#mu'),sp=$('#spd'),cb=$('#cb');
+ if(!f||!bp||!sk||!w.querySelector('.cnp')||!w.querySelector('.vmsh'))return;
+ const fm=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
+ const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>';
+ const st={f,play:0,cur:0,dur:0,muted:false,rate:1,vol:1,drag:0};VM.st=st;
+ const cmd=(m,v)=>{try{f.contentWindow.postMessage(JSON.stringify(v===undefined?{method:m}:{method:m,value:v}),'*')}catch(e){}};
+ st.cmd=cmd;
+ let ht;const show=()=>{w.classList.remove('ovh');clearTimeout(ht);if(st.play)ht=setTimeout(()=>w.classList.add('ovh'),4000)};
+ st.show=show;
+ st.ui=()=>{bp.innerHTML=st.play?PAI:PLI;if(!st.drag){if(st.dur>0){sk.value=Math.min(1000,st.cur/st.dur*1000);sk.style.setProperty('--p',(sk.value/10)+'%')}tm.textContent=fm(st.cur)}if(tt)tt.textContent=fm(st.dur);if(mu)mu.style.opacity=st.muted?.4:1;if(sp)sp.textContent=st.rate+'x'};
+ const listen=()=>['play','pause','ended','timeupdate','loaded'].forEach(x=>cmd('addEventListener',x));
+ if(!VM.h){VM.h=1;window.addEventListener('message',e=>{const s=VM.st;if(!s||!document.contains(s.f)||e.source!==s.f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
+  if(d.event=='ready')listen();
+  else if(d.event=='play'){s.play=1;s.show();s.ui()}
+  else if(d.event=='pause'||d.event=='ended'){s.play=0;s.show();s.ui();if(d.event=='ended'&&typeof onEnd=='function')onEnd()}
+  else if(d.event=='timeupdate'&&d.data){s.cur=d.data.seconds||0;if(d.data.duration)s.dur=d.data.duration;if(!s.play){s.play=1}s.ui()}
+  else if(d.event=='loaded'||d.event=='playProgress'){if(d.data&&d.data.duration){s.dur=d.data.duration;s.ui()}}})}
+ f.addEventListener('load',listen);listen();let n=0;const iv=setInterval(()=>{if(!document.contains(f)||++n>12||st.dur>0){clearInterval(iv);return}listen()},700);
+ w.addEventListener('pointerdown',show);w.addEventListener('touchstart',show,{passive:true});
+ bp.onclick=()=>{if(st.play){st.play=0;cmd('pause')}else{st.play=1;cmd('play')}st.ui();show()};
+ sk.oninput=()=>{st.drag=1;sk.style.setProperty('--p',(sk.value/10)+'%');tm.textContent=fm(sk.value/1000*st.dur);show()};
+ sk.onchange=()=>{if(st.dur>0){st.cur=sk.value/1000*st.dur;cmd('setCurrentTime',st.cur)}setTimeout(()=>{st.drag=0},400)};
+ if(sp)sp.onclick=()=>{const r=[1,1.25,1.5,2,.75],k=r[(r.indexOf(st.rate)+1)%r.length];st.rate=k;cmd('setPlaybackRate',k);st.ui()};
+ if(mu)mu.onclick=()=>{st.muted=!st.muted;cmd('setVolume',st.muted?0:st.vol);st.ui()};
+ if(cb)cb.onclick=()=>{if(S.ff||document.fullscreenElement||document.webkitFullscreenElement)fsExit();else go(S.prev||'home')};
+ st.ui();show();
+}
+
+/* ===== Gestos também no YouTube e no Vimeo (player do app) =====
+   direita ↕ = volume · esquerda ↕ = brilho · 2 toques nas laterais = ±10s (toques seguidos continuam pulando) */
+(()=>{
+const cl=(x,a,b)=>Math.max(a,Math.min(b,x));
+let D=null,tap=null,chain={s:'',t:0,acc:0},vol=1;
+try{const a=parseFloat(localStorage.cn_gxv);if(a>=0&&a<=1)vol=a}catch(e){}
+const kind=pw=>pw.querySelector('.ytsh')?'yt':pw.querySelector('.vmsh')?'vm':'';
+const setVol=(k,x)=>{vol=cl(x,0,1);try{localStorage.cn_gxv=vol}catch(e){}
+ if(k=='yt'&&YT.st){try{YT.st.f.contentWindow.postMessage(JSON.stringify({event:'command',func:'setVolume',args:[Math.round(vol*100)]}),'*');if(vol>0&&YT.st.muted){YT.st.muted=false;YT.st.f.contentWindow.postMessage(JSON.stringify({event:'command',func:'unMute',args:[]}),'*')}}catch(e){}}
+ if(k=='vm'&&VM.st){VM.st.vol=vol;VM.st.muted=vol==0;VM.st.cmd('setVolume',vol)}};
+const seekBy=(k,d)=>{const s=k=='yt'?YT.st:VM.st;if(!s)return;const t=cl((s.cur||0)+d,0,s.dur>0?s.dur:1e9);s.cur=t;
+ if(k=='yt')s.f.contentWindow.postMessage(JSON.stringify({event:'command',func:'seekTo',args:[t,true]}),'*');else s.cmd('setCurrentTime',t);
+ s.ui&&s.ui()};
+function ensureB(pw){if(!pw.querySelector('#gxb')){const b=document.createElement('div');b.id='gxb';const f=pw.querySelector('iframe');pw.insertBefore(b,f?f.nextSibling:pw.firstChild)}window.cnGx.sb(window.cnGx.gb())}
+document.addEventListener('pointerdown',e=>{
+ D=null;if(e.pointerType=='mouse'&&e.button!==0)return;
+ const pw=document.getElementById('pw');if(!pw||(typeof S!='undefined'&&(S.oved||S.bled)))return;
+ const k=kind(pw);if(!k)return;const t=e.target;if(!(t.classList.contains('ytsh')||t.classList.contains('vmsh')))return;
+ ensureB(pw);const p=cnGx.loc(pw,e.clientX,e.clientY),f=p.x/p.w;
+ D={pw,k,id:e.pointerId,x:p.x,y:p.y,sx:e.clientX,sy:e.clientY,z:f<.4?'L':f>.6?'R':'C',m:0,t:Date.now(),v0:vol,b0:cnGx.gb()}},true);
+document.addEventListener('pointermove',e=>{
+ if(!D||e.pointerId!=D.id)return;const p=cnGx.loc(D.pw,e.clientX,e.clientY),dx=p.x-D.x,dy=p.y-D.y;
+ if(!D.m){if(D.z=='C')return;
+  if(Math.abs(dy)>12&&Math.abs(dy)>Math.abs(dx)*1.2){D.m=1;D.y=p.y;try{e.target.setPointerCapture(e.pointerId)}catch(x){}}
+  else{if(Math.abs(dx)>25)D.m=-1;return}}
+ if(D.m!=1)return;const d=(D.y-p.y)/(p.h*.8);
+ if(D.z=='R'){setVol(D.k,D.v0+d);cnGx.hud(D.pw,'r',vol==0?'🔇':'🔊',vol)}
+ else{cnGx.sb(D.b0+d);cnGx.hud(D.pw,'l','☀️',cnGx.gb())}},true);
+document.addEventListener('pointercancel',()=>{D=null},true);
+document.addEventListener('pointerup',e=>{
+ if(!D||e.pointerId!=D.id)return;const d=D;D=null;
+ if(d.m==1||d.z=='C')return;
+ if(Date.now()-d.t>350||Math.hypot(e.clientX-d.sx,e.clientY-d.sy)>20)return;
+ const now=Date.now(),s=d.z,go=()=>{chain.acc+=s=='L'?-10:10;seekBy(d.k,s=='L'?-10:10);cnGx.hud(d.pw,s=='L'?'l':'r',Math.abs(chain.acc)+'s',null,s=='L'?'b':'f')};
+ if(chain.s==s&&now-chain.t<450){chain.t=now;go();return}
+ if(tap&&tap.s==s&&now-tap.t<300){tap=null;chain={s,t:now,acc:0};go();return}
+ tap={s,t:now}},true);
+})();
+
+/* ===== Dublagem: áudio extra tocando em sincronia com o vídeo (Drive, Archive, mp4) ===== */
+(()=>{
+let A=null,key='',on=false;
+const dkey=()=>{const c=S&&S.cur;if(!c)return'';return c.e?'dub_e'+c.e.id:'dub_l'+((vids(c.t)[c.li]||{}).id||'')};
+const bar=()=>{const c=document.getElementById('sbc');if(!c)return;let b=document.getElementById('dubb');
+ if(!A){if(b)b.remove();return}
+ if(!b){b=document.createElement('button');b.id='dubb';b.className='btn o s';b.style.cssText='margin:0 14px 8px';b.onclick=tog;c.appendChild(b)}
+ b.textContent=on?'🎧 Dublagem: ligada':'🎧 Dublagem: desligada'};
+function tog(){const v=document.getElementById('vd');if(!A||!v)return;on=!on;try{localStorage.cn_dub=on?'1':'0'}catch(e){}
+ v.muted=on;if(on){A.currentTime=v.currentTime;if(!v.paused)A.play().catch(()=>{})}else A.pause();bar()}
+function attach(v,url){
+ A=new Audio();A.preload='auto';A.src=url;A.crossOrigin='anonymous';
+ try{on=localStorage.cn_dub=='1'}catch(e){on=false}
+ const sync=()=>{if(!on)return;if(Math.abs(A.currentTime-v.currentTime)>.4)try{A.currentTime=v.currentTime}catch(e){}A.playbackRate=v.playbackRate};
+ v.addEventListener('play',()=>{if(on){sync();A.play().catch(()=>{})}});
+ v.addEventListener('pause',()=>A.pause());
+ v.addEventListener('seeking',()=>{if(on)try{A.currentTime=v.currentTime}catch(e){}});
+ v.addEventListener('ratechange',()=>{A.playbackRate=v.playbackRate});
+ v.addEventListener('timeupdate',sync);
+ v.addEventListener('volumechange',()=>{if(on){v.muted=true}});
+ A.addEventListener('error',()=>{A=null;bar()});
+ if(on){v.muted=true}
+ bar()}
+setInterval(()=>{try{
+ const v=document.getElementById('vd');
+ if(!v||S.tab!='play'){if(A){A.pause();A=null;key=''}return}
+ const k=dkey();
+ if(v._dub===k){bar();return}
+ if(A){A.pause();A=null}
+ v._dub=k;key=k;const u=k&&S.set[k];if(u)attach(v,dubUrl(u));
+}catch(e){}},700);
 })();
 </script>
 </body></html>
