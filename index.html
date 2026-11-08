@@ -770,7 +770,7 @@ window.addEventListener('message',e=>{if(!document.getElementById('vcap'))return
 async function svVC(k,i){const v=gd($('#'+i).value.trim());if(ok(await sb.from('settings').upsert({key:k,value:v}))){S.set[k]=v;alert(v?'Capa salva.':'Capa removida.')}}
 /* Drive/Archive com o player do app (vídeo nativo, sem faixa preta). Se não carregar, volta ao player original. O YouTube não é afetado. */
 function natSrc(m){
- if(!m||m.t!='if'||(m.k!='dr'&&m.k!='ar'))return null;
+ if(!m||m.t!='if'||m.k!='ar')return null; /* Google Drive: sempre no player embutido (/preview) dentro do app */
  if((S.ndOff||{})[m.s])return null;
  let x;
  if(m.k=='dr'&&(x=m.s.match(/\/d\/([\w-]+)\//)))return{s:'https://drive.usercontent.google.com/download?id='+x[1]+'&export=download&confirm=t'};
