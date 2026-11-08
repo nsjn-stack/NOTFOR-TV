@@ -531,7 +531,7 @@ body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!im
 #gxh .gk svg{width:30px;height:30px}
 #gxh.txt{padding:6px 10px;border-radius:12px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.25)}
 </style>
-</head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
+<style>/* Drive/Archive no player do app: sem faixa preta atrás dos controles */.pw.nbd .cnp-bot{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.pw.nbd .ov.cnp{background:none!important}.pw.nbd .bl,.pw.nbd .tz:not(.ed){display:none!important}.pw.nbd .cnp-row,.pw.nbd .cnp-row span{text-shadow:0 1px 3px #000,0 0 6px #000}</style></head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
@@ -768,12 +768,31 @@ document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#bp
 window.addEventListener('message',e=>{if(!document.getElementById('vcap'))return;const w=document.getElementById('pw'),f=w&&w.querySelector('iframe');if(!f||e.source!==f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
  if((d.event=='onStateChange'&&d.info==1)||(d.event=='infoDelivery'&&d.info&&d.info.playerState==1)||(d.event=='timeupdate'&&d.data&&d.data.seconds>0.05))vcHide()});
 async function svVC(k,i){const v=gd($('#'+i).value.trim());if(ok(await sb.from('settings').upsert({key:k,value:v}))){S.set[k]=v;alert(v?'Capa salva.':'Capa removida.')}}
+/* Drive/Archive com o player do app (vídeo nativo, sem faixa preta). Se não carregar, volta ao player original. O YouTube não é afetado. */
+function natSrc(m){
+ if(!m||m.t!='if'||(m.k!='dr'&&m.k!='ar'))return null;
+ if((S.ndOff||{})[m.s])return null;
+ let x;
+ if(m.k=='dr'&&(x=m.s.match(/\/d\/([\w-]+)\//)))return{s:'https://drive.usercontent.google.com/download?id='+x[1]+'&export=download&confirm=t'};
+ if(m.k=='ar'&&(x=m.s.match(/archive\.org\/embed\/([^\/?#]+)(?:\/([^?#]+))?/)))return x[2]?{s:'https://archive.org/download/'+x[1]+'/'+x[2]}:{s:'',aid:x[1]};
+ return null;
+}
+function ndWire(v){
+ const o=v.dataset.o,fb=()=>{(S.ndOff=S.ndOff||{})[o]=1;if(document.contains(v)&&S.tab=='play')draw()};
+ let ok=0;v.addEventListener('loadedmetadata',()=>{ok=1},{once:true});
+ v.addEventListener('error',()=>{if(!ok)fb()});
+ setTimeout(()=>{if(!ok&&document.contains(v)&&v.readyState<1)fb()},15000);
+ if(v.dataset.aid&&!v.getAttribute('src'))fetch('https://archive.org/metadata/'+encodeURIComponent(v.dataset.aid)).then(r=>r.json()).then(j=>{
+  const f=(j.files||[]).filter(x=>/\.(mp4|m4v|webm)$/i.test(x.name)&&!/_(thumb|small|preview)\./i.test(x.name)).sort((a,b)=>(+b.size||0)-(+a.size||0))[0];
+  if(!f)throw 0;if(!document.contains(v))return;
+  v.src='https://archive.org/download/'+j.metadata.identifier+'/'+f.name.split('/').map(encodeURIComponent).join('/')}).catch(fb);
+}
 function pPlay(){
- const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.pk='ot';
+ const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.nd=false;S.cur.pk='ot';
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
- else{const m=embed(u);S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0;
+ else{let m=embed(u);{const nt=natSrc(m);if(nt)m={t:'v',s:nt.s,k:m.k,nd:1,o:m.s,aid:nt.aid}}S.cur.nd=!!m.nd;S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0;
   S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(yc?'&controls=0'+(/^https?:$/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):''):'')+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>${yc?'<div class="ytsh"></div>'+cnpH(t,e):''}`
-  :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"></video>${cnpH(t,e)}`
+  :m.t=='v'?`<video id="vd"${m.s?` src="${esc(m.s)}"`:''}${m.nd?` data-nd="1" data-o="${esc(m.o)}"${m.aid?` data-aid="${esc(m.aid)}"`:''}`:''} playsinline preload="metadata"></video>${cnpH(t,e)}`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
  const rc=recom(t)||(S.oved&&S.oved.w=='c'?S.T.find(x=>x.id!=t.id):null);S.cur.rec=rc;
@@ -795,7 +814,7 @@ function pPlay(){
   ycv=p.includes('ytsh')?`<div class="ytcv"><div class="ytcv-f"${ycu?` style="background-image:url('${esc(gd(ycu,'B').replace(/'/g,'%27'))}')"`:''}><b>CINE NOTFOR</b></div><div class="ytcv-t"></div><div class="ytcv-b"></div></div>`:'',
   vch=vcu?`<div class="vcap" id="vcap" style="background-image:url('${esc(gd(vcu,'B').replace(/'/g,'%27'))}')" onclick="vcTap()">${p.includes('ov cnp')?'':'<i></i>'}</div>`:'',
   bar=mf==0||mc==0?`<div class="${rw?'bar2':''}" ${rw?'':'style="display:flex;flex-direction:column;gap:8px;margin:0 14px 8px"'}>${mf==0?pF(0):''}${mc==0?pC(0):''}</div>`:'';
- return `<div class="pw${S.cur.pk=='tg'?' tgw':''}${p.includes('ytsh')?' ytfull':''}" id="pw">${p}${vch}${ycv}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div>${bar}<div id="sbc"></div>${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}
+ return `<div class="pw${S.cur.pk=='tg'?' tgw':''}${p.includes('ytsh')?' ytfull':''}${S.cur.nd?' nbd':''}" id="pw">${p}${vch}${ycv}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div>${bar}<div id="sbc"></div>${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}
  ${!e&&vs.length>1?`<div class="tabs">${vs.map((l,i)=>`<button class="${i==li?'on':''}" onclick="play(${t.id},0,${i})">${esc(l.label||'Link '+(i+1))}</button>`).join('')}</div>`:''}
  <div class="pt"><h1>${esc(t.name)}</h1><p>${e?`Temporada ${e.season} • ${t.section=='novela'?'Capítulo':'Episódio'} ${e.num}${e.name?' — '+esc(e.name):''}`:esc([t.year,t.country,t.audio].filter(Boolean).join(' • '))}</p></div>
  <div class="chips" style="margin:10px 14px"><span class="chip">HD</span><span class="chip r">${esc(t.rating||'Livre')}</span>${t.genres?`<span class="chip">${esc(t.genres)}</span>`:''}</div>
@@ -998,7 +1017,7 @@ function ytWire(){
  st.ui();show();
 }
 function wire(){
- const v=$('#vd');if(!v){ytWire();return}
+ const v=$('#vd');if(!v){ytWire();return}if(v.dataset.nd)ndWire(v);
  const bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),pw=$('#pw'),f=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
  const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>';
  const up=()=>{bp.innerHTML=v.paused?PLI:PAI};
