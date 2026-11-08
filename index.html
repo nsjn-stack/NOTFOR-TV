@@ -496,11 +496,11 @@ function qr(){$('#qr').innerHTML='<div class="qr" id="qc"></div>';new QRCode($('
 /* ---------- player ---------- */
 function embed(u){
  u=(u||'').trim();let m;
+ if(/(?:drive|docs)\.google\.com|drive\.usercontent\.google\.com/i.test(u)&&(m=u.match(/\/file\/(?:u\/\d+\/)?d\/([\w-]{10,})/)||u.match(/[?&]id=([\w-]{10,})/)))return{t:'if',s:'https://drive.google.com/file/d/'+m[1]+'/preview',k:'dr'};
+ if(/vimeo\.com/i.test(u)&&(m=u.match(/vimeo\.com\/(?:[^?#]*\/)?(\d{4,})(?:\/([0-9a-f]{8,}))?/i))){const h=m[2]||(u.match(/[?&]h=([0-9a-f]+)/i)||[])[1];return{t:'if',s:'https://player.vimeo.com/video/'+m[1]+'?api=1&playsinline=1&title=0&byline=0&portrait=0'+(h?'&h='+h:''),k:'vm'}}
  if(m=u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/))return{t:'if',s:'https://www.youtube.com/embed/'+m[1]+'?playsinline=1&rel=0&enablejsapi=1&fs=0&modestbranding=1&iv_load_policy=3&disablekb=1',k:'yt'};
- if(m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]+)/))return{t:'if',s:'https://drive.google.com/file/d/'+m[1]+'/preview',k:'dr'};
- if(m=u.match(/archive\.org\/(?:details|embed)\/([^\/?#]+)(?:\/([^?#]+))?/))return{t:'if',s:'https://archive.org/embed/'+m[1]+(m[2]?'/'+m[2]:''),k:'ar'};
- if(m=u.match(/vimeo\.com\/(?:[^?#]*\/)?(\d{6,})(?:\/([0-9a-f]{8,}))?/i)){const h=m[2]||(u.match(/[?&]h=([0-9a-f]+)/i)||[])[1];return{t:'if',s:'https://player.vimeo.com/video/'+m[1]+'?api=1&title=0&byline=0&portrait=0'+(h?'&h='+h:''),k:'vm'}}
- if(m=u.match(/(?:dailymotion\.com\/(?:embed\/)?video\/|dai\.ly\/|dailymotion\.com\/player[^?]*\?[^#]*video=)([a-z0-9]+)/i))return{t:'if',s:'https://www.dailymotion.com/embed/video/'+m[1],k:'dm'};
+   if(m=u.match(/archive\.org\/(?:details|embed)\/([^\/?#]+)(?:\/([^?#]+))?/))return{t:'if',s:'https://archive.org/embed/'+m[1]+(m[2]?'/'+m[2]:''),k:'ar'};
+  if(m=u.match(/(?:dailymotion\.com\/(?:embed\/)?video\/|dai\.ly\/|dailymotion\.com\/player[^?]*\?[^#]*video=)([a-z0-9]+)/i))return{t:'if',s:'https://www.dailymotion.com/embed/video/'+m[1],k:'dm'};
  if(m=u.match(/(?:t\.me|telegram\.me)\/(?!c\/|\+|joinchat)([A-Za-z0-9_]{4,})\/(\d+)/i))return{t:'if',s:'https://t.me/'+m[1]+'/'+m[2]+'?embed=1&mode=tme',k:'tg'};
  if(/\.(mp4|webm|m4v)(\?|$)/i.test(u))return{t:'v',s:u,k:'mp'};
  return{t:'x',s:u,k:'ot'};
@@ -535,7 +535,7 @@ function pPlay(){
  const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.pk='ot';
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
  else{const m=embed(u);S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';
-  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>`
+  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media${m.k=='vm'||m.k=='dr'?';picture-in-picture':''}"${m.k=='vm'||m.k=='dr'?' referrerpolicy="strict-origin-when-cross-origin"':''} sandbox="allow-scripts allow-same-origin allow-presentation allow-forms${m.k=='vm'||m.k=='dr'?' allow-popups allow-popups-to-escape-sandbox':''}"></iframe>`
   :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"></video><button class="big" id="bp">▶</button><div class="ov"><input id="sk" type="range" min="0" max="1000" value="0"><div class="pl"><span id="tm">0:00</span><div class="pill"><button id="mu">${ic(I.v)}</button><button id="sp">1x</button></div></div></div>`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
