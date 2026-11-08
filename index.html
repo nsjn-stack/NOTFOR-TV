@@ -220,7 +220,17 @@ body.hb .pw.vmo .ob.ex{opacity:0!important;pointer-events:none!important}
 img,video,picture{-webkit-touch-callout:none;-webkit-user-drag:none;user-select:none;-webkit-user-select:none}
 /* escudos invisíveis (todos os players, menos o Internet Archive) sobre as áreas do player com título, links e botões (coração, relógio, compartilhar, </>) */
 .pw{touch-action:manipulation}
-.pw .vcap{position:absolute;inset:0;z-index:50;background:#000 center/cover no-repeat;cursor:pointer;display:grid;place-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}.pw .vcap i{width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid #fff;display:grid;place-items:center}.pw .vcap i::before{content:"";border-left:20px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:6px}
+.pw .vcap{position:absolute;inset:0;z-index:50;background:#000 center/cover no-repeat;cursor:pointer;display:grid;place-items:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}.pw .vcap i{width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid #fff;display:grid;place-items:center}/* ===== capa do player (esconde título, canal, "Mais vídeos" e logo do YouTube) ===== */
+.pw .ytcv{position:absolute;inset:0;z-index:55;pointer-events:none;overflow:hidden;border-radius:inherit}
+.pw .ytcv>*{position:absolute;opacity:0;transition:opacity .35s .12s}
+.pw .ytcv-f{inset:0;background:#070000 center/cover no-repeat}
+.pw .ytcv-f::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 45%,rgba(225,6,0,.22),rgba(0,0,0,0) 60%),linear-gradient(180deg,rgba(0,0,0,.72) 0,rgba(0,0,0,.18) 34%,rgba(0,0,0,.25) 58%,rgba(0,0,0,.92) 100%)}
+.pw .ytcv-f::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 60px rgba(0,0,0,.85),inset 0 -2px 0 rgba(255,42,26,.55)}
+.pw .ytcv-f b{position:absolute;right:12px;top:14px;font:italic 900 clamp(11px,3.2vw,18px)/1 system-ui;letter-spacing:.14em;color:#ff2a1a;text-shadow:0 0 8px rgba(255,26,15,.7),0 1px 2px #000}
+.pw .ytcv-t{left:0;right:0;top:0;height:30%;background:linear-gradient(180deg,#000 0,#000 62%,rgba(0,0,0,0) 100%)}
+.pw .ytcv-b{left:0;right:0;bottom:0;height:42%;background:linear-gradient(0deg,#000 0,#000 66%,rgba(0,0,0,0) 100%)}
+.pw.ytfull .ytcv-f,.pw.ytbands .ytcv-t,.pw.ytbands .ytcv-b{opacity:1;transition:none}
+.pw .vcap i::before{content:"";border-left:20px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:6px}
 .pw:has(iframe:not([src*="archive.org"]):not([src*="vimeo.com"]):not([src*="youtube.com"]))::before{content:"";position:absolute;top:0;left:0;right:0;height:22%;z-index:2}
 .pw:has(iframe:not([src*="archive.org"]):not([src*="vimeo.com"]):not([src*="youtube.com"]))::after{content:"";position:absolute;top:0;right:0;width:20%;height:65%;z-index:2}
 .pw:has(iframe[src*="archive.org"])::before{content:"";position:absolute;top:15%;left:0;width:15%;height:55%;z-index:2}
@@ -781,9 +791,11 @@ function pPlay(){
   ovh=(S.oved&&'fc'.includes(S.oved.w)?'':lsb)+(mf==1?pF(1):'')+(mc==1?pC(1):'')+ppbh+nbh+tzh+bzh,
   rw=ppo('pb_row',pk,1)==1&&mf==0&&mc==0,
   vcu=hasV&&!S.oved&&!S.bled&&S.vcd!=vcId()?vcUrl(t,e,li):'',
+  ycu=vcUrl(t,e,li)||t.banner||t.cover||'',
+  ycv=p.includes('ytsh')?`<div class="ytcv"><div class="ytcv-f"${ycu?` style="background-image:url('${esc(gd(ycu,'B').replace(/'/g,'%27'))}')"`:''}><b>CINE NOTFOR</b></div><div class="ytcv-t"></div><div class="ytcv-b"></div></div>`:'',
   vch=vcu?`<div class="vcap" id="vcap" style="background-image:url('${esc(gd(vcu,'B').replace(/'/g,'%27'))}')" onclick="vcTap()">${p.includes('ov cnp')?'':'<i></i>'}</div>`:'',
   bar=mf==0||mc==0?`<div class="${rw?'bar2':''}" ${rw?'':'style="display:flex;flex-direction:column;gap:8px;margin:0 14px 8px"'}>${mf==0?pF(0):''}${mc==0?pC(0):''}</div>`:'';
- return `<div class="pw${S.cur.pk=='tg'?' tgw':''}" id="pw">${p}${vch}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div>${bar}<div id="sbc"></div>${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}
+ return `<div class="pw${S.cur.pk=='tg'?' tgw':''}${p.includes('ytsh')?' ytfull':''}" id="pw">${p}${vch}${ycv}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div>${bar}<div id="sbc"></div>${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}
  ${!e&&vs.length>1?`<div class="tabs">${vs.map((l,i)=>`<button class="${i==li?'on':''}" onclick="play(${t.id},0,${i})">${esc(l.label||'Link '+(i+1))}</button>`).join('')}</div>`:''}
  <div class="pt"><h1>${esc(t.name)}</h1><p>${e?`Temporada ${e.season} • ${t.section=='novela'?'Capítulo':'Episódio'} ${e.num}${e.name?' — '+esc(e.name):''}`:esc([t.year,t.country,t.audio].filter(Boolean).join(' • '))}</p></div>
  <div class="chips" style="margin:10px 14px"><span class="chip">HD</span><span class="chip r">${esc(t.rating||'Livre')}</span>${t.genres?`<span class="chip">${esc(t.genres)}</span>`:''}</div>
@@ -959,6 +971,7 @@ function ytWire(){
  st.show=show;
  st.ui=()=>{
   const pl=st.ps===1||st.ps===3;bp.innerHTML=pl?PAI:PLI;
+  {const fu=st.ps===0||(st.ps===3&&st.cur<.5)||(!pl&&st.cur<.5);w.classList.toggle('ytfull',fu);w.classList.toggle('ytbands',!pl&&!fu)}
   if(!st.drag){if(st.dur>0){sk.value=Math.min(1000,st.cur/st.dur*1000);sk.style.setProperty('--p',(sk.value/10)+'%')}tm.textContent=fm(st.cur)}
   if(tt)tt.textContent=fm(st.dur);
   if(mu)mu.style.opacity=st.muted?.4:1;
@@ -1024,7 +1037,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-08 · capa nos vídeos';
+const APP_V='2026-11-08 · player com capa total';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
