@@ -1070,7 +1070,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-08 (7) · Drive: corrigida caixa do player (classe nbd conflitava)';
+const APP_V='2026-11-08 (9) · Qualidade do YouTube pela engrenagem, Vimeo e Drive';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -1951,9 +1951,11 @@ const cnQ=(()=>{
   const ex=L.filter(x=>H(x)==t)[0];if(ex)return ex;
   const lo=L.filter(x=>H(x)&&H(x)<t).sort((a,b)=>H(b)-H(a))[0];if(lo)return lo;
   const hi=L.filter(x=>H(x)>t).sort((a,b)=>H(a)-H(b))[0];return hi||L[0]};
- const apply=()=>{const q=get();if(q=='auto')return;
-  try{if(typeof YT!='undefined'&&YT.st&&document.contains(YT.st.f)&&YT.st.ps===1)YT.st.f.contentWindow.postMessage(JSON.stringify({event:'command',func:'setPlaybackQuality',args:[YTM[q]]}),'*')}catch(e){}
-  try{if(typeof VM!='undefined'&&VM.st&&document.contains(VM.st.f))VM.st.cmd('setQuality',q)}catch(e){}};
+ const apply=()=>{const q=get();
+  if(q!='auto')try{if(typeof YT!='undefined'&&YT.st&&document.contains(YT.st.f)&&YT.st.ps===1)YT.st.f.contentWindow.postMessage(JSON.stringify({event:'command',func:'setPlaybackQuality',args:[YTM[q]]}),'*')}catch(e){}
+  try{if(typeof VM!='undefined'&&VM.st&&document.contains(VM.st.f)){VM.st.cmd('setQuality',q=='auto'?'auto':q=='480p'?'540p':q);if(q!='auto')VM.st.cmd('getQualities')}}catch(e){}};
+ /* Vimeo: a lista real de qualidades do vídeo chega aqui; escolhe a igual, senão a mais próxima abaixo, senão a mais próxima acima */
+ window.addEventListener('message',e=>{try{const s=typeof VM!='undefined'&&VM.st;if(!s||!document.contains(s.f)||e.source!==s.f.contentWindow)return;let d=e.data;if(typeof d=='string')d=JSON.parse(d);if(!d||d.method!='getQualities'||!Array.isArray(d.value))return;const q=get();if(q=='auto')return;const t=hh(q),L=d.value.map(x=>({id:x.id,h:parseInt(x.id)||0})).filter(x=>x.h);const f=L.find(x=>x.h==t)||L.filter(x=>x.h<t).sort((a,b)=>b.h-a.h)[0]||L.filter(x=>x.h>t).sort((a,b)=>a.h-b.h)[0];if(f)s.cmd('setQuality',f.id)}catch(x){}});
  /* reaplica nos primeiros segundos de cada vídeo (o YouTube/Vimeo às vezes voltam ao automático sozinhos) */
  let lastId='',n=0;
  setInterval(()=>{try{const id=typeof vcId=='function'?vcId():'';if(id!==lastId){lastId=id;n=0}if(n<8){n++;apply()}}catch(e){}},1500);
@@ -1966,13 +1968,38 @@ const cnQ=(()=>{
  const open=()=>{const pw=document.getElementById('pw');if(!pw)return;if(document.getElementById('qm')){close();return}
   const v=pw.querySelector('video'),cur=get(),nat=v&&!v._qs;
   const m=document.createElement('div');m.id='qm';
-  m.innerHTML=(nat?'<small>Esta fonte tem qualidade única</small>':OPT.map(q=>`<button data-q="${q}" class="${q==cur?'on':''}">${q=='auto'?'Auto':q}</button>`).join(''));
+  m.innerHTML=(nat?'<small>Esta fonte tem qualidade única</small>'+(v&&v.dataset.o&&/drive\.google/.test(v.dataset.o)?'<button id="qdr">Usar player do Drive (várias qualidades)</button>':''):OPT.map(q=>`<button data-q="${q}" class="${q==cur?'on':''}">${q=='auto'?'Auto':q}</button>`).join(''));
   pw.appendChild(m)};
  document.addEventListener('click',e=>{
   const g=e.target.closest&&e.target.closest('#qg');if(g){e.stopPropagation();open();return}
+  const dr=e.target.closest&&e.target.closest('#qdr');if(dr){e.stopPropagation();const v=document.querySelector('#pw video'),o=v&&v.dataset.o;close();if(o){(S.ndOff=S.ndOff||{})[o]=1;draw()}return}
   const b=e.target.closest&&e.target.closest('#qm button');if(b){e.stopPropagation();const q=b.dataset.q;set(q);n=0;const v=document.querySelector('#pw video');if(v&&v._qs)swapNative(v,q);else apply();close();return}
   if(!(e.target.closest&&e.target.closest('#qm')))close()},true);
  return{pick,get,apply};
+})();
+
+/* ===== YouTube: a engrenagem ⚙ passa a valer de verdade ===== 
+   O YouTube ignora o comando de qualidade e escolhe pelo tamanho do player em pixels reais. Aqui o player é montado
+   no tamanho de 720p/480p/360p e ampliado na tela pelo CSS (o visual não muda). 1080p e Auto = sem esse ajuste.
+   Não mexe se o admin já usa zoom/recorte do YouTube. */
+(()=>{
+ const P={'720p':1280,'480p':854,'360p':640},KS=['position','top','left','maxWidth','width','height','transformOrigin','transform'];
+ const off=f=>{if(f.dataset.qfk){KS.forEach(k=>{f.style[k]=''});delete f.dataset.qfk}};
+ const run=()=>{try{
+  const w=document.getElementById('pw');if(!w)return;
+  const f=w.querySelector('iframe[src*="youtube.com/embed"]');if(!f)return;
+  if(f.classList.contains('dz'))return;
+  const T=P[cnQ.get()];
+  const has=['n','v','h'].some(m=>['vz','vx','vy','vl','vt','vr','vb','va'].some(g=>{const a=S.set[g+'_yt_'+m];return a!==undefined&&a!==''}));
+  if(!T||has||S.vzed){off(f);return}
+  const W=w.clientWidth,H=w.clientHeight;if(!W||!H)return;
+  const d=window.devicePixelRatio||1,bw=T/d;
+  if(bw>=W){off(f);return}
+  const k=W+'x'+H+'x'+T+'x'+d;if(f.dataset.qfk===k)return;
+  const bh=bw*H/W;f.dataset.qfk=k;
+  Object.assign(f.style,{position:'absolute',top:'0',left:'0',maxWidth:'none',width:bw+'px',height:bh+'px',transformOrigin:'0 0',transform:'scale('+(W/bw).toFixed(4)+')'})
+ }catch(e){}};
+ setInterval(run,400);
 })();
 
 /* ===== Botão CC (legendas) ao lado da engrenagem ===== */
