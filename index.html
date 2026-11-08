@@ -531,7 +531,7 @@ body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!im
 #gxh .gk svg{width:30px;height:30px}
 #gxh.txt{padding:6px 10px;border-radius:12px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.25)}
 </style>
-<style>/* Drive/Archive no player do app: sem faixa preta atrás dos controles */.pw.nbd .cnp-bot{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.pw.nbd .ov.cnp{background:none!important}.pw.nbd .bl,.pw.nbd .tz:not(.ed){display:none!important}.pw.nbd .cnp-row,.pw.nbd .cnp-row span{text-shadow:0 1px 3px #000,0 0 6px #000}.pw.nbd:has(video):not(.ff):not(:fullscreen){aspect-ratio:16/9;background:#000}.pw.nbd video{width:100%;height:100%;object-fit:contain}.pw .vmsh{position:absolute;inset:0;z-index:2;background:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent}</style></head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
+<style>/* Drive/Archive no player do app: sem faixa preta atrás dos controles */.pw.nbd .cnp-bot{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.pw.nbd .ov.cnp{background:none!important}.pw.nbd .bl,.pw.nbd .tz:not(.ed){display:none!important}.pw.nbd .cnp-row,.pw.nbd .cnp-row span{text-shadow:0 1px 3px #000,0 0 6px #000}</style></head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
@@ -773,7 +773,7 @@ function natSrc(m){
  if(!m||m.t!='if'||(m.k!='dr'&&m.k!='ar'))return null;
  if((S.ndOff||{})[m.s])return null;
  let x;
- if(m.k=='dr'&&(x=m.s.match(/\/d\/([\w-]+)\//))){const gk=((S.set||{}).gd_key||'').trim();return{s:gk?'https://www.googleapis.com/drive/v3/files/'+x[1]+'?alt=media&key='+encodeURIComponent(gk):'https://drive.usercontent.google.com/download?id='+x[1]+'&export=download&confirm=t'}}
+ if(m.k=='dr'&&(x=m.s.match(/\/d\/([\w-]+)\//)))return{s:'https://drive.usercontent.google.com/download?id='+x[1]+'&export=download&confirm=t'};
  if(m.k=='ar'&&(x=m.s.match(/archive\.org\/embed\/([^\/?#]+)(?:\/([^?#]+))?/)))return x[2]?{s:'https://archive.org/download/'+x[1]+'/'+x[2]}:{s:'',aid:x[1]};
  return null;
 }
@@ -790,8 +790,8 @@ function ndWire(v){
 function pPlay(){
  const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.nd=false;S.cur.pk='ot';
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
- else{let m=embed(u);{const nt=natSrc(m);if(nt)m={t:'v',s:nt.s,k:m.k,nd:1,o:m.s,aid:nt.aid}}if(m.k=='vm'&&m.t=='if'&&ovn('vm_cn',1)!=0)m=Object.assign({},m,{s:m.s+'&controls=0',vc:1});S.cur.nd=!!(m.nd||m.vc);S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0;
-  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(yc?'&controls=0'+(/^https?:$/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):''):'')+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>${yc?'<div class="ytsh"></div>'+cnpH(t,e):m.vc?'<div class="vmsh"></div>'+cnpH(t,e):''}`
+ else{let m=embed(u);{const nt=natSrc(m);if(nt)m={t:'v',s:nt.s,k:m.k,nd:1,o:m.s,aid:nt.aid}}S.cur.nd=!!m.nd;S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0;
+  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(yc?'&controls=0'+(/^https?:$/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):''):'')+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>${yc?'<div class="ytsh"></div>'+cnpH(t,e):''}`
   :m.t=='v'?`<video id="vd"${m.s?` src="${esc(m.s)}"`:''}${m.nd?` data-nd="1" data-o="${esc(m.o)}"${m.aid?` data-aid="${esc(m.aid)}"`:''}`:''} playsinline preload="metadata"></video>${cnpH(t,e)}`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
@@ -1016,39 +1016,8 @@ function ytWire(){
  if(cb)cb.onclick=()=>{if(S.ff||document.fullscreenElement||document.webkitFullscreenElement)fsExit();else go(S.prev||'home')};
  st.ui();show();
 }
-/* ---------- Vimeo com o player do app: controles do app por cima do player do Vimeo (API oficial por postMessage) ---------- */
-function vmWire(){
- const w=$('#pw'),f=w&&w.querySelector('iframe[src*="player.vimeo.com"]'),bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),mu=$('#mu'),sp=$('#spd'),cb=$('#cb');
- if(!f||!bp||!sk||!w.querySelector('.cnp'))return;
- const fm=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
- const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>';
- const st={play:0,cur:0,dur:0,muted:0,rate:1,drag:0,rdy:0};
- const post=(m,v)=>{try{f.contentWindow.postMessage(JSON.stringify(v===undefined?{method:m}:{method:m,value:v}),'*')}catch(e){}};
- const listen=()=>['play','pause','finish','timeupdate'].forEach(v=>post('addEventListener',v));
- let ht;const show=()=>{w.classList.remove('ovh');clearTimeout(ht);if(st.play)ht=setTimeout(()=>w.classList.add('ovh'),3000)};
- const ui=()=>{bp.innerHTML=st.play?PAI:PLI;if(!st.drag){if(st.dur>0){sk.value=Math.min(1000,st.cur/st.dur*1000);sk.style.setProperty('--p',(sk.value/10)+'%')}tm.textContent=fm(st.cur)}if(tt)tt.textContent=fm(st.dur);if(mu)mu.style.opacity=st.muted?.4:1;if(sp)sp.textContent=st.rate+'x'};
- let lp=0;
- const on=e=>{if(!document.contains(f)){window.removeEventListener('message',on);return}if(e.source!==f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
-  if(d.event=='ready'){st.rdy=1;listen()}
-  else if(d.event=='play'){st.rdy=1;st.play=1;ui();show()}
-  else if(d.event=='pause'){st.play=0;ui();show()}
-  else if(d.event=='finish'){st.play=0;ui();show();onEnd()}
-  else if(d.event=='timeupdate'&&d.data){st.rdy=1;st.cur=d.data.seconds||0;if(d.data.duration)st.dur=d.data.duration;ui();
-   if(st.cur>5&&Date.now()-lp>3000){lp=Date.now();setPos(ckey(),st.cur);if(st.dur&&st.cur/st.dur>.9&&pf('sn')&&!lj('cn_seen')[ckey()])setSeen(ckey(),1)}}};
- window.addEventListener('message',on);
- f.addEventListener('load',listen);listen();
- let n=0;const iv=setInterval(()=>{if(st.rdy||!document.contains(f)||++n>20){clearInterval(iv);return}listen()},500);
- w.addEventListener('pointerdown',show);w.addEventListener('touchstart',show,{passive:true});
- bp.onclick=()=>{if(st.play){st.play=0;post('pause')}else{st.play=1;post('play')}ui();show()};
- sk.oninput=()=>{st.drag=1;sk.style.setProperty('--p',(sk.value/10)+'%');tm.textContent=fm(sk.value/1000*st.dur);show()};
- sk.onchange=()=>{if(st.dur>0){st.cur=sk.value/1000*st.dur;post('setCurrentTime',st.cur)}setTimeout(()=>{st.drag=0},400)};
- if(sp)sp.onclick=()=>{const r=[1,1.25,1.5,2,.75],k=r[(r.indexOf(st.rate)+1)%r.length];st.rate=k;post('setPlaybackRate',k);ui()};
- if(mu)mu.onclick=()=>{st.muted=st.muted?0:1;post('setVolume',st.muted?0:1);ui()};
- if(cb)cb.onclick=()=>{if(S.ff||document.fullscreenElement||document.webkitFullscreenElement)fsExit();else go(S.prev||'home')};
- ui();show();
-}
 function wire(){
- const v=$('#vd');if(!v){ytWire();vmWire();return}if(v.dataset.nd)ndWire(v);
+ const v=$('#vd');if(!v){ytWire();return}if(v.dataset.nd)ndWire(v);
  const bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),pw=$('#pw'),f=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
  const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>';
  const up=()=>{bp.innerHTML=v.paused?PLI:PAI};
@@ -1087,7 +1056,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-08 · Drive/Archive/Vimeo no player do app v4';
+const APP_V='2026-11-08 · Drive/Archive no player do app v2';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -1680,10 +1649,6 @@ async function vzSave(){const k=S.vzed,m=blM(),rows=['vz','vx','vy','vl','vt','v
 function vzExit(){const d=document.getElementById('vzp');if(d)d.remove();S.vzed=null;S.vzcrop=0;vzcMount();go('admin')}
 function xtBox(){const d=$('#ad');if(!d||$('#xtbx'))return;d.insertAdjacentHTML('beforeend',`<div class="box" id="xtbx"><b>Botão ＋ flutuante</b><label class="k"><input type="checkbox" ${ovn('fw_on',1)?'checked':''} onchange="cf('fw_on',this.checked?1:0).then(fwMount)"> Mostrar o botão ＋ (gaveta para adicionar filmes e séries)</label></div><div class="box"><b>Zoom e centralizar o player</b><div class="mu" style="padding:4px 0 8px">Abre um vídeo desse player para você dar zoom e mover na mão. Vale para todos.</div><div class="row">${VZK.map(([k,n])=>`<button class="btn o s" onclick="vzOpen('${k}')">Ajustar ${n}</button>`).join('')}</div></div>`)}
 const _ad2=ad;ad=async function(){await _ad2.apply(this,arguments);if(S.at=='s')xtBox()};
-/* Chave da API do Google Drive (Admin > Config): faz o Drive tocar no player do app */
-function gkBox(){const d=$('#ad');if(!d||$('#gkbx'))return;d.insertAdjacentHTML('beforeend',`<div class="box" id="gkbx"><b>Chave do Google Drive (API)</b><div class="mu" style="padding:4px 0 8px">Faz os vídeos do Drive tocarem no player do app. Cole a chave da API do Google (com a Drive API ativada). O vídeo precisa estar compartilhado como "Qualquer pessoa com o link". Dica: no Google Cloud, restrinja a chave ao seu site e à Drive API.</div><input id="gk_v" placeholder="Chave da API do Google Drive" value="${esc(S.set.gd_key||'')}"><div class="row"><button class="btn s" onclick="cf('gd_key',$('#gk_v').value.trim()).then(()=>alert('Chave salva.'))">Salvar chave</button><button class="btn o s" onclick="$('#gk_v').value='';cf('gd_key','').then(()=>alert('Chave removida.'))">Remover</button></div></div>`)}
-const _ad3=ad;ad=async function(){await _ad3.apply(this,arguments);if(S.at=='s')gkBox()};
-
 boot();
 </script>
 <script id="gest-js">
