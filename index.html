@@ -81,6 +81,7 @@ nav .ic{stroke:currentColor;width:24px;height:24px}
 .pl{display:flex;justify-content:space-between;align-items:center;font-size:12px}
 .pill{display:flex;gap:2px;background:rgba(20,20,20,.85);border-radius:16px;padding:0 6px}
 .pill button{min-width:40px;height:36px;font-size:13px;font-weight:700;display:grid;place-items:center}
+.ytc{position:absolute;inset:0;z-index:3}.ytc .yts{position:absolute;inset:0;z-index:1}.ytc .big,.ytc .ov{transition:opacity .25s;z-index:2}.ytc.hid .big,.ytc.hid .ov{opacity:0;pointer-events:none}
 .pt{margin:6px 14px 0;padding-left:10px;border-left:4px solid var(--r)}
 .pt h1{margin:0;font-size:22px}
 .pt p{margin:2px 0 0;color:var(--g)}
@@ -496,7 +497,7 @@ function qr(){$('#qr').innerHTML='<div class="qr" id="qc"></div>';new QRCode($('
 /* ---------- player ---------- */
 function embed(u){
  u=(u||'').trim();let m;
- if(m=u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/))return{t:'if',s:'https://www.youtube.com/embed/'+m[1]+'?playsinline=1&rel=0&enablejsapi=1&fs=0&modestbranding=1&iv_load_policy=3&disablekb=1',k:'yt'};
+ if(m=u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/))return{t:'if',s:'https://www.youtube.com/embed/'+m[1]+'?playsinline=1&rel=0&enablejsapi=1&fs=0&modestbranding=1&iv_load_policy=3&disablekb=1&controls=0&autoplay=1',k:'yt'};
  if(m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]+)/))return{t:'if',s:'https://drive.google.com/file/d/'+m[1]+'/preview',k:'dr'};
  if(m=u.match(/archive\.org\/(?:details|embed)\/([^\/?#]+)(?:\/([^?#]+))?/))return{t:'if',s:'https://archive.org/embed/'+m[1]+(m[2]?'/'+m[2]:''),k:'ar'};
  if(m=u.match(/vimeo\.com\/(?:[^?#]*\/)?(\d{6,})(?:\/([0-9a-f]{8,}))?/i)){const h=m[2]||(u.match(/[?&]h=([0-9a-f]+)/i)||[])[1];return{t:'if',s:'https://player.vimeo.com/video/'+m[1]+'?api=1&title=0&byline=0&portrait=0'+(h?'&h='+h:''),k:'vm'}}
@@ -641,7 +642,7 @@ function pPlay(){
   S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>`
   :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"${m.k=='dr'?' referrerpolicy="no-referrer"':''}${m.k=='dr'?' onerror="drFail()"':m.vm?' onerror="vmFail()"':''}></video><button class="big" id="bp">▶</button><div class="ov"><input id="sk" type="range" min="0" max="1000" value="0"><div class="pl"><span id="tm">0:00</span><div class="pill"><button id="mu">${ic(I.v)}</button><button id="sp">1x</button></div></div></div>`
   :m.t=='w'?`<p class="mu" style="padding:30px">Preparando vídeo…</p>`
-  :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
+  :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`;if(m.t=='if'&&m.k=='yt')p+=ytcH()}
  const n=e?es[es.indexOf(e)+1]:null;
  const rc=recom(t)||(S.oved&&S.oved.w=='c'?S.T.find(x=>x.id!=t.id):null);S.cur.rec=rc;
  const hasV=/<(iframe|video)/.test(p),fvt=S.F.has(t.id)?'♥ Na minha lista':'♡ Minha lista';
@@ -679,6 +680,42 @@ window.addEventListener('message',e=>{
   else if(d&&d.event=='infoDelivery'&&i){
    if(i.playerState===0)onEnd();
    else if(typeof i.currentTime=='number'&&i.currentTime>5&&Date.now()-(S.ytp||0)>3000){S.ytp=Date.now();setPos(ckey(),i.currentTime);if(i.duration&&i.currentTime/i.duration>.9&&pf('sn')&&!lj('cn_seen')[ckey()])setSeen(ckey(),1)}}}catch(x){}});
+/* YouTube com controles do app: o vídeo continua no player oficial do YouTube (iframe), mas os controles dele ficam escondidos
+   e o app põe os seus por cima (play/pause, barra de tempo, velocidade e som). Se o YouTube não responder ou bloquear o vídeo,
+   os controles do app saem e volta o player normal do YouTube. */
+const ytF=t=>{t=Math.floor(t||0);const h=Math.floor(t/3600),m=Math.floor(t%3600/60),q=t%60;return(h?h+':'+String(m).padStart(2,'0'):m)+':'+String(q).padStart(2,'0')};
+const ytcH=()=>`<div class="ytc" id="ytc"><div class="yts" id="yts"></div><button class="big" id="ytpl" aria-label="Reproduzir ou pausar">▶</button><div class="ov"><input id="ytsk" type="range" min="0" max="1000" value="0"><div class="pl"><span id="ytt">0:00 / 0:00</span><div class="pill"><button id="ytmu" aria-label="Som">${ic(I.v)}</button><button id="ytsp" aria-label="Velocidade">1x</button></div></div></div></div>`;
+function ytFail(){const c=document.getElementById('ytc'),f=document.querySelector('#pw iframe');if(!c||!f)return;c.remove();f.src=f.src.replace('controls=0','controls=1')}
+function ytWire(){
+ const c=document.getElementById('ytc'),w=document.getElementById('pw'),f=w&&w.querySelector('iframe');if(!c||!f)return;
+ const Y=S.yt={t:0,d:0,st:-1,ps:-1,mu:0,got:0,drag:0,tm:0,rate:1},g=i=>document.getElementById(i);
+ const send=(fn,a)=>{try{f.contentWindow.postMessage(JSON.stringify({event:'command',func:fn,args:a||[]}),'*')}catch(x){}};
+ const ping=()=>{try{f.contentWindow.postMessage(JSON.stringify({event:'listening',id:1,channel:'widget'}),'*')}catch(x){}};
+ const show=()=>{c.classList.remove('hid');clearTimeout(Y.tm);if(Y.st===1)Y.tm=setTimeout(()=>{if(Y.st===1&&!Y.drag)c.classList.add('hid')},3500)};
+ Y.paint=()=>{const pl=g('ytpl');if(!pl)return;pl.textContent=Y.st===1?'❚❚':'▶';
+  if(!Y.drag){const sk=g('ytsk');if(sk)sk.value=Y.d?Math.min(1000,Y.t/Y.d*1000):0;const t=g('ytt');if(t)t.textContent=ytF(Y.t)+' / '+ytF(Y.d)}
+  const m=g('ytmu');if(m)m.style.opacity=Y.mu?.4:1;
+  if(Y.st!==Y.ps){Y.ps=Y.st;show()}};
+ g('yts').onclick=()=>{S.showOv&&S.showOv();if(c.classList.contains('hid')||Y.st!==1)show();else c.classList.add('hid')};
+ g('ytpl').onclick=()=>{send(Y.st===1?'pauseVideo':'playVideo');show()};
+ g('ytsk').oninput=e=>{Y.drag=1;clearTimeout(Y.tm);const t=g('ytt');if(t)t.textContent=ytF(e.target.value/1000*Y.d)+' / '+ytF(Y.d)};
+ g('ytsk').onchange=e=>{const q=e.target.value/1000*Y.d;send('seekTo',[q,true]);Y.t=q;Y.drag=0;show()};
+ g('ytsp').onclick=e=>{const r=[1,1.25,1.5,2,.75],n=r[(r.indexOf(Y.rate)+1)%5];Y.rate=n;send('setPlaybackRate',[n]);e.currentTarget.textContent=n+'x'};
+ g('ytmu').onclick=()=>{send(Y.mu?'unMute':'mute');Y.mu=Y.mu?0:1;Y.paint()};
+ f.addEventListener('load',ping);
+ Y.iv=setInterval(()=>{if(!document.body.contains(f)||Y.got){clearInterval(Y.iv);return}ping()},600);
+ setTimeout(()=>{if(S.yt===Y&&!Y.got&&document.body.contains(f))ytFail()},9000);
+ Y.paint();
+ if(!window._ytL){window._ytL=1;window.addEventListener('message',e=>{
+  try{if(!new URL(e.origin).hostname.endsWith('youtube.com'))return}catch(x){return}
+  const Y=S.yt,f=document.querySelector('#pw iframe');if(!Y||!f||e.source!==f.contentWindow)return;
+  let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
+  const i=d.info;
+  if(d.event=='onError'){ytFail();return}
+  if(d.event=='onStateChange'&&typeof i=='number')Y.st=i;
+  else if(d.event=='infoDelivery'&&i&&typeof i=='object'){Y.got=1;if(typeof i.currentTime=='number')Y.t=i.currentTime;if(i.duration>0)Y.d=i.duration;if('playerState' in i)Y.st=i.playerState;if('muted' in i)Y.mu=i.muted?1:0}
+  else return;
+  Y.paint&&Y.paint()})}}
 function ovWire(){
  clearInterval(S.ovp);S.showOv=null;
  const w=$('#pw');if(!w||!w.querySelector('.ob'))return;cpSync();
@@ -820,6 +857,7 @@ function fs(){return fkOn()?fkToggle():fsReal()}
 function fsExit(){return S.ff?fkExit():fsExitReal()}
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement){try{screen.orientation.unlock()}catch(x){}}setTimeout(blSync,250)});
 function wire(){
+ ytWire();
  const v=$('#vd');if(!v)return;
  const bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),f=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
  const up=()=>bp.style.display=v.paused?'':'none';
