@@ -778,14 +778,14 @@ function natSrc(m){
  return null;
 }
 function ndWire(v){
- const o=v.dataset.o,fb=()=>{(S.ndOff=S.ndOff||{})[o]=1;if(document.contains(v)&&S.tab=='play')draw()};
+ const o=v.dataset.o,fb=why=>{(S.ndOff=S.ndOff||{})[o]=1;if(!(document.contains(v)&&S.tab=='play'))return;const er=v.error;why=why||(er?'erro '+er.code+(er.code==4?' (o link direto não foi aceito)':er.code==2?' (rede)':''):'sem resposta');draw();const w=document.getElementById('pw');if(w){const m=document.createElement('div');m.className='nxb';m.style.cssText='top:12px;bottom:auto;padding:8px 14px;z-index:99;max-width:90%;text-align:center';m.textContent='Player do app não abriu este vídeo ('+why+'). Usando o original.';w.appendChild(m);setTimeout(()=>m.remove(),7000)}};
  let ok=0;v.addEventListener('loadedmetadata',()=>{ok=1},{once:true});
  v.addEventListener('error',()=>{if(!ok)fb()});
- setTimeout(()=>{if(!ok&&document.contains(v)&&v.readyState<1)fb()},15000);
+ setTimeout(()=>{if(!ok&&document.contains(v)&&v.readyState<1)fb('demorou demais')},15000);
  if(v.dataset.aid&&!v.getAttribute('src'))fetch('https://archive.org/metadata/'+encodeURIComponent(v.dataset.aid)).then(r=>r.json()).then(j=>{
   const f=(j.files||[]).filter(x=>/\.(mp4|m4v|webm)$/i.test(x.name)&&!/_(thumb|small|preview)\./i.test(x.name)).sort((a,b)=>(+b.size||0)-(+a.size||0))[0];
-  if(!f)throw 0;if(!document.contains(v))return;
-  v.src='https://archive.org/download/'+j.metadata.identifier+'/'+f.name.split('/').map(encodeURIComponent).join('/')}).catch(fb);
+  if(!f)throw 'sem arquivo mp4 neste item do Archive';if(!document.contains(v))return;
+  v.src='https://archive.org/download/'+j.metadata.identifier+'/'+f.name.split('/').map(encodeURIComponent).join('/')}).catch(e=>fb(typeof e=='string'?e:'não achei o arquivo no Archive'));
 }
 function pPlay(){
  const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.nd=false;S.cur.pk='ot';
@@ -1056,7 +1056,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-08 · player com capa total';
+const APP_V='2026-11-08 · Drive/Archive no player do app v2';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
