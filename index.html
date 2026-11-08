@@ -769,11 +769,13 @@ window.addEventListener('message',e=>{if(!document.getElementById('vcap'))return
  if((d.event=='onStateChange'&&d.info==1)||(d.event=='infoDelivery'&&d.info&&d.info.playerState==1)||(d.event=='timeupdate'&&d.data&&d.data.seconds>0.05))vcHide()});
 async function svVC(k,i){const v=gd($('#'+i).value.trim());if(ok(await sb.from('settings').upsert({key:k,value:v}))){S.set[k]=v;alert(v?'Capa salva.':'Capa removida.')}}
 /* Drive/Archive com o player do app (vídeo nativo, sem faixa preta). Se não carregar, volta ao player original. O YouTube não é afetado. */
+/* >>> COLE AQUI a chave da API do Google Drive (entre as aspas) <<< */
+const GD_KEY='COLE_SUA_CHAVE_AQUI';
 function natSrc(m){
  if(!m||m.t!='if'||(m.k!='dr'&&m.k!='ar'))return null;
  if((S.ndOff||{})[m.s])return null;
  let x;
- if(m.k=='dr'&&(x=m.s.match(/\/d\/([\w-]+)\//)))return{s:'https://drive.usercontent.google.com/download?id='+x[1]+'&export=download&confirm=t'};
+ if(m.k=='dr'&&(x=m.s.match(/\/d\/([\w-]+)\//)))return{s:GD_KEY&&GD_KEY.indexOf('COLE_')!=0?'https://www.googleapis.com/drive/v3/files/'+x[1]+'?alt=media&key='+encodeURIComponent(GD_KEY):'https://drive.usercontent.google.com/download?id='+x[1]+'&export=download&confirm=t'};
  if(m.k=='ar'&&(x=m.s.match(/archive\.org\/embed\/([^\/?#]+)(?:\/([^?#]+))?/)))return x[2]?{s:'https://archive.org/download/'+x[1]+'/'+x[2]}:{s:'',aid:x[1]};
  return null;
 }
