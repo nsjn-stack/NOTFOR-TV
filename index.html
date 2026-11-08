@@ -531,7 +531,7 @@ body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!im
 #gxh .gk svg{width:30px;height:30px}
 #gxh.txt{padding:6px 10px;border-radius:12px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.25)}
 </style>
-<style>/* Drive/Archive no player do app: sem faixa preta atrás dos controles */.pw.nbd .cnp-bot{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.pw.nbd .ov.cnp{background:none!important}.pw.nbd .bl,.pw.nbd .tz:not(.ed){display:none!important}.pw.nbd .cnp-row,.pw.nbd .cnp-row span{text-shadow:0 1px 3px #000,0 0 6px #000}.pw.nbd{background:#000!important}.pw.nbd video{object-fit:contain;background:#000}.pw.ff{background:#000!important;z-index:2147483000!important}</style><style>#pw.gxp,#pw .ytsh,#pw .vmsh,#pw.gxp video{touch-action:none!important}</style><style>
+<style>/* Drive/Archive no player do app: sem faixa preta atrás dos controles */.pw.nbd .cnp-bot{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.pw.nbd .ov.cnp{background:none!important}.pw.nbd .bl,.pw.nbd .tz:not(.ed){display:none!important}.pw.nbd .cnp-row,.pw.nbd .cnp-row span{text-shadow:0 1px 3px #000,0 0 6px #000}.pw.ndd{background:#000!important}.pw.ndd video{object-fit:contain;background:#000}</style><style>#pw.gxp,#pw .ytsh,#pw .vmsh,#pw.gxp video{touch-action:none!important}</style><style>
 #qg.cnp-b,#cc.cnp-b{border-color:rgba(255,42,26,.9)}#cc.cnp-b.on{background:linear-gradient(#ff1a0f,#b00500)}
 #pw #qm,#pw #cm{position:absolute;right:8px;top:calc(var(--tb,30px) + 18px);z-index:70;display:flex;flex-direction:column;gap:4px;padding:6px;background:rgba(0,0,0,.82);border:2px solid rgba(255,42,26,.9);border-radius:14px;min-width:96px}
 #pw #qm button,#pw #cm button{padding:6px 10px;border-radius:9px;font:800 12px system-ui,sans-serif;color:#fff;text-align:center;background:transparent}
@@ -781,7 +781,7 @@ async function svVC(k,i){const v=gd($('#'+i).value.trim());if(ok(await sb.from('
 /* Drive/Archive com o player do app (vídeo nativo, sem faixa preta). Se não carregar, volta ao player original. O YouTube não é afetado. */
 function natSrc(m){
  if(!m||m.t!='if'||(m.k!='dr'&&m.k!='ar'))return null;
- if((S.ndOff||{})[m.s])return null;
+ if((S.ndOff||{})[m.s])return null;if(m.k=='dr'&&!S.set.gd_key)return null;
  let x;
  if(m.k=='dr'&&(x=m.s.match(/\/d\/([\w-]+)\//))){const L=[];if(S.set.gd_key)L.push('https://www.googleapis.com/drive/v3/files/'+x[1]+'?alt=media&key='+encodeURIComponent(S.set.gd_key));L.push('https://drive.usercontent.google.com/download?id='+x[1]+'&export=download&confirm=t','https://drive.google.com/uc?export=download&confirm=t&id='+x[1]);return{s:L[0],alt:L.slice(1)}};
  if(m.k=='ar'&&(x=m.s.match(/archive\.org\/embed\/([^\/?#]+)(?:\/([^?#]+))?/)))return x[2]?{s:'https://archive.org/download/'+x[1]+'/'+x[2]}:{s:'',aid:x[1]};
@@ -792,10 +792,10 @@ function ndWire(v){
  let ok=0;v.addEventListener('loadedmetadata',()=>{ok=1},{once:true});
  const nx=()=>{let a=[];try{a=JSON.parse(v.dataset.alt||'[]')}catch(e){}const n=a.shift();if(!n)return 0;v.dataset.alt=JSON.stringify(a);v.src=n;try{v.load()}catch(e){}return 1};
  const fail=c=>{if(!document.contains(v))return;const pw=document.getElementById('pw');if(!pw||pw.querySelector('#ndm'))return;const k=v.error?v.error.code:0,dr=/drive\.google/.test(o||''),d=document.createElement('div');d.id='ndm';d.style.cssText='position:absolute;inset:0;z-index:200;display:grid;place-content:center;gap:10px;padding:16px;text-align:center;background:rgba(0,0,0,.9);color:#fff;font:600 13px system-ui';d.innerHTML='<div>'+(dr?'O Google Drive não liberou este vídeo para o player do app':'O vídeo não carregou no player do app')+' ('+(c||'erro '+k)+').'+(dr?'<br><small>Confira se o arquivo está como “Qualquer pessoa com o link” e cole a chave do Drive no Admin.</small>':'')+'</div><div style="display:flex;gap:8px;justify-content:center"><button class="btn s" id="ndr">Tentar de novo</button><button class="btn o s" id="ndo">Player original</button></div>';pw.appendChild(d);d.querySelector('#ndr').onclick=()=>{draw()};d.querySelector('#ndo').onclick=fb};
- v.setAttribute('referrerpolicy','no-referrer');
- v.addEventListener('error',()=>{if(!ok&&!nx())fail()});
+ const drv=/drive\.google/.test(o||'');
+ v.addEventListener('error',()=>{if(!ok&&!nx()){drv?fail():fb()}});
  setTimeout(()=>{if(!ok&&document.contains(v)&&v.readyState<1)nx()},12000);
- setTimeout(()=>{if(!ok&&document.contains(v)&&v.readyState<1)fail('tempo esgotado')},30000);
+ setTimeout(()=>{if(!ok&&document.contains(v)&&v.readyState<1){drv?fail('tempo esgotado'):fb()}},drv?30000:20000);
  if(v.dataset.aid&&!v.getAttribute('src'))fetch('https://archive.org/metadata/'+encodeURIComponent(v.dataset.aid)).then(r=>r.json()).then(j=>{
   const L=(j.files||[]).filter(x=>/\.(mp4|m4v|webm)$/i.test(x.name)&&!/_(thumb|small|preview)\./i.test(x.name)).sort((a,b)=>(+b.size||0)-(+a.size||0));v._qs=L.map(x=>({h:+x.height||0,n:x.name,id:j.metadata.identifier}));const f=cnQ.pick(L);
   if(!f)throw 0;if(!document.contains(v))return;
@@ -806,7 +806,7 @@ function pPlay(){
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
  else{let m=embed(u);{const nt=natSrc(m);if(nt)m={t:'v',s:nt.s,k:m.k,nd:1,o:m.s,aid:nt.aid,alt:nt.alt}}S.cur.nd=!!m.nd;S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0,vmc=m.k=='vm'&&m.t=='if'&&ovn('vm_cn',1)!=0;
   S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(yc?'&controls=0'+(/^https?:$/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):''):'')+(vmc?'&controls=0&playsinline=1':'')+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>${yc?'<div class="ytsh"></div>'+cnpH(t,e):vmc?'<div class="vmsh"></div>'+cnpH(t,e):''}`
-  :m.t=='v'?`<video id="vd" referrerpolicy="no-referrer"${m.s?` src="${esc(m.s)}"`:''}${m.nd?` data-nd="1" data-o="${esc(m.o)}"${m.alt&&m.alt.length?` data-alt="${esc(JSON.stringify(m.alt))}"`:''}${m.aid?` data-aid="${esc(m.aid)}"`:''}`:''} playsinline preload="metadata"></video>${cnpH(t,e)}`
+  :m.t=='v'?`<video id="vd"${m.k=='dr'?' referrerpolicy="no-referrer"':''}${m.s?` src="${esc(m.s)}"`:''}${m.nd?` data-nd="1" data-o="${esc(m.o)}"${m.alt&&m.alt.length?` data-alt="${esc(JSON.stringify(m.alt))}"`:''}${m.aid?` data-aid="${esc(m.aid)}"`:''}`:''} playsinline preload="metadata"></video>${cnpH(t,e)}`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
  const rc=recom(t)||(S.oved&&S.oved.w=='c'?S.T.find(x=>x.id!=t.id):null);S.cur.rec=rc;
@@ -828,7 +828,7 @@ function pPlay(){
   ycv=p.includes('ytsh')?`<div class="ytcv"><div class="ytcv-f"${ycu?` style="background-image:url('${esc(gd(ycu,'B').replace(/'/g,'%27'))}')"`:''}><b>CINE NOTFOR</b></div><div class="ytcv-t"></div><div class="ytcv-b"></div></div>`:'',
   vch=vcu?`<div class="vcap" id="vcap" style="background-image:url('${esc(gd(vcu,'B').replace(/'/g,'%27'))}')" onclick="vcTap()">${p.includes('ov cnp')?'':'<i></i>'}</div>`:'',
   bar=mf==0||mc==0?`<div class="${rw?'bar2':''}" ${rw?'':'style="display:flex;flex-direction:column;gap:8px;margin:0 14px 8px"'}>${mf==0?pF(0):''}${mc==0?pC(0):''}</div>`:'';
- return `<div class="pw${S.cur.pk=='tg'?' tgw':''}${p.includes('ytsh')?' ytfull':''}${S.cur.nd?' nbd':''}" id="pw">${p}${vch}${ycv}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div>${bar}<div id="sbc"></div>${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}
+ return `<div class="pw${S.cur.pk=='tg'?' tgw':''}${p.includes('ytsh')?' ytfull':''}${S.cur.nd?' nbd':''}${S.cur.nd&&S.cur.pk=='dr'?' ndd':''}" id="pw">${p}${vch}${ycv}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div>${bar}<div id="sbc"></div>${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}
  ${!e&&vs.length>1?`<div class="tabs">${vs.map((l,i)=>`<button class="${i==li?'on':''}" onclick="play(${t.id},0,${i})">${esc(l.label||'Link '+(i+1))}</button>`).join('')}</div>`:''}
  <div class="pt"><h1>${esc(t.name)}</h1><p>${e?`Temporada ${e.season} • ${t.section=='novela'?'Capítulo':'Episódio'} ${e.num}${e.name?' — '+esc(e.name):''}`:esc([t.year,t.country,t.audio].filter(Boolean).join(' • '))}</p></div>
  <div class="chips" style="margin:10px 14px"><span class="chip">HD</span><span class="chip r">${esc(t.rating||'Livre')}</span>${t.genres?`<span class="chip">${esc(t.genres)}</span>`:''}</div>
