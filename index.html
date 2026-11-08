@@ -431,30 +431,6 @@ details.rcd[open]>summary{margin-bottom:6px;color:var(--r)}
 #fw .fwz{position:absolute;right:0;bottom:0;width:36px;height:36px;touch-action:none;cursor:nwse-resize;z-index:3;border-radius:0 0 14px 0;background:linear-gradient(135deg,transparent 52%,#ff3a2a 52%,#ff3a2a 60%,transparent 60%,transparent 72%,#ff3a2a 72%,#ff3a2a 80%,transparent 80%)}
 #fw.mn .fwz,#fw.pip .fwz,#fw.fx .fwz{display:none}
 </style>
-<style id="cnp-v2">
-/* controles por cima de qualquer escudo invisível; arrastar o slider não vira rolagem */
-.pw .ov.cnp{z-index:100}
-.cnp input[type=range]{touch-action:none}
-/* barra transparente, borda vermelha, quase encostada nas laterais (aba do início = mesma coisa, botões maiores) */
-.cnp-bot{margin-left:-4px;margin-right:-4px;padding:6px 12px 8px;gap:4px;border-radius:20px;background:transparent;border:2px solid rgba(255,42,26,.95);box-shadow:none}
-.cnp-row{gap:10px;font-size:13px}
-.cnp-row span{min-width:42px}
-.cnp-r2{gap:12px}
-.cnp-r2 .cnp-b{width:40px;height:40px}
-.cnp-r2 .cnp-b svg,.cnp-r2 .cnp-b .ic{width:22px;height:22px}
-.cnp-r2 .cnp-sp{width:auto;min-width:50px;padding:0 10px;font-size:14px;border-radius:20px}
-.cnp-r2 #vl{flex:none;width:30%;max-width:150px;margin-left:auto}
-.cnp-row input[type=range]{height:30px}
-.cnp-row input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:4px}
-.cnp-row input[type=range]::-webkit-slider-thumb{width:22px;height:22px;margin-top:-8px}
-.cnp-row input[type=range]::-moz-range-track,.cnp-row input[type=range]::-moz-range-progress{height:6px}
-.cnp-row input[type=range]::-moz-range-thumb{width:22px;height:22px}
-/* deitado / tela cheia: barra quase de ponta a ponta, transparente; barra de avançar continua na mesma linha */
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-bot{margin:auto -12px 1.5%;padding:12px 24px 14px;gap:8px;border-radius:30px;background:transparent;border:2px solid rgba(255,42,26,.95);box-shadow:none}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-r2 #vl{flex:none;width:210px;max-width:none;height:58px;margin-left:auto}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-r2 #vl::-webkit-slider-thumb{width:42px;height:42px;margin-top:-16.5px}
-:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .cnp-r2 #vl::-moz-range-thumb{width:42px;height:42px}
-</style>
 </head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -894,7 +870,7 @@ function pPlay(){
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
  else{const m=drNat(arNat(vmNat(embed(u))));S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';
   S.tgh=0;p=m.t=='if'?`<iframe onload="pbLd()"${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(rsU(m))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>`
-  :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"${m.k=='dr'?' referrerpolicy="no-referrer"':''}${m.k=='ar'?' onerror="arFail()"':m.k=='dr'?' onerror="drFail()"':m.vm?' onerror="vmFail()"':''}></video><div class="ov cnp"><div class="cnp-top"><button class="cnp-b" id="cb" aria-label="Voltar">${ic(I.b,2)}</button><div class="cnp-t"><b>${esc(t.name)}</b><small>${e?`T${e.season} • ${t.section=='novela'?'Cap.':'Ep.'} ${e.num}${e.name?' - '+esc(e.name):''}`:esc([t.year,t.audio].filter(Boolean).join(' • '))}</small></div><button class="cnp-b" id="cc" onclick="cnpMenu('cc')" aria-label="Legendas"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10.2 10.3a2 2 0 100 3.4M16.2 10.3a2 2 0 100 3.4"/></svg></button><button class="cnp-b" id="gr" onclick="cnpMenu('gr')" aria-label="Qualidade e imagem"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button></div><div class="cnp-menu" id="cnpm" hidden></div><div class="cnp-mid"><button class="cnp-play" id="bp" aria-label="Reproduzir ou pausar"></button></div><div class="cnp-bot"><div class="cnp-row"><span id="tm">0:00</span><input id="sk" type="range" min="0" max="1000" value="0" style="--p:0%"><span id="tt">0:00</span></div><div class="cnp-row cnp-r2"><button class="cnp-b" id="rt" onclick="fs()" aria-label="Girar tela">${rIc()}</button><button class="cnp-b cnp-sp" id="spd" aria-label="Velocidade">1x</button><input id="vl" type="range" min="0" max="100" value="100" style="--p:100%"><button class="cnp-b cnp-m" id="mu" aria-label="Som">${ic(I.v)}</button></div></div></div>`
+  :m.t=='v'?`<video id="vd" src="${esc(m.s)}" playsinline preload="metadata"${m.k=='dr'?' referrerpolicy="no-referrer"':''}${m.k=='ar'?' onerror="arFail()"':m.k=='dr'?' onerror="drFail()"':m.vm?' onerror="vmFail()"':''}></video><div class="ov cnp"><div class="cnp-top"><button class="cnp-b" id="cb" aria-label="Voltar">${ic(I.b,2)}</button><button class="cnp-b" id="rt" onclick="fs()" aria-label="Girar tela">${rIc()}</button><div class="cnp-t"><b>${esc(t.name)}</b><small>${e?`T${e.season} • ${t.section=='novela'?'Cap.':'Ep.'} ${e.num}${e.name?' - '+esc(e.name):''}`:esc([t.year,t.audio].filter(Boolean).join(' • '))}</small></div><button class="cnp-b" id="cc" onclick="cnpMenu('cc')" aria-label="Legendas"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10.2 10.3a2 2 0 100 3.4M16.2 10.3a2 2 0 100 3.4"/></svg></button><button class="cnp-b" id="gr" onclick="cnpMenu('gr')" aria-label="Qualidade e imagem"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button></div><div class="cnp-menu" id="cnpm" hidden></div><div class="cnp-mid"><button class="cnp-play" id="bp" aria-label="Reproduzir ou pausar"></button></div><div class="cnp-bot"><div class="cnp-row"><span id="tm">0:00</span><input id="sk" type="range" min="0" max="1000" value="0" style="--p:0%"><span id="tt">0:00</span></div><div class="cnp-row cnp-r2"><button class="cnp-b cnp-sp" id="spd" aria-label="Velocidade">1x</button><button class="cnp-b cnp-m" id="mu" aria-label="Som">${ic(I.v)}</button></div></div></div>`
   :m.t=='w'?`<p class="mu" style="padding:30px">Preparando vídeo…</p>`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
@@ -1114,7 +1090,7 @@ function wire(){
  sk.oninput=()=>{v.currentTime=sk.value/1000*(v.duration||0);sk.style.setProperty('--p',(sk.value/10)+'%')};
  const sk10=d=>{try{v.currentTime=Math.max(0,Math.min(isFinite(v.duration)?v.duration:1e9,v.currentTime+d))}catch(x){}};
  {const a=$('#b10'),b=$('#f10'),c=$('#fl'),k=$('#cb'),tt=$('#tt');if(a)a.onclick=()=>sk10(-10);if(b)b.onclick=()=>sk10(10);if(c)c.onclick=()=>fs();if(k)k.onclick=()=>{if(S.ff||document.fullscreenElement||document.webkitFullscreenElement)fsExit();else go(S.prev||'home')};v.addEventListener('loadedmetadata',()=>{if(tt)tt.textContent=f(v.duration)})}
- bp.onclick=v.onclick=()=>{if(Date.now()-sw<600)return;v.paused?v.play():v.pause()};
+ bp.onclick=()=>{if(Date.now()-sw<600)return;v.paused?v.play():v.pause()};v.onclick=null;
  {const b2=$('#bp2');if(b2)b2.onclick=bp.onclick;
   const G=window.cnGx||{},cl=(x,a,b)=>Math.max(a,Math.min(b,x)),tb=$('#vtb'),tv=$('#vtv'),vl=$('#vl');
   const setF=(el,f)=>{if(el)el.style.setProperty('--f',f.toFixed(3))};
@@ -2443,4 +2419,61 @@ function rcqSync(){
  new MutationObserver(q).observe(document.body,{childList:true,subtree:true});
  setInterval(q,1500)}
 </script>
+
+<style id="cnp-v3">
+/* ===== Player novo v3: barra grande, transparente, borda vermelha; mesma coisa em pé e deitado ===== */
+.pw .ov.cnp{--tb:52px;--cbs:56px;--bb:52px;--ic:28px;--tf:21px;--sf:14px;--rowf:16px;--tmw:58px;--sk:40px;--tk:8px;--th:28px;--sp:68px;--spf:18px;--bpad:8px 18px 12px;--br:28px;--gap:12px;--bgap:6px;--pad:10px 10px 10px;z-index:100;padding:var(--pad)}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .ov.cnp{--tb:64px;--cbs:72px;--bb:78px;--ic:40px;--tf:30px;--sf:20px;--rowf:24px;--tmw:92px;--sk:56px;--tk:11px;--th:38px;--sp:104px;--spf:28px;--bpad:16px 40px 20px;--br:44px;--gap:18px;--bgap:10px;--pad:14px 14px 20px;padding:var(--pad)}
+.cnp input[type=range]{touch-action:none}
+/* topo: voltar + girar + título + CC + engrenagem */
+.pw .ov.cnp .cnp-top{gap:var(--gap)}
+.pw .ov.cnp .cnp-top .cnp-b{width:var(--tb);height:var(--tb);border-width:2px}
+.pw .ov.cnp #cb.cnp-b{width:var(--cbs);height:var(--cbs)}
+.pw .ov.cnp #rt.cnp-b{border-color:rgba(255,42,26,.9)}
+.pw .ov.cnp .cnp-b svg,.pw .ov.cnp .cnp-b .ic{width:var(--ic);height:var(--ic)}
+.pw .ov.cnp .cnp-t b{font-size:var(--tf)}
+.pw .ov.cnp .cnp-t small{font-size:var(--sf)}
+/* barra de baixo */
+.pw .ov.cnp .cnp-bot{margin:auto 0 0;padding:var(--bpad);gap:var(--bgap);border-radius:var(--br);background:transparent;border:2px solid rgba(255,42,26,.95);box-shadow:none}
+.pw .ov.cnp .cnp-row{gap:var(--gap);font-size:var(--rowf)}
+.pw .ov.cnp .cnp-row span{min-width:var(--tmw)}
+.pw .ov.cnp .cnp-r2 .cnp-b{width:var(--bb);height:var(--bb);border-width:2px}
+.pw .ov.cnp .cnp-r2 .cnp-sp{width:auto;min-width:var(--sp);padding:0 18px;font-size:var(--spf);border-radius:999px}
+.pw .ov.cnp .cnp-r2 .cnp-m{margin-left:auto;background:transparent;border-color:transparent}
+.pw .ov.cnp .cnp-row input[type=range]{height:var(--sk)}
+.pw .ov.cnp .cnp-row input[type=range]::-webkit-slider-runnable-track{height:var(--tk);border-radius:6px}
+.pw .ov.cnp .cnp-row input[type=range]::-webkit-slider-thumb{width:var(--th);height:var(--th);margin-top:calc((var(--tk) - var(--th))/2)}
+.pw .ov.cnp .cnp-row input[type=range]::-moz-range-track,.pw .ov.cnp .cnp-row input[type=range]::-moz-range-progress{height:var(--tk)}
+.pw .ov.cnp .cnp-row input[type=range]::-moz-range-thumb{width:var(--th);height:var(--th)}
+/* menu de legendas/qualidade abaixo dos botões maiores; avisos acima da barra maior */
+.pw .ov.cnp .cnp-menu{top:82px;right:12px;max-height:calc(100% - 82px - 150px)}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .ov.cnp .cnp-menu{top:112px;right:20px;max-height:calc(100% - 112px - 250px)}
+.pw:has(.cnp) .nxb{bottom:150px}
+:is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .nxb{bottom:240px}
+/* ===== indicadores de volume (direita) e brilho (esquerda) ao arrastar: maiores e centralizados ===== */
+#pw #gxh.l{left:16px;top:50%;transform:translateY(-50%)}
+#pw #gxh.r{right:16px;top:50%;transform:translateY(-50%)}
+#pw #gxh.v{width:68px;height:min(72%,240px);padding:12px 0 10px;gap:8px;border-radius:34px;font-size:18px;background:rgba(0,0,0,.55);border:2px solid rgba(255,42,26,.85);box-shadow:none}
+#pw #gxh .gi{width:36px;height:36px}
+#pw #gxh svg{width:30px;height:30px}
+#pw #gxh .gt::before{top:8px;bottom:8px;width:8px;margin-left:-4px;border-radius:5px}
+#pw #gxh .gt u{bottom:8px;width:8px;margin-left:-4px;border-radius:5px;height:calc((100% - 16px)*var(--f))}
+#pw #gxh .gt s{bottom:calc(8px + (100% - 16px)*var(--f));width:26px;height:26px;margin:0 0 -13px -13px}
+#pw #gxh em{font-size:18px}
+#pw #gxh .gk{width:68px;height:68px}
+#pw #gxh .gk svg{width:42px;height:42px}
+:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh.l{left:3%}
+:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh.r{right:3%}
+:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh.v{width:104px;height:min(66%,400px);padding:18px 0 14px;gap:12px;border-radius:52px;font-size:28px}
+:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gi{width:56px;height:56px}
+:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh svg{width:46px;height:46px}
+:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gt::before{top:12px;bottom:12px;width:12px;margin-left:-6px}
+:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gt u{bottom:12px;width:12px;margin-left:-6px;height:calc((100% - 24px)*var(--f))}
+:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gt s{bottom:calc(12px + (100% - 24px)*var(--f));width:38px;height:38px;margin:0 0 -19px -19px}
+:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh em{font-size:28px}
+:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gk{width:100px;height:100px}
+:is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gk svg{width:64px;height:64px}
+/* enquanto arrasta volume/brilho, os controles ficam bem fracos para o indicador aparecer limpo */
+.pw:has(#gxh.on.v) .ov.cnp{opacity:.12}
+</style>
 </body></html>
