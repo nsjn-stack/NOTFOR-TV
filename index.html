@@ -1144,7 +1144,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-09 (17) · dublagem: botão 🎧 no player e carregamento corrigido';
+const APP_V='2026-11-09 (19) · legenda do Vimeo no menu CC + dublagem Archive';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -1229,7 +1229,8 @@ const sbTg=()=>[S.et,+$('#sb_e').value||0];
 async function subList(){const[t,e]=sbTg(),v=await sbLoad(t,e,1);$('#sb_ls').innerHTML=v.map((x,i)=>`<div class="mu" style="padding:4px 0">${esc(x.l)} · ${x.c.length} falas <button class="btn o s" onclick="subDel(${i})">Apagar</button></div>`).join('')||'<div class="mu">Nenhuma legenda neste vídeo.</div>'}
 function subAdm(){const es=S.E.filter(x=>x.title_id==S.et);$('#ad').insertAdjacentHTML('beforeend',`<div class="box"><b>🔑 Chave do Google Drive</b><div class="mu" style="padding:4px 0">Com a chave (API key do Google Cloud, com a Drive API ativada) os vídeos do Drive carregam mais rápido e sem faixa preta. O arquivo precisa estar como “Qualquer pessoa com o link”.</div><input id="gd_k" placeholder="Cole a chave aqui" value="${esc(S.set.gd_key||'')}"><button class="btn s" onclick="svGdKey()">Salvar chave</button></div>`+`<div class="box"><b>Legendas</b><div class="mu" style="padding:4px 0">Para o título escolhido acima. Escolha o vídeo, dê um nome (ex.: Português BR) e adicione por link (site ou Google Drive) ou com um arquivo .srt/.vtt do celular. Se o site bloquear o link, baixe o arquivo e use “Escolher do celular”.</div><select id="sb_e" onchange="subList()"><option value="0">Filme / link único</option>${es.map(x=>`<option value="${x.id}">T${x.season} • E${x.num}</option>`).join('')}</select><input id="sb_l" placeholder="Nome (ex.: Português BR)"><input id="sb_u" placeholder="Link da legenda (.srt / .vtt)"><div class="row"><button class="btn s" onclick="sbUrl()">Adicionar por link</button><button class="btn o s" onclick="$('#sb_f').click()">Escolher do celular</button></div><input id="sb_f" type="file" accept=".srt,.vtt,.txt" style="display:none" onchange="sbFile(this)"><div id="sb_ls"></div></div>`);subList()}
 async function sbAdd(tx){const c=sbParse(tx);if(!c.length)return alert('Não achei falas nesse arquivo. Use .srt ou .vtt.');const[t,e]=sbTg(),v=await sbLoad(t,e,1);v.push({l:$('#sb_l').value.trim()||'Legenda '+(v.length+1),c});if(await subSave(t,e,v)){$('#sb_u').value='';subList();alert('Legenda adicionada.')}}
-async function sbGet(u){const m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]+)/)||u.match(/[?&]id=([\w-]+)/),L=[];if(m){const id=m[1];L.push('https://drive.usercontent.google.com/download?id='+id+'&export=download','https://drive.google.com/uc?export=download&id='+id)}else L.push(u);const P=[x=>x,x=>'https://corsproxy.io/?url='+encodeURIComponent(x),x=>'https://api.allorigins.win/raw?url='+encodeURIComponent(x),x=>'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(x)];let html=0;for(const p of P)for(const x of L){try{const r=await fetch(p(x));if(!r.ok)continue;const t=await sbTxt(await r.arrayBuffer());if(/^\s*<(!doctype|html)/i.test(t)){html=1;continue}if(t.includes('-->'))return t}catch(e){}}throw html?'html':'fail'}
+async function sbArchive(u){const m=String(u).match(/archive\.org\/(?:details|embed|download|stream)\/([^\/?#]+)(?:\/([^?#]+))?/i);if(!m)return null;const id=decodeURIComponent(m[1]),f=m[2]?decodeURIComponent(m[2]):'',enc=x=>x.split('/').map(encodeURIComponent).join('/');let L=[];if(f&&/\.(srt|vtt|txt|ass|sub)$/i.test(f))L=[f];else{const j=await(await fetch('https://archive.org/metadata/'+encodeURIComponent(id))).json();L=(j.files||[]).map(x=>x.name).filter(n=>/\.(srt|vtt)$/i.test(n))}for(const n of L){try{const r=await fetch('https://archive.org/download/'+encodeURIComponent(id)+'/'+enc(n));if(!r.ok)continue;const t=await sbTxt(await r.arrayBuffer());if(t.includes('-->'))return t}catch(e){}}return null}
+async function sbGet(u){try{const a=await sbArchive(u);if(a)return a}catch(e){}const m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]+)/)||u.match(/[?&]id=([\w-]+)/),L=[];if(m){const id=m[1];L.push('https://drive.usercontent.google.com/download?id='+id+'&export=download','https://drive.google.com/uc?export=download&id='+id)}else L.push(u);const P=[x=>x,x=>'https://corsproxy.io/?url='+encodeURIComponent(x),x=>'https://api.allorigins.win/raw?url='+encodeURIComponent(x),x=>'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(x)];let html=0;for(const p of P)for(const x of L){try{const r=await fetch(p(x));if(!r.ok)continue;const t=await sbTxt(await r.arrayBuffer());if(/^\s*<(!doctype|html)/i.test(t)){html=1;continue}if(t.includes('-->'))return t}catch(e){}}throw html?'html':'fail'}
 async function sbUrl(){const u=$('#sb_u').value.trim();if(!u)return;const b=event&&event.target;if(b)b.disabled=true;try{sbAdd(await sbGet(u))}catch(x){alert(x=='html'?'O Google Drive devolveu uma página em vez do arquivo. No Drive, toque em Compartilhar e deixe como “Qualquer pessoa com o link” (Leitor), depois tente de novo.':'Não consegui ler a legenda por esse link. Baixe o arquivo e use “Escolher do celular”.')}if(b)b.disabled=false}
 async function sbFile(i){const f=i.files[0];if(f)sbAdd(await sbTxt(await f.arrayBuffer()));i.value=''}
 async function subDel(i){const[t,e]=sbTg(),v=await sbLoad(t,e,1);v.splice(i,1);if(await subSave(t,e,v))subList()}
@@ -1953,9 +1954,11 @@ function vmWire(){
  let ht;const show=()=>{w.classList.remove('ovh');clearTimeout(ht);if(st.play)ht=setTimeout(()=>w.classList.add('ovh'),4000)};
  st.show=show;
  st.ui=()=>{bp.innerHTML=st.play?PAI:PLI;if(!st.drag){if(st.dur>0){sk.value=Math.min(1000,st.cur/st.dur*1000);sk.style.setProperty('--p',(sk.value/10)+'%')}tm.textContent=fm(st.cur)}if(tt)tt.textContent=fm(st.dur);if(mu)mu.style.opacity=st.muted?.4:1;if(sp)sp.textContent=st.rate+'x'};
- const listen=()=>['play','pause','ended','timeupdate','loaded'].forEach(x=>cmd('addEventListener',x));
+ const listen=()=>{['play','pause','ended','timeupdate','loaded','texttrackchange'].forEach(x=>cmd('addEventListener',x));cmd('getTextTracks')};
  if(!VM.h){VM.h=1;window.addEventListener('message',e=>{const s=VM.st;if(!s||!document.contains(s.f)||e.source!==s.f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
   if(d.event=='ready')listen();
+  else if(d.method=='getTextTracks'&&Array.isArray(d.value)){s.tt=d.value;if(!s.ttDone){s.ttDone=1;const ap=()=>{if(!document.contains(s.f))return;let q='off';try{q=localStorage.cn_vmt||'off'}catch(e){}if(q=='off')s.cmd('disableTextTrack');else{const a=q.split('|');s.cmd('enableTextTrack',{language:a[0],kind:a[1]||'subtitles'})}};ap();setTimeout(ap,2500)}}
+  else if(d.event=='texttrackchange'){s.ttc=d.data&&d.data.language?d.data.language+'|'+(d.data.kind||'subtitles'):'off'}
   else if(d.event=='play'){s.play=1;s.show();s.ui()}
   else if(d.event=='pause'||d.event=='ended'){s.play=0;s.show();s.ui();if(d.event=='ended'&&typeof onEnd=='function')onEnd()}
   else if(d.event=='timeupdate'&&d.data){s.cur=d.data.seconds||0;if(d.data.duration)s.dur=d.data.duration;if(!s.play){s.play=1}s.ui()}
@@ -2010,45 +2013,73 @@ document.addEventListener('pointerup',e=>{
  tap={s,t:now}},true);
 })();
 
-/* ===== Dublagem: áudio extra tocando em sincronia com o vídeo (Drive, Archive, mp4) ===== */
+/* ===== Dublagem: áudio extra tocando em sincronia com o vídeo (Internet Archive, Drive, mp3/m4a) ===== */
 (()=>{
-let A=null,key='',on=false,fail=false;
-const dubUrls=u=>{const f=dubUrl(u),L=[f],m=String(u||'').match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/)||String(u||'').match(/[?&]id=([\w-]+)/);
- if(m&&/google\.com/.test(u)){const id=m[1];[ 'https://drive.usercontent.google.com/download?id='+id+'&export=download&confirm=t','https://drive.google.com/uc?export=download&confirm=t&id='+id ].forEach(x=>{if(!L.includes(x))L.push(x)})}
+let A=null,on=false,fail=false,msg='',busy=false;
+const AUD=/\.(mp3|m4a|aac|ogg|oga|opus|flac|wav|mka|mp4|m4v|webm)$/i;
+/* Internet Archive: aceita link da página (details), embed ou arquivo direto (download). Se for só o item, procura o áudio nos metadados. */
+const arList=async u=>{const m=String(u).match(/archive\.org\/(?:details|embed|download|stream)\/([^\/?#]+)(?:\/([^?#]+))?/i);if(!m)return null;
+ const id=decodeURIComponent(m[1]),f=m[2]?decodeURIComponent(m[2]):'',enc=x=>x.split('/').map(encodeURIComponent).join('/');
+ if(f&&AUD.test(f))return['https://archive.org/download/'+encodeURIComponent(id)+'/'+enc(f)];
+ const j=await (await fetch('https://archive.org/metadata/'+encodeURIComponent(id))).json();
+ let L=(j.files||[]).filter(x=>AUD.test(x.name)&&!/_(thumb|small|preview)\./i.test(x.name));
+ const pri=x=>/\.(mp3|m4a|aac|ogg|opus)$/i.test(x.name)?0:/\.(flac|wav)$/i.test(x.name)?1:2;
+ L.sort((a,b)=>pri(a)-pri(b)||(+a.size||0)-(+b.size||0));
+ return L.map(x=>'https://archive.org/download/'+encodeURIComponent(id)+'/'+enc(x.name))};
+const dubUrls=async u=>{u=String(u||'').trim();const ar=await arList(u).catch(()=>null);if(ar&&ar.length)return ar;
+ const f=dubUrl(u),L=[f],m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/)||u.match(/[?&]id=([\w-]+)/);
+ if(m&&/google\.com/.test(u)){const id=m[1];['https://drive.usercontent.google.com/download?id='+id+'&export=download&confirm=t','https://drive.google.com/uc?export=download&confirm=t&id='+id].forEach(x=>{if(!L.includes(x))L.push(x)})}
  return L};
 const dkey=()=>{const c=S&&S.cur;if(!c)return'';return c.e?'dub_e'+c.e.id:'dub_l'+((vids(c.t)[c.li]||{}).id||'')};
+const lbl=()=>fail?'🎧 Dublagem: não carregou (toque p/ tentar de novo)':busy?'🎧 Dublagem: carregando…':on?'🎧 Dublagem: ligada':'🎧 Dublagem: desligada (toque para ligar)';
 const ovb=()=>{const cc=document.getElementById('cc');let d=document.getElementById('dbb');
  if(!A||!cc){if(d)d.remove();return}
  if(!d){d=document.createElement('button');d.id='dbb';d.className='cnp-b';d.setAttribute('aria-label','Dublagem');d.textContent='🎧';d.onclick=e=>{e.stopPropagation();tog()};cc.after(d)}
- d.classList.toggle('on',!!on&&!fail);d.style.opacity=fail?'.45':'';d.title=fail?'Dublagem não carregou':on?'Dublagem ligada':'Dublagem desligada'};
+ d.classList.toggle('on',!!on&&!fail);d.style.opacity=fail?'.45':'';d.style.outline=on&&!fail?'2px solid #2ee66b':'';d.title=lbl()};
 const bar=()=>{ovb();const c=document.getElementById('sbc');if(!c)return;let b=document.getElementById('dubb');
  if(!A){if(b)b.remove();return}
  if(!b){b=document.createElement('button');b.id='dubb';b.className='btn o s';b.style.cssText='margin:0 14px 8px';b.onclick=tog;c.appendChild(b)}
- b.textContent=fail?'🎧 Dublagem: não carregou (toque p/ tentar de novo)':on?'🎧 Dublagem: ligada':'🎧 Dublagem: desligada'};
-function tog(){const v=document.getElementById('vd');if(fail){fail=false;if(A){try{A.src=A._L[0];A._i=0;A.load()}catch(e){}}bar();return}if(!A||!v)return;on=!on;try{localStorage.cn_dub=on?'1':'0'}catch(e){}
- v.muted=on;if(on){A.currentTime=v.currentTime;if(!v.paused)A.play().catch(()=>{})}else A.pause();bar()}
+ const t=lbl()+(msg?' — '+msg:'');if(b.textContent!==t)b.textContent=t;b.style.borderColor=on&&!fail?'#2ee66b':''};
+function tog(){const v=document.getElementById('vd');
+ if(fail){fail=false;msg='';if(A){try{A._i=0;A.src=A._L[0];A.load()}catch(e){}}bar();return}
+ if(!A)return;on=!on;try{localStorage.cn_dub=on?'1':'0'}catch(e){}
+ if(v){v.muted=on;if(on){try{A.currentTime=v.currentTime}catch(e){}if(!v.paused)A.play().catch(()=>{})}else A.pause()}
+ else msg=on?'só funciona no player do app (vídeo nativo)':'';
+ bar()}
 function attach(v,urls){
- fail=false;A=new Audio();A.preload='auto';A._L=urls;A._i=0;A.src=urls[0];
+ fail=false;msg='';A=new Audio();A.preload='auto';A._L=urls;A._i=0;A.src=urls[0];
  try{on=localStorage.cn_dub=='1'}catch(e){on=false}
- const sync=()=>{if(!on)return;if(Math.abs(A.currentTime-v.currentTime)>.4)try{A.currentTime=v.currentTime}catch(e){}A.playbackRate=v.playbackRate};
+ const sync=()=>{if(!on||!document.contains(v))return;if(Math.abs(A.currentTime-v.currentTime)>.4)try{A.currentTime=v.currentTime}catch(e){}A.playbackRate=v.playbackRate};
  v.addEventListener('play',()=>{if(on){sync();A.play().catch(()=>{})}});
- v.addEventListener('pause',()=>A.pause());
+ v.addEventListener('pause',()=>A&&A.pause());
  v.addEventListener('seeking',()=>{if(on)try{A.currentTime=v.currentTime}catch(e){}});
  v.addEventListener('ratechange',()=>{A.playbackRate=v.playbackRate});
  v.addEventListener('timeupdate',sync);
- v.addEventListener('volumechange',()=>{if(on){v.muted=true}});
- A.addEventListener('error',()=>{if(A._i<A._L.length-1){A._i++;A.src=A._L[A._i];try{A.load()}catch(e){}return}fail=true;if(on){const v=document.getElementById('vd');if(v)v.muted=false}bar()});
- A.addEventListener('canplay',()=>{fail=false;bar()});
- if(on){v.muted=true}
+ v.addEventListener('volumechange',()=>{if(on&&!v.muted)v.muted=true});
+ const me=A;
+ A.addEventListener('error',()=>{if(A!==me)return;if(A._i<A._L.length-1){A._i++;A.src=A._L[A._i];try{A.load()}catch(e){}return}fail=true;msg='confira o link do áudio';if(on){const q=document.getElementById('vd');if(q)q.muted=false}bar()});
+ A.addEventListener('canplay',()=>{if(A!==me)return;fail=false;msg='';bar()});
+ if(on)v.muted=true;
  bar()}
-setInterval(()=>{try{
+/* lê a dublagem direto do banco (não depende das configurações carregadas na abertura do app) */
+const getDub=async k=>{let u=S.set[k];try{const{data}=await sb.from('settings').select('value').eq('key',k).maybeSingle();if(data&&data.value!=null){u=data.value;S.set[k]=u}}catch(e){}return u};
+let cur='';
+setInterval(async()=>{try{
  const v=document.getElementById('vd');
- if(!v||S.tab!='play'){if(A){A.pause();A=null;key=''}return}
+ if(!v||S.tab!='play'){if(A){A.pause();A=null}cur='';return}
  const k=dkey();
  if(v._dub===k){bar();return}
- if(A){A.pause();A=null}fail=false;
- v._dub=k;key=k;const u=k&&S.set[k];if(u)attach(v,dubUrls(u));
-}catch(e){}},1500);
+ if(busy)return;
+ if(A){A.pause();A=null}fail=false;msg='';
+ v._dub=k;cur=k;
+ if(!k)return;
+ busy=true;
+ const u=await getDub(k);busy=false;
+ if(!u||!document.contains(v)||dkey()!==k)return;
+ const L=await dubUrls(u);
+ if(!L.length||!document.contains(v))return;
+ attach(v,L);
+}catch(e){busy=false}},1200);
 })();
 
 /* ===== Qualidade fixa (padrão 720p) + engrenagem ⚙ no player ===== */
@@ -2120,11 +2151,16 @@ const cnQ=(()=>{
  const open=()=>{const pw=document.getElementById('pw');if(!pw)return;if(document.getElementById('cm')){close();return}
   const q=document.getElementById('qm');if(q)q.remove();
   const v=(typeof S!='undefined'&&S.sv)||[],m=document.createElement('div');m.id='cm';
-  m.innerHTML=v.length?v.map((x,i)=>`<button data-i="${i}" class="${i==S.si?'on':''}">${esc(x.l)}</button>`).join('')+`<button data-i="-1" class="${S.si<0?'on':''}">Desligada</button>`:'<small>Sem legendas neste vídeo</small>';
+  const vs=typeof VM!='undefined'&&VM.st&&document.contains(VM.st.f)?VM.st:null,vt=vs&&vs.tt?vs.tt:[];let vq='off';try{vq=localStorage.cn_vmt||'off'}catch(x){}
+  m.innerHTML=(v.length||vt.length)?v.map((x,i)=>`<button data-i="${i}" class="${i==S.si&&vq=='off'?'on':''}">${esc(x.l)}</button>`).join('')+vt.map(x=>{const k=x.language+'|'+(x.kind||'subtitles');return`<button data-vt="${esc(k)}" class="${vq==k?'on':''}">${esc(x.label||x.language)} (Vimeo)</button>`}).join('')+`<button data-i="-1" class="${S.si<0&&vq=='off'?'on':''}">Desligada</button>`:'<small>Sem legendas neste vídeo</small>';
   pw.appendChild(m)};
  document.addEventListener('click',e=>{
   const g=e.target.closest&&e.target.closest('#cc');if(g){e.stopPropagation();open();return}
-  const b=e.target.closest&&e.target.closest('#cm button');if(b){e.stopPropagation();const i=+b.dataset.i;S.si=i;try{localStorage.cn_sb=i}catch(x){}const sel=document.querySelector('#sbc select');if(sel)sel.value=String(i);close();mark();return}
+  const b=e.target.closest&&e.target.closest('#cm button');if(b){e.stopPropagation();
+   const vs=typeof VM!='undefined'&&VM.st&&document.contains(VM.st.f)?VM.st:null;
+   if(b.dataset.vt){const a=b.dataset.vt.split('|');try{localStorage.cn_vmt=b.dataset.vt}catch(x){}S.si=-1;if(vs)vs.cmd('enableTextTrack',{language:a[0],kind:a[1]||'subtitles'});const sel=document.querySelector('#sbc select');if(sel)sel.value='-1';close();mark();return}
+   try{localStorage.cn_vmt='off'}catch(x){}if(vs)vs.cmd('disableTextTrack');
+   const i=+b.dataset.i;S.si=i;try{localStorage.cn_sb=i}catch(x){}const sel=document.querySelector('#sbc select');if(sel)sel.value=String(i);close();mark();return}
   if(!(e.target.closest&&e.target.closest('#cm')))close()},true);
  document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#qg'))close()},true);
  setInterval(mark,800);
