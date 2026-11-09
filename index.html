@@ -2010,16 +2010,19 @@ document.addEventListener('pointerup',e=>{
 
 /* ===== Dublagem: áudio extra tocando em sincronia com o vídeo (Drive, Archive, mp4) ===== */
 (()=>{
-let A=null,key='',on=false;
+let A=null,key='',on=false,fail=false;
+const dubUrls=u=>{const f=dubUrl(u),L=[f],m=String(u||'').match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/)||String(u||'').match(/[?&]id=([\w-]+)/);
+ if(m&&/google\.com/.test(u)){const id=m[1];[ 'https://drive.usercontent.google.com/download?id='+id+'&export=download&confirm=t','https://drive.google.com/uc?export=download&confirm=t&id='+id ].forEach(x=>{if(!L.includes(x))L.push(x)})}
+ return L};
 const dkey=()=>{const c=S&&S.cur;if(!c)return'';return c.e?'dub_e'+c.e.id:'dub_l'+((vids(c.t)[c.li]||{}).id||'')};
 const bar=()=>{const c=document.getElementById('sbc');if(!c)return;let b=document.getElementById('dubb');
  if(!A){if(b)b.remove();return}
  if(!b){b=document.createElement('button');b.id='dubb';b.className='btn o s';b.style.cssText='margin:0 14px 8px';b.onclick=tog;c.appendChild(b)}
- b.textContent=on?'🎧 Dublagem: ligada':'🎧 Dublagem: desligada'};
-function tog(){const v=document.getElementById('vd');if(!A||!v)return;on=!on;try{localStorage.cn_dub=on?'1':'0'}catch(e){}
+ b.textContent=fail?'🎧 Dublagem: não carregou (toque p/ tentar de novo)':on?'🎧 Dublagem: ligada':'🎧 Dublagem: desligada'};
+function tog(){const v=document.getElementById('vd');if(fail){fail=false;if(A){try{A.src=A._L[0];A._i=0;A.load()}catch(e){}}bar();return}if(!A||!v)return;on=!on;try{localStorage.cn_dub=on?'1':'0'}catch(e){}
  v.muted=on;if(on){A.currentTime=v.currentTime;if(!v.paused)A.play().catch(()=>{})}else A.pause();bar()}
-function attach(v,url){
- A=new Audio();A.preload='auto';A.src=url;
+function attach(v,urls){
+ fail=false;A=new Audio();A.preload='auto';A._L=urls;A._i=0;A.src=urls[0];
  try{on=localStorage.cn_dub=='1'}catch(e){on=false}
  const sync=()=>{if(!on)return;if(Math.abs(A.currentTime-v.currentTime)>.4)try{A.currentTime=v.currentTime}catch(e){}A.playbackRate=v.playbackRate};
  v.addEventListener('play',()=>{if(on){sync();A.play().catch(()=>{})}});
@@ -2028,7 +2031,8 @@ function attach(v,url){
  v.addEventListener('ratechange',()=>{A.playbackRate=v.playbackRate});
  v.addEventListener('timeupdate',sync);
  v.addEventListener('volumechange',()=>{if(on){v.muted=true}});
- A.addEventListener('error',()=>{A=null;bar()});
+ A.addEventListener('error',()=>{if(A._i<A._L.length-1){A._i++;A.src=A._L[A._i];try{A.load()}catch(e){}return}fail=true;if(on){const v=document.getElementById('vd');if(v)v.muted=false}bar()});
+ A.addEventListener('canplay',()=>{fail=false;bar()});
  if(on){v.muted=true}
  bar()}
 setInterval(()=>{try{
@@ -2036,8 +2040,8 @@ setInterval(()=>{try{
  if(!v||S.tab!='play'){if(A){A.pause();A=null;key=''}return}
  const k=dkey();
  if(v._dub===k){bar();return}
- if(A){A.pause();A=null}
- v._dub=k;key=k;const u=k&&S.set[k];if(u)attach(v,dubUrl(u));
+ if(A){A.pause();A=null}fail=false;
+ v._dub=k;key=k;const u=k&&S.set[k];if(u)attach(v,dubUrls(u));
 }catch(e){}},1500);
 })();
 
