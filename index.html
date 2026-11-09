@@ -737,6 +737,7 @@ function embed(u){
  if(m=u.match(/vimeo\.com\/(?:[^?#]*\/)?(\d{6,})(?:\/([0-9a-f]{8,}))?/i)){const h=m[2]||(u.match(/[?&]h=([0-9a-f]+)/i)||[])[1];return{t:'if',s:'https://player.vimeo.com/video/'+m[1]+'?api=1&title=0&byline=0&portrait=0'+(h?'&h='+h:''),k:'vm'}}
  if(m=u.match(/(?:dailymotion\.com\/(?:embed\/)?video\/|dai\.ly\/|dailymotion\.com\/player[^?]*\?[^#]*video=)([a-z0-9]+)/i))return{t:'if',s:'https://www.dailymotion.com/embed/video/'+m[1],k:'dm'};
  if(m=u.match(/(?:t\.me|telegram\.me)\/(?!c\/|\+|joinchat)([A-Za-z0-9_]{4,})\/(\d+)/i))return{t:'if',s:'https://t.me/'+m[1]+'/'+m[2]+'?embed=1&mode=tme',k:'tg'};
+ if(/(?:^|\/\/|\.)(?:vk\.com|vk\.ru|vkvideo\.ru)\//i.test(u)){let o,i,h;const q=u.match(/video_ext\.php\?([^#\s]*)/i);if(q){const g=n=>(q[1].match(new RegExp('(?:^|&)'+n+'=(-?[\\w]+)'))||[])[1];o=g('oid');i=g('id');h=g('hash')}else{const r=u.match(/video(-?\d+)_(\d+)/i);if(r){o=r[1];i=r[2];h=(u.match(/[?&]hash=([0-9a-f]+)/i)||[])[1]}}if(o&&i)return{t:'if',s:'https://vk.com/video_ext.php?oid='+o+'&id='+i+'&hd=2'+(h?'&hash='+h:''),k:'vk'}}
  if(/\.(mp4|webm|m4v)(\?|$)/i.test(u))return{t:'v',s:u,k:'mp'};
  return{t:'x',s:u,k:'ot'};
 }
@@ -1070,7 +1071,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-08 (10) · Drive tenta de novo antes de trocar de player';
+const APP_V='2026-11-08 (11) · Suporte ao VK Video';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -1348,7 +1349,7 @@ async function tSec(k,v){if(ok(await sb.from('sections').update({enabled:v}).eq(
 async function cf(k,v){if(ok(await sb.from('settings').upsert({key:k,value:String(v)})))S.set[k]=String(v)}
 function ovs(k,v,u){S.set[k]=String(v);$('#o_'+k).textContent=v+u;const a=$('#pv1'),b=$('#pv2'),c=$('#pv3');if(a)a.style.cssText=ovp(ovn('ov_fx',12),ovn('ov_fy',50))+';--s:'+ovn('ov_sf',1);if(b)b.style.cssText=ovp(ovn('ov_rx',88),ovn('ov_ry',50))+';--s:'+ovn('ov_sr',1);if(c)c.style.cssText='--s:'+ovn('ov_sl',1)}
 function lss(k,v,u){S.set[k]=String(v);$('#o_'+k).textContent=v+u;const c=$('#lpv');if(c)c.style.cssText=ovp(ovn('ov_lx',97),ovn('ov_ly',6))+';--s:'+ovn('ov_sl',1)+';--o:'+ovn('ov_lo',100)/100+';--bo:'+ovn('ov_bd',100)/100+';--bf:'+ovn('ov_bf',100)/100}
-const PK=[['yt','YouTube'],['dr','Google Drive'],['ar','Internet Archive'],['vm','Vimeo'],['dm','Dailymotion'],['tg','Telegram'],['mp','Vídeo .mp4'],['ot','Outros']];
+const PK=[['yt','YouTube'],['dr','Google Drive'],['ar','Internet Archive'],['vm','Vimeo'],['dm','Dailymotion'],['vk','VK Video'],['tg','Telegram'],['mp','Vídeo .mp4'],['ot','Outros']];
 const ppx=k=>ovn('ov_lx_'+k,ovn('ov_lx',97)),ppy=k=>ovn('ov_ly_'+k,ovn('ov_ly',6));
 const PPK=[['ov_lx','ppx'],['ov_ly','ppy'],['ov_sl','ppsl'],['ov_lo','pplo'],['ov_ra','ppra'],['ov_bd','ppbd'],['ov_bf','ppbf']];
 function ppSel(){const k=$('#pps').value;$('#ppx').value=ppx(k);$('#ppy').value=ppy(k);$('#ppsl').value=ppo('ov_sl',k,1);$('#pplo').value=ppo('ov_lo',k,100);$('#ppra').value=ppo('ov_ra',k,2);$('#ppbd').value=ppo('ov_bd',k,100);$('#ppbf').value=ppo('ov_bf',k,100);$('#pptg').checked=!!ppo('ov_tg',k,0);ppUp(k)}
