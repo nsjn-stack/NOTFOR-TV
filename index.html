@@ -565,7 +565,9 @@ html.pnoff .pw.ff:has(.cnp),html.pnoff .pw:fullscreen:has(.cnp){border:0}
 #gxh.txt{padding:6px 10px;border-radius:12px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.25)}
 </style>
 <style>/* Drive/Archive no player do app: sem faixa preta atrás dos controles */.pw.nvp .cnp-bot{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.pw.nvp .ov.cnp{background:none!important}.pw.nvp .bl,.pw.nvp .tz:not(.ed){display:none!important}.pw.nvp .cnp-row,.pw.nvp .cnp-row span{text-shadow:0 1px 3px #000,0 0 calc(6px*var(--ni)) #000}.pw.ndd{background:#000!important}.pw.ndd:not(.ff):not(:fullscreen):not(:-webkit-full-screen){display:block;box-sizing:border-box;width:calc(100% - 24px)!important;max-width:none;align-self:stretch;aspect-ratio:16/9;min-height:180px}body.ffo #app{visibility:hidden}body.ffo #pw{visibility:visible}body.ffo nav{display:none!important}.pw.ndd video{object-fit:contain;background:#000}</style><style>#pw.gxp,#pw .ytsh,#pw .vmsh,#pw.gxp video{touch-action:none!important}</style><style>
-#qg.cnp-b,#cc.cnp-b{border-color:rgba(var(--pkr),.9)}#cc.cnp-b.on{background:linear-gradient(var(--pkc),#b00500)}
+#qg.cnp-b,#cc.cnp-b,#dbb.cnp-b{border-color:rgba(var(--pkr),.9)}
+#dbb.cnp-b{font-size:16px;line-height:1}
+#dbb.cnp-b.on{background:linear-gradient(var(--pkc),#b00500)}#cc.cnp-b.on{background:linear-gradient(var(--pkc),#b00500)}
 #pw #qm,#pw #cm{position:absolute;right:8px;top:calc(var(--tb,30px) + 18px);z-index:70;display:flex;flex-direction:column;gap:4px;padding:6px;background:rgba(0,0,0,.82);border:2px solid rgba(255,42,26,.9);border-radius:14px;min-width:96px}
 #pw #qm button,#pw #cm button{padding:6px 10px;border-radius:9px;font:800 12px system-ui,sans-serif;color:#fff;text-align:center;background:transparent}
 #pw #qm button.on,#pw #cm button.on{background:linear-gradient(#ff1a0f,#b00500)}
@@ -1142,7 +1144,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-09 (16) · neon: visibilidade, barra de baixo separada, capas/player';
+const APP_V='2026-11-09 (17) · dublagem: botão 🎧 no player e carregamento corrigido';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -2015,7 +2017,11 @@ const dubUrls=u=>{const f=dubUrl(u),L=[f],m=String(u||'').match(/drive\.google\.
  if(m&&/google\.com/.test(u)){const id=m[1];[ 'https://drive.usercontent.google.com/download?id='+id+'&export=download&confirm=t','https://drive.google.com/uc?export=download&confirm=t&id='+id ].forEach(x=>{if(!L.includes(x))L.push(x)})}
  return L};
 const dkey=()=>{const c=S&&S.cur;if(!c)return'';return c.e?'dub_e'+c.e.id:'dub_l'+((vids(c.t)[c.li]||{}).id||'')};
-const bar=()=>{const c=document.getElementById('sbc');if(!c)return;let b=document.getElementById('dubb');
+const ovb=()=>{const cc=document.getElementById('cc');let d=document.getElementById('dbb');
+ if(!A||!cc){if(d)d.remove();return}
+ if(!d){d=document.createElement('button');d.id='dbb';d.className='cnp-b';d.setAttribute('aria-label','Dublagem');d.textContent='🎧';d.onclick=e=>{e.stopPropagation();tog()};cc.after(d)}
+ d.classList.toggle('on',!!on&&!fail);d.style.opacity=fail?'.45':'';d.title=fail?'Dublagem não carregou':on?'Dublagem ligada':'Dublagem desligada'};
+const bar=()=>{ovb();const c=document.getElementById('sbc');if(!c)return;let b=document.getElementById('dubb');
  if(!A){if(b)b.remove();return}
  if(!b){b=document.createElement('button');b.id='dubb';b.className='btn o s';b.style.cssText='margin:0 14px 8px';b.onclick=tog;c.appendChild(b)}
  b.textContent=fail?'🎧 Dublagem: não carregou (toque p/ tentar de novo)':on?'🎧 Dublagem: ligada':'🎧 Dublagem: desligada'};
