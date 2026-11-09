@@ -731,6 +731,7 @@ function qr(){$('#qr').innerHTML='<div class="qr" id="qc"></div>';new QRCode($('
 /* ---------- player ---------- */
 function embed(u){
  u=(u||'').trim();let m;
+ if(m=u.match(/(?:^|\/\/|\.)ok\.ru\/(?:[^?#\s]*\/)?(?:videoembed|video|live)\/(\d{6,})/i))return{t:'if',s:'https://ok.ru/videoembed/'+m[1],k:'ok'};
  if(m=u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/))return{t:'if',s:'https://www.youtube.com/embed/'+m[1]+'?playsinline=1&rel=0&enablejsapi=1&fs=0&modestbranding=1&iv_load_policy=3&disablekb=1',k:'yt'};
  if(m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/)||u.match(/drive\.google\.com\/[^\s]*[?&]id=([\w-]+)/)||u.match(/drive\.usercontent\.google\.com\/[^\s]*[?&]id=([\w-]+)/))return{t:'if',s:'https://drive.google.com/file/d/'+m[1]+'/preview',k:'dr'};
  if(m=u.match(/archive\.org\/(?:details|embed)\/([^\/?#]+)(?:\/([^?#]+))?/))return{t:'if',s:'https://archive.org/embed/'+m[1]+(m[2]?'/'+m[2]:''),k:'ar'};
