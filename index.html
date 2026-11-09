@@ -2019,7 +2019,7 @@ const bar=()=>{const c=document.getElementById('sbc');if(!c)return;let b=documen
 function tog(){const v=document.getElementById('vd');if(!A||!v)return;on=!on;try{localStorage.cn_dub=on?'1':'0'}catch(e){}
  v.muted=on;if(on){A.currentTime=v.currentTime;if(!v.paused)A.play().catch(()=>{})}else A.pause();bar()}
 function attach(v,url){
- A=new Audio();A.preload='auto';A.src=url;A.crossOrigin='anonymous';
+ A=new Audio();A.preload='auto';A.src=url;
  try{on=localStorage.cn_dub=='1'}catch(e){on=false}
  const sync=()=>{if(!on)return;if(Math.abs(A.currentTime-v.currentTime)>.4)try{A.currentTime=v.currentTime}catch(e){}A.playbackRate=v.playbackRate};
  v.addEventListener('play',()=>{if(on){sync();A.play().catch(()=>{})}});
