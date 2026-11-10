@@ -620,6 +620,7 @@ html body .pchips .chip.r{color:#fff}
 html body,html body button,html body input,html body select,html body textarea{font-family:Poppins,Roboto,-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif}
 html body #pw,html body #pw *{font-family:Roboto,-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif}
 </style>
+<style>.pw .vkpc{display:none;position:absolute;inset:0;z-index:1;background:#000;pointer-events:none}</style>
 </head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -2035,11 +2036,15 @@ function vkWire(){
   st.muted=d.muted===true||d.muted==='true';
   st.ui()};
  const isOk=/ok\.ru\/videoembed/.test(f.src);
+ /* esconde a lista "Смотрите также" que o VK mostra quando o vídeo está pausado */
+ let cv=w.querySelector('.vkpc');if(!cv){cv=document.createElement('div');cv.className='vkpc';w.insertBefore(cv,w.querySelector('.vksh'))}
+ const pcv=()=>{if(isOk)return;cv.style.display=(!st.play&&st.moved&&!st.drag)?'block':'none'};
+ setInterval(()=>{if(!document.contains(f))return;pcv()},500);
  (isOk?Promise.resolve():vkLoad()).then(()=>{if(dead||!document.contains(f))return;
   try{P=isOk?okPlayer(f):VK.VideoPlayer(f);VKP.err='';st.api=1;if(isOk)ok=1}catch(e){VKP.err=String(e&&e.message||e).slice(0,60);give();return}
   st.cmd=(m,v)=>{try{if(m=='play')P.play();else if(m=='pause')P.pause();else if(m=='setCurrentTime')P.seek(v);else if(m=='setVolume')P.setVolume(v)}catch(e){}};
-  ['inited','timeupdate','volumechange','paused','resumed','started'].forEach(ev=>P.on(ev,d=>{sync(d);if(ev=='started'||ev=='resumed'||ev=='timeupdate'&&st.play){st.moved=1}if(ev=='started'||ev=='resumed'){st.play=1;st.moved=1;st.ui();show()}if(ev=='paused'){st.play=0;st.ui();show()}}));
-  P.on('ended',d=>{sync(d);st.play=0;st.ui();show();if(typeof onEnd=='function')onEnd()});
+  ['inited','timeupdate','volumechange','paused','resumed','started'].forEach(ev=>P.on(ev,d=>{sync(d);if(ev=='started'||ev=='resumed'||ev=='timeupdate'&&st.play){st.moved=1}if(ev=='started'||ev=='resumed'){st.play=1;st.moved=1;st.ui();show()}if(ev=='paused'){st.play=0;st.ui();show()}pcv()}));
+  P.on('ended',d=>{sync(d);st.play=0;st.ui();show();pcv();if(typeof onEnd=='function')onEnd()});
   P.on('error',()=>give());
  }).catch(give);
  setTimeout(()=>{if(!ok)give()},12000);
