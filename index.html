@@ -104,6 +104,9 @@ nav .ic{stroke:currentColor;width:24px;height:24px}
 .pw{position:relative;aspect-ratio:16/9;background:#000;border:1px solid #3a1212;border-radius:12px;overflow:hidden;margin:12px}
 .pw iframe,.pw video{width:100%;height:100%;border:0;display:block;background:#000}
 .pw iframe.dz{position:absolute;top:0;left:0;max-width:none;transform-origin:0 0}
+.pw:has(.vksh) iframe[src*="ok.ru/videoembed"]:not(.dz){position:absolute;left:0;top:-56px;width:100%;height:calc(100% + 112px)}
+.pw.okraw iframe[src*="ok.ru/videoembed"]:not(.dz){top:0;height:100%}
+.pw.okraw .vksh,.pw.okraw .cnp,.pw.okraw::before,.pw.okraw::after{display:none!important}
 .pw:fullscreen{aspect-ratio:auto;border:0;border-radius:0;margin:0}
 .fs{position:absolute;top:8px;right:8px;width:42px;height:42px;background:rgba(0,0,0,.75);border-radius:10px;display:grid;place-items:center;z-index:3}
 .big{position:absolute;inset:0;margin:auto;width:64px;height:64px;border-radius:50%;border:2px solid #999;font-size:22px;background:rgba(0,0,0,.35);z-index:2}
@@ -1144,7 +1147,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-09 (33) · ok.ru: espera até 30 s e repete o play';
+const APP_V='2026-11-10 (34) · ok.ru: sem barra/diagnóstico do ok.ru + controles originais sob demanda';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -2075,11 +2078,10 @@ window.addEventListener('message',e=>{try{const w=document.getElementById('pw'),
  if(OKP.hook&&o.event){const sd={time:o.time,duration:o.duration,volume:o.volume,muted:o.mute===true};const e2=String(o.event);if(e2=='started'||e2=='resumed')sd.state='playing';else if(e2=='paused')sd.state='paused';else if(e2=='ended')sd.state='ended';OKP.hook(e2,sd)}
 }catch(x){}});
 setInterval(()=>{try{const c=document.getElementById('sbc'),w=document.getElementById('pw'),f=w&&w.querySelector('iframe[src*="ok.ru/videoembed"]');let n=document.getElementById('okdbg');
- if(!c||!f||S.tab!='play'){if(n)n.remove();const bb=document.getElementById('okprb');if(bb)bb.remove();return}
- if(!n){n=document.createElement('div');n.id='okdbg';n.className='mu';n.style.cssText='margin:0 14px 8px;font-size:11px;opacity:.75;word-break:break-all';c.appendChild(n)}
- const st=OKP.st&&OKP.st.f===f?OKP.st:null;
- n.textContent='📡 ok.ru → app: '+(OKP.n&&st?OKP.n+' msgs · tipos: '+OKP.log.join(', ')+' · '+(st.play?'tocando':'parado')+' · '+Math.floor(st.cur||0)+'s · última: '+OKP.last:'nenhuma mensagem recebida ainda (dê play no vídeo)')+' · API VK: '+(VKP.err?'erro ('+VKP.err+')':VKP.st&&VKP.st.api?'ligada':'aguardando')+(OKP.res?' · '+OKP.res:'');
- let b=document.getElementById('okprb');if(!b){b=document.createElement('button');b.id='okprb';b.className='btn o s';b.style.cssText='margin:0 14px 8px';b.textContent='🧪 Testar comandos do ok.ru (com o vídeo tocando)';b.onclick=()=>window.cnOkProbe();c.appendChild(b)}}catch(e){}},1000);
+ const bb=document.getElementById('okprb');if(bb)bb.remove();
+ if(!c||!f||S.tab!='play'){if(n)n.remove();return}
+ if(!n){n=document.createElement('a');n.id='okdbg';n.className='mu';n.href='#';n.style.cssText='display:block;margin:0 14px 8px;font-size:11px;opacity:.6;text-decoration:underline';n.onclick=ev=>{ev.preventDefault();const r=w.classList.toggle('okraw');n.textContent=r?'Voltar aos controles do app':'Controles originais do ok.ru (ajustes do player)'};n.textContent='Controles originais do ok.ru (ajustes do player)';c.appendChild(n)}
+ if(!w.classList.contains('okraw'))n.textContent='Controles originais do ok.ru (ajustes do player)'}catch(e){}},1000);
 
 /* ===== Gestos também no YouTube e no Vimeo (player do app) =====
    direita ↕ = volume · esquerda ↕ = brilho · 2 toques nas laterais = ±10s (toques seguidos continuam pulando) */
