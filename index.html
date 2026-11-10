@@ -1144,7 +1144,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-09 (21) · testes de dublagem/legenda com aviso de erro';
+const APP_V='2026-11-09 (22) · dublagem funciona no Vimeo (áudio do Archive)';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -2047,27 +2047,31 @@ const bar=()=>{ovb();const c=document.getElementById('sbc');if(!c)return;let b=d
  if(!A){if(b)b.remove();return}
  if(!b){b=document.createElement('button');b.id='dubb';b.className='btn o s';b.style.cssText='margin:0 14px 8px';b.onclick=tog;c.appendChild(b)}
  const t=lbl()+(msg?' — '+msg:'');if(b.textContent!==t)b.textContent=t;b.style.borderColor=on&&!fail?'#2ee66b':''};
-function tog(){const v=document.getElementById('vd');
+/* fonte do vídeo: nativo (#vd) ou Vimeo (VM.st, pela API do player) */
+let SRC=null;
+const vmNow=()=>{try{return typeof VM!='undefined'&&VM.st&&document.contains(VM.st.f)?VM.st:null}catch(e){return null}};
+const alive=()=>SRC&&(SRC.k=='n'?document.contains(SRC.v):document.contains(SRC.vm.f));
+const mute=m=>{if(!SRC||!alive())return;if(SRC.k=='n')SRC.v.muted=m;else{const q=SRC.vm;q.cmd('setVolume',m?0:(q.muted?0:(q.vol||1)))}};
+const info=()=>{const s=SRC;return s.k=='n'?{pl:!s.v.paused,t:s.v.currentTime,r:s.v.playbackRate||1}:{pl:!!s.vm.play,t:s.vm.cur||0,r:s.vm.rate||1}};
+function tog(){
  if(fail){fail=false;msg='';if(A){try{A._i=0;A.src=A._L[0];A.load()}catch(e){}}bar();return}
- if(!A)return;on=!on;try{localStorage.cn_dub=on?'1':'0'}catch(e){}
- if(v){v.muted=on;if(on){try{A.currentTime=v.currentTime}catch(e){}if(!v.paused)A.play().catch(()=>{})}else A.pause()}
- else msg=on?'só funciona no player do app (vídeo nativo)':'';
+ if(!A||!SRC)return;on=!on;try{localStorage.cn_dub=on?'1':'0'}catch(e){}
+ mute(on);
+ if(on){const i=info();try{A.currentTime=i.t}catch(e){}if(i.pl)A.play().catch(()=>{})}else A.pause();
  bar()}
-function attach(v,urls){
- fail=false;msg='';A=new Audio();A.preload='auto';A._L=urls;A._i=0;A.src=urls[0];
+function attach(src,urls){
+ SRC=src;fail=false;msg='';A=new Audio();A.preload='auto';A._L=urls;A._i=0;A.src=urls[0];
  try{on=localStorage.cn_dub=='1'}catch(e){on=false}
- const sync=()=>{if(!on||!document.contains(v))return;if(Math.abs(A.currentTime-v.currentTime)>.4)try{A.currentTime=v.currentTime}catch(e){}A.playbackRate=v.playbackRate};
- v.addEventListener('play',()=>{if(on){sync();A.play().catch(()=>{})}});
- v.addEventListener('pause',()=>A&&A.pause());
- v.addEventListener('seeking',()=>{if(on)try{A.currentTime=v.currentTime}catch(e){}});
- v.addEventListener('ratechange',()=>{A.playbackRate=v.playbackRate});
- v.addEventListener('timeupdate',sync);
- v.addEventListener('volumechange',()=>{if(on&&!v.muted)v.muted=true});
  const me=A;
- A.addEventListener('error',()=>{if(A!==me)return;if(A._i<A._L.length-1){A._i++;A.src=A._L[A._i];try{A.load()}catch(e){}return}fail=true;msg='confira o link do áudio';if(on){const q=document.getElementById('vd');if(q)q.muted=false}bar()});
+ A.addEventListener('error',()=>{if(A!==me)return;if(A._i<A._L.length-1){A._i++;A.src=A._L[A._i];try{A.load()}catch(e){}return}fail=true;msg='confira o link do áudio';if(on)mute(false);bar()});
  A.addEventListener('canplay',()=>{if(A!==me)return;fail=false;msg='';bar()});
- if(on)v.muted=true;
+ if(on)mute(true);
  bar()}
+/* sincroniza o áudio com o vídeo (a cada 0,3 s) */
+setInterval(()=>{try{if(!A||!SRC||!on||fail)return;if(!alive())return;const i=info();mute(true);
+ A.volume=SRC.k=='v'&&SRC.vm.muted?0:1;
+ if(i.pl){const lim=SRC.k=='n'?.4:.7;if(Math.abs(A.currentTime-i.t)>lim)try{A.currentTime=i.t}catch(e){}if(A.playbackRate!==i.r)A.playbackRate=i.r;if(A.paused)A.play().catch(()=>{})}
+ else if(!A.paused)A.pause()}catch(e){}},300);
 /* lê a dublagem direto do banco (não depende das configurações carregadas na abertura do app) */
 const getDub=async k=>{let u=S.set[k];try{const{data}=await sb.from('settings').select('value').eq('key',k).maybeSingle();if(data&&data.value!=null){u=data.value;S.set[k]=u}}catch(e){}return u};
 const NK={};
@@ -2075,25 +2079,25 @@ const note=()=>{const c=document.getElementById('sbc');if(!c||!S.cur)return;cons
  if(!k){if(n)n.remove();return}
  if(!(k in NK)){NK[k]='';getDub(k).then(u=>{NK[k]=u||''})}
  if(!NK[k]){if(n)n.remove();return}
- if(!n){n=document.createElement('div');n.id='dubn';n.className='mu';n.style.cssText='margin:0 14px 8px;font-size:12px;color:#ffb347';n.textContent='🎧 Este vídeo tem dublagem cadastrada, mas ele não está no player do app (Archive, Drive ou .mp4). Neste player a dublagem não toca.';c.appendChild(n)}};
-let cur='';
+ if(!n){n=document.createElement('div');n.id='dubn';n.className='mu';n.style.cssText='margin:0 14px 8px;font-size:12px;color:#ffb347';n.textContent='🎧 Este vídeo tem dublagem cadastrada, mas ele não está num player que o app consiga sincronizar (funciona em Vimeo, Archive, Drive e .mp4).';c.appendChild(n)}};
 setInterval(async()=>{try{
- const v=document.getElementById('vd');
- if(S.tab!='play'){if(A){A.pause();A=null}cur='';return}
- if(!v){if(A){A.pause();A=null}cur='';note();return}
+ if(S.tab!='play'){if(A){A.pause();A=null}SRC=null;return}
+ const v=document.getElementById('vd'),vm=v?null:vmNow(),h=v||vm;
+ if(!h){if(A){A.pause();A=null}SRC=null;note();return}
  {const n=document.getElementById('dubn');if(n)n.remove()}
  const k=dkey();
- if(v._dub===k){bar();return}
+ if(h._dub===k){bar();return}
  if(busy)return;
- if(A){A.pause();A=null}fail=false;msg='';
- v._dub=k;cur=k;
+ if(A){A.pause();A=null}SRC=null;fail=false;msg='';
+ h._dub=k;
  if(!k)return;
  busy=true;
  const u=await getDub(k);busy=false;
- if(!u||!document.contains(v)||dkey()!==k)return;
+ if(!u||dkey()!==k)return;
  const L=await dubUrls(u);
- if(!L.length||!document.contains(v))return;
- attach(v,L);
+ if(!L.length)return;
+ const alive2=v?document.contains(v):document.contains(vm.f);if(!alive2)return;
+ attach(v?{k:'n',v}:{k:'v',vm},L);
 }catch(e){busy=false}},1200);
 })();
 
