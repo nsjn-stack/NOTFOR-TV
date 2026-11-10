@@ -1144,7 +1144,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-09 (23) · dublagem sem picotar (sincronia suave)';
+const APP_V='2026-11-09 (24) · legenda do app acompanha o Vimeo/YouTube';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -1238,7 +1238,13 @@ async function sbGet(u){try{const a=await sbArchive(u);if(a)return a}catch(e){}c
 async function sbUrl(){const u=$('#sb_u').value.trim();if(!u)return;const b=event&&event.target;if(b)b.disabled=true;try{sbAdd(await sbGet(u))}catch(x){alert(x!='html'&&window._sbErr?'Não consegui ler a legenda: '+window._sbErr+'. Se não resolver, use “Escolher do celular”.':x=='html'?'O Google Drive devolveu uma página em vez do arquivo. No Drive, toque em Compartilhar e deixe como “Qualquer pessoa com o link” (Leitor), depois tente de novo.':'Não consegui ler a legenda por esse link. Baixe o arquivo e use “Escolher do celular”.')}if(b)b.disabled=false}
 async function sbFile(i){const f=i.files[0];if(f)sbAdd(await sbTxt(await f.arrayBuffer()));i.value=''}
 async function subDel(i){const[t,e]=sbTg(),v=await sbLoad(t,e,1);v.splice(i,1);if(await subSave(t,e,v))subList()}
-const sbNow=()=>{const vd=document.querySelector('#pw video');if(vd)return vd.currentTime;const k=S.sk;return k.p+(k.run?(Date.now()-k.at)/1000:0)};
+/* relógio do Vimeo/YouTube para as legendas do app (antes só o vídeo nativo e o relógio manual tinham hora) */
+window.addEventListener('message',e=>{try{const s=typeof VM!='undefined'&&VM.st;if(!s||!document.contains(s.f)||e.source!==s.f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
+ if(d.method=='getCurrentTime'&&typeof d.value=='number')s._ref={t:d.value,at:Date.now()};
+ else if(d.event=='timeupdate'&&d.data&&typeof d.data.seconds=='number')s._ref={t:d.data.seconds,at:Date.now()}}catch(x){}});
+const sbExt=()=>{try{const v=typeof VM!='undefined'&&VM.st;if(v&&document.contains(v.f)){const n=Date.now();if(n-(v._gt||0)>1000){v._gt=n;v.cmd('getCurrentTime')}const r=v._ref;if(!r)return v.cur||0;return r.t+(v.play&&n-r.at<3000?(n-r.at)/1000*(v.rate||1):0)}
+ const y=typeof YT!='undefined'&&YT.st;if(y&&document.contains(y.f))return y.cur||0}catch(e){}return null};
+const sbNow=()=>{const vd=document.querySelector('#pw video');if(vd)return vd.currentTime;const x=sbExt();if(x!==null)return x;const k=S.sk;return k.p+(k.run?(Date.now()-k.at)/1000:0)};
 function sbTick(){const el=$('#sbt');if(!el){clearInterval(S.sbi);return}const tr=S.sv[S.si];let x='';if(tr){const t=sbNow()+S.so;for(const q of tr.c)if(t>=q[0]&&t<=q[1]){x=q[2];break}}if(el._x!==x){el._x=x;el.textContent=x}}
 function sbAdj(d){S.so=Math.round((S.so+d)*10)/10;$('#sbo').textContent=(S.so>0?'+':'')+S.so+'s'}
 function sbPlay(){const k=S.sk;k.p=sbNow();k.at=Date.now();k.run=k.run?0:1;$('#sbp').textContent=k.run?'⏸':'▶'}
