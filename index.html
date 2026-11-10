@@ -1144,7 +1144,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-09 (19) · legenda do Vimeo no menu CC + dublagem Archive';
+const APP_V='2026-11-09 (20) · Vimeo: desliga todas as legendas de uma vez';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -1957,7 +1957,7 @@ function vmWire(){
  const listen=()=>{['play','pause','ended','timeupdate','loaded','texttrackchange'].forEach(x=>cmd('addEventListener',x));cmd('getTextTracks')};
  if(!VM.h){VM.h=1;window.addEventListener('message',e=>{const s=VM.st;if(!s||!document.contains(s.f)||e.source!==s.f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
   if(d.event=='ready')listen();
-  else if(d.method=='getTextTracks'&&Array.isArray(d.value)){s.tt=d.value;if(!s.ttDone){s.ttDone=1;const ap=()=>{if(!document.contains(s.f))return;let q='off';try{q=localStorage.cn_vmt||'off'}catch(e){}if(q=='off')s.cmd('disableTextTrack');else{const a=q.split('|');s.cmd('enableTextTrack',{language:a[0],kind:a[1]||'subtitles'})}};ap();setTimeout(ap,2500)}}
+  else if(d.method=='getTextTracks'&&Array.isArray(d.value)){s.tt=d.value;if(!s.ttDone){s.ttDone=1;const ap=()=>{if(!document.contains(s.f))return;let q='off';try{q=localStorage.cn_vmt||'off'}catch(e){}if(q=='off'){s.cmd('disableTextTrack');setTimeout(()=>s.cmd('disableTextTrack'),500);setTimeout(()=>s.cmd('disableTextTrack'),1200)}else{const a=q.split('|');s.cmd('enableTextTrack',{language:a[0],kind:a[1]||'subtitles'})}};ap();setTimeout(ap,2500)}}
   else if(d.event=='texttrackchange'){s.ttc=d.data&&d.data.language?d.data.language+'|'+(d.data.kind||'subtitles'):'off'}
   else if(d.event=='play'){s.play=1;s.show();s.ui()}
   else if(d.event=='pause'||d.event=='ended'){s.play=0;s.show();s.ui();if(d.event=='ended'&&typeof onEnd=='function')onEnd()}
@@ -2158,8 +2158,8 @@ const cnQ=(()=>{
   const g=e.target.closest&&e.target.closest('#cc');if(g){e.stopPropagation();open();return}
   const b=e.target.closest&&e.target.closest('#cm button');if(b){e.stopPropagation();
    const vs=typeof VM!='undefined'&&VM.st&&document.contains(VM.st.f)?VM.st:null;
-   if(b.dataset.vt){const a=b.dataset.vt.split('|');try{localStorage.cn_vmt=b.dataset.vt}catch(x){}S.si=-1;if(vs)vs.cmd('enableTextTrack',{language:a[0],kind:a[1]||'subtitles'});const sel=document.querySelector('#sbc select');if(sel)sel.value='-1';close();mark();return}
-   try{localStorage.cn_vmt='off'}catch(x){}if(vs)vs.cmd('disableTextTrack');
+   if(b.dataset.vt){const a=b.dataset.vt.split('|');try{localStorage.cn_vmt=b.dataset.vt}catch(x){}S.si=-1;if(vs){vs.cmd('disableTextTrack');setTimeout(()=>vs.cmd('enableTextTrack',{language:a[0],kind:a[1]||'subtitles'}),300)}const sel=document.querySelector('#sbc select');if(sel)sel.value='-1';close();mark();return}
+   try{localStorage.cn_vmt='off'}catch(x){}if(vs){vs.cmd('disableTextTrack');setTimeout(()=>vs.cmd('disableTextTrack'),500);setTimeout(()=>vs.cmd('disableTextTrack'),1200)}
    const i=+b.dataset.i;S.si=i;try{localStorage.cn_sb=i}catch(x){}const sel=document.querySelector('#sbc select');if(sel)sel.value=String(i);close();mark();return}
   if(!(e.target.closest&&e.target.closest('#cm')))close()},true);
  document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#qg'))close()},true);
