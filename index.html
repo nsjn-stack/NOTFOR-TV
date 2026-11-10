@@ -2368,8 +2368,25 @@ async function svQK(){const k=$('#qks').value,f=$('#qkf').value,m=$('#qkm').valu
 
 /* VK: a engrenagem do app libera o toque no player para você usar a engrenagem do próprio VK (resolução fixa) */
 window.cnVkSet=()=>{const w=document.getElementById('pw'),st=typeof VKP!='undefined'&&VKP.st;if(!w||!st||!document.contains(st.f)||!/video_ext\.php/.test(st.f.src))return false;
- const off=()=>{w.classList.remove('vkset');const b=document.getElementById('vkok');if(b)b.remove()};
+ const off=()=>{w.classList.remove('vkset');const b=document.getElementById('vkok');if(b)b.remove();try{st.f.blur();window.focus()}catch(e){}};
  if(w.classList.contains('vkset')){off();return true}
  w.classList.add('vkset');const b=document.createElement('button');b.id='vkok';b.textContent='✓ Pronto';b.onclick=ev=>{ev.stopPropagation();off()};w.appendChild(b);return true};
+/* ===== VK: só a engrenagem do VK fica tocável (buraco na camada de bloqueio) =====
+   Em pé: engrenagem do VK perto do canto inferior direito do player. Deitado/tela cheia: idem, na barra de baixo.
+   Para mexer no buraco: em pé = --vkx1/--vkx2 (esquerda/direita) e --vky1/--vky2 (topo/baixo); deitado = --vlx1... */
+</script>
+<style id="vkhole-css">
+.pw{--vkx1:90%;--vkx2:99.8%;--vky1:77.5%;--vky2:91.5%;--vlx1:94%;--vlx2:100%;--vly1:85%;--vly2:98%}
+.pw .vksh{clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,var(--vkx1) var(--vky1),var(--vkx2) var(--vky1),var(--vkx2) var(--vky2),var(--vkx1) var(--vky2),var(--vkx1) var(--vky1))}
+.pw:is(.ff,:fullscreen,:-webkit-full-screen) .vksh{clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,var(--vlx1) var(--vly1),var(--vlx2) var(--vly1),var(--vlx2) var(--vly2),var(--vlx1) var(--vly2),var(--vlx1) var(--vly1))}
+/* engrenagem ⚙ do app some nos vídeos do VK (a do VK é a que vale) */
+.pw:has(iframe[src*="video_ext.php"]) #qg{display:none!important}
+</style>
+<script>
+/* toque no buraco = o iframe do VK ganha o foco: libera o player para escolher a resolução; "✓ Pronto" volta a bloquear */
+window.addEventListener('blur',()=>{setTimeout(()=>{try{
+ const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[src*="video_ext.php"]');
+ if(!f||document.activeElement!==f||!w.querySelector('.vksh')||w.classList.contains('vkset'))return;
+ if(window.cnVkSet)window.cnVkSet()}catch(e){}},0)});
 </script>
 </body></html>
