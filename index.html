@@ -1144,7 +1144,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-09 (30) · ok.ru com controles do app (motor VK) + teste da API';
+const APP_V='2026-11-09 (31) · ok.ru: teste automático de comandos';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -2017,8 +2017,9 @@ function vkWire(){
   if(typeof d.volume=='number'&&d.volume>0)st.vol=d.volume;
   st.muted=d.muted===true||d.muted==='true';
   st.ui()};
- vkLoad().then(()=>{if(dead||!document.contains(f))return;
-  try{P=VK.VideoPlayer(f);VKP.err='';st.api=1}catch(e){VKP.err=String(e&&e.message||e).slice(0,60);give();return}
+ const isOk=/ok\.ru\/videoembed/.test(f.src);
+ (isOk?Promise.resolve():vkLoad()).then(()=>{if(dead||!document.contains(f))return;
+  try{P=isOk?okPlayer(f):VK.VideoPlayer(f);VKP.err='';st.api=1;if(isOk)ok=1}catch(e){VKP.err=String(e&&e.message||e).slice(0,60);give();return}
   st.cmd=(m,v)=>{try{if(m=='play')P.play();else if(m=='pause')P.pause();else if(m=='setCurrentTime')P.seek(v);else if(m=='setVolume')P.setVolume(v)}catch(e){}};
   ['inited','timeupdate','volumechange','paused','resumed','started'].forEach(ev=>P.on(ev,d=>{sync(d);if(ev=='started'||ev=='resumed'){st.play=1;st.moved=1;st.ui();show()}if(ev=='paused'){st.play=0;st.ui();show()}}));
   P.on('ended',d=>{sync(d);st.play=0;st.ui();show();if(typeof onEnd=='function')onEnd()});
@@ -2038,6 +2039,21 @@ function vkWire(){
 /* ===== ok.ru: leitura passiva do player (diagnóstico + legendas do app acompanham o vídeo) =====
    O player do ok.ru é o mesmo motor do VK Vídeo. Aqui o app só ESCUTA o que o iframe envia; os controles continuam sendo os do ok.ru. */
 const OKP={st:null,log:[],n:0,last:''};
+const OKF=[];['method','event','action','type','cmd','command','name','func'].forEach(k=>{OKF.push({k,j:0});OKF.push({k,j:1})});OKF.push({s:'plain'},{s:'embed'});
+const okMsg=(fi,m,v)=>{const F=OKF[fi];if(F.s=='plain')return m;if(F.s=='embed')return 'embed-'+m;const o={};o[F.k]=m;if(v!==undefined){o.time=v;o.value=v;o.position=v;o.seconds=v;o.volume=v;o.params=[v];o.args=[v]}return F.j?JSON.stringify(o):o};
+const okSend=(f,fi,m,v)=>{try{f.contentWindow.postMessage(okMsg(fi,m,v),'*')}catch(e){}};
+const okFmt=()=>{try{const n=parseInt(localStorage.cn_okfmt);return n>=0&&n<OKF.length?n:NaN}catch(e){return NaN}};
+const okPlayer=f=>{const fi=okFmt();if(isNaN(fi))throw new Error('sem comando salvo: use o botão 🧪');const H={};
+ OKP.hook=(ev,d)=>{(H[ev]||[]).forEach(fn=>{try{fn(d)}catch(e){}})};
+ return{on:(e,fn)=>{(H[e]=H[e]||[]).push(fn)},play:()=>okSend(f,fi,'play'),pause:()=>okSend(f,fi,'pause'),seek:t=>okSend(f,fi,'seek',t),setVolume:v=>okSend(f,fi,'setVolume',v)}};
+/* descobre qual formato de comando o ok.ru obedece: manda "pause" em cada formato e vê se o vídeo parou */
+window.cnOkProbe=async()=>{const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[src*="ok.ru/videoembed"]'),st=OKP.st;
+ if(!f||!st||st.f!==f||!st.play){OKP.res='dê play no vídeo do ok.ru e toque de novo';return}
+ OKP.res='testando… (não toque no vídeo)';
+ for(let i=0;i<OKF.length;i++){okSend(f,i,'pause');await new Promise(r=>setTimeout(r,1400));if(!document.contains(f))return;
+  if(!st.play){try{localStorage.cn_okfmt=String(i)}catch(e){}okSend(f,i,'play');OKP.res='✅ achei o comando (#'+i+'). Saia e abra o vídeo de novo: os controles do app vão funcionar';return}}
+ OKP.res='❌ nenhum formato funcionou: o ok.ru não obedece comandos de fora'};
+
 window.addEventListener('message',e=>{try{const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[src*="ok.ru/videoembed"]');if(!f||e.source!==f.contentWindow)return;
  let d=e.data;if(typeof d=='string'&&/^[\[{]/.test(d)){try{d=JSON.parse(d)}catch(x){}}
  if(OKP.st&&OKP.st.f!==f){OKP.n=0;OKP.log=[];OKP.last=''}
@@ -2051,13 +2067,15 @@ window.addEventListener('message',e=>{try{const w=document.getElementById('pw'),
  if(typeof t=='number'){st.cur=t;st._ref={t,at:Date.now()}}
  if(o.duration>0)st.dur=o.duration;
  if(/(started|resumed|play|playing)$/.test(ev)&&!/pause/.test(ev))st.play=1;else if(/(paused|pause|ended|stop)/.test(ev))st.play=0;
- if(typeof o.state=='string')st.play=o.state=='playing'?1:(o.state=='paused'||o.state=='ended'?0:st.play)
+ if(typeof o.state=='string')st.play=o.state=='playing'?1:(o.state=='paused'||o.state=='ended'?0:st.play);
+ if(OKP.hook&&o.event){const sd={time:o.time,duration:o.duration,volume:o.volume,muted:o.mute===true};const e2=String(o.event);if(e2=='started'||e2=='resumed')sd.state='playing';else if(e2=='paused')sd.state='paused';else if(e2=='ended')sd.state='ended';OKP.hook(e2,sd)}
 }catch(x){}});
 setInterval(()=>{try{const c=document.getElementById('sbc'),w=document.getElementById('pw'),f=w&&w.querySelector('iframe[src*="ok.ru/videoembed"]');let n=document.getElementById('okdbg');
- if(!c||!f||S.tab!='play'){if(n)n.remove();return}
+ if(!c||!f||S.tab!='play'){if(n)n.remove();const bb=document.getElementById('okprb');if(bb)bb.remove();return}
  if(!n){n=document.createElement('div');n.id='okdbg';n.className='mu';n.style.cssText='margin:0 14px 8px;font-size:11px;opacity:.75;word-break:break-all';c.appendChild(n)}
  const st=OKP.st&&OKP.st.f===f?OKP.st:null;
- n.textContent='📡 ok.ru → app: '+(OKP.n&&st?OKP.n+' msgs · tipos: '+OKP.log.join(', ')+' · '+(st.play?'tocando':'parado')+' · '+Math.floor(st.cur||0)+'s · última: '+OKP.last:'nenhuma mensagem recebida ainda (dê play no vídeo)')+' · API VK: '+(VKP.err?'erro ('+VKP.err+')':VKP.st&&VKP.st.api?'ligada':'aguardando')}catch(e){}},1000);
+ n.textContent='📡 ok.ru → app: '+(OKP.n&&st?OKP.n+' msgs · tipos: '+OKP.log.join(', ')+' · '+(st.play?'tocando':'parado')+' · '+Math.floor(st.cur||0)+'s · última: '+OKP.last:'nenhuma mensagem recebida ainda (dê play no vídeo)')+' · API VK: '+(VKP.err?'erro ('+VKP.err+')':VKP.st&&VKP.st.api?'ligada':'aguardando')+(OKP.res?' · '+OKP.res:'');
+ let b=document.getElementById('okprb');if(!b){b=document.createElement('button');b.id='okprb';b.className='btn o s';b.style.cssText='margin:0 14px 8px';b.textContent='🧪 Testar comandos do ok.ru (com o vídeo tocando)';b.onclick=()=>window.cnOkProbe();c.appendChild(b)}}catch(e){}},1000);
 
 /* ===== Gestos também no YouTube e no Vimeo (player do app) =====
    direita ↕ = volume · esquerda ↕ = brilho · 2 toques nas laterais = ±10s (toques seguidos continuam pulando) */
