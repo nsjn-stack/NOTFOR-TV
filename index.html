@@ -1144,7 +1144,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-09 (22) · dublagem funciona no Vimeo (áudio do Archive)';
+const APP_V='2026-11-09 (23) · dublagem sem picotar (sincronia suave)';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -2060,17 +2060,28 @@ function tog(){
  if(on){const i=info();try{A.currentTime=i.t}catch(e){}if(i.pl)A.play().catch(()=>{})}else A.pause();
  bar()}
 function attach(src,urls){
- SRC=src;fail=false;msg='';A=new Audio();A.preload='auto';A._L=urls;A._i=0;A.src=urls[0];
+ SRC=src;ref={t:0,at:0};lastSeek=0;fail=false;msg='';A=new Audio();A.preload='auto';A._L=urls;A._i=0;A.src=urls[0];
  try{on=localStorage.cn_dub=='1'}catch(e){on=false}
  const me=A;
  A.addEventListener('error',()=>{if(A!==me)return;if(A._i<A._L.length-1){A._i++;A.src=A._L[A._i];try{A.load()}catch(e){}return}fail=true;msg='confira o link do áudio';if(on)mute(false);bar()});
  A.addEventListener('canplay',()=>{if(A!==me)return;fail=false;msg='';bar()});
  if(on)mute(true);
  bar()}
-/* sincroniza o áudio com o vídeo (a cada 0,3 s) */
-setInterval(()=>{try{if(!A||!SRC||!on||fail)return;if(!alive())return;const i=info();mute(true);
+/* sincroniza o áudio com o vídeo. Corrige a posição só quando passa de ~1 s e no máximo a cada 3 s (corrigir toda hora faz o áudio picotar) */
+let ref={t:0,at:0},lastSeek=0,lastMute=0,lastGet=0;
+window.addEventListener('message',e=>{try{const s=SRC;if(!s||s.k!='v'||e.source!==s.vm.f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
+ if(d.method=='getCurrentTime'&&typeof d.value=='number')ref={t:d.value,at:Date.now()};
+ else if(d.event=='timeupdate'&&d.data&&typeof d.data.seconds=='number')ref={t:d.data.seconds,at:Date.now()}}catch(x){}});
+setInterval(()=>{try{if(!A||!SRC||!on||fail)return;if(!alive())return;const now=Date.now(),i=info();
+ if(now-lastMute>1000){lastMute=now;mute(true)}
  A.volume=SRC.k=='v'&&SRC.vm.muted?0:1;
- if(i.pl){const lim=SRC.k=='n'?.4:.7;if(Math.abs(A.currentTime-i.t)>lim)try{A.currentTime=i.t}catch(e){}if(A.playbackRate!==i.r)A.playbackRate=i.r;if(A.paused)A.play().catch(()=>{})}
+ let t=i.t,fresh=true;
+ if(SRC.k=='v'){if(now-lastGet>1000){lastGet=now;SRC.vm.cmd('getCurrentTime')}
+  fresh=ref.at>0&&now-ref.at<3000;t=ref.t+(i.pl&&fresh?(now-ref.at)/1000*i.r:0)}
+ if(i.pl){
+  if(fresh&&A.readyState>=2&&!A.seeking&&now-lastSeek>3000&&Math.abs(A.currentTime-t)>(SRC.k=='n'?.6:1.2)){lastSeek=now;try{A.currentTime=t}catch(e){}}
+  if(A.playbackRate!==i.r)A.playbackRate=i.r;
+  if(A.paused)A.play().catch(()=>{})}
  else if(!A.paused)A.pause()}catch(e){}},300);
 /* lê a dublagem direto do banco (não depende das configurações carregadas na abertura do app) */
 const getDub=async k=>{let u=S.set[k];try{const{data}=await sb.from('settings').select('value').eq('key',k).maybeSingle();if(data&&data.value!=null){u=data.value;S.set[k]=u}}catch(e){}return u};
