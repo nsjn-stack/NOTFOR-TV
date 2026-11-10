@@ -519,6 +519,11 @@ html.pnoff .pw.ff:has(.cnp),html.pnoff .pw:fullscreen:has(.cnp){border:0}
 .pw .ov.cnp{--bb:38px;--sk:30px;--tk:6px;--th:22px;--sp:54px;--spf:15px;--bpad:5px 14px 7px;--br:22px;--gap:10px;--bgap:3px;--rowf:14px;--tmw:50px}
 :is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .ov.cnp{--bb:54px;--sk:40px;--tk:8px;--th:28px;--sp:76px;--spf:21px;--bpad:9px 28px 12px;--br:32px;--gap:14px;--bgap:6px;--rowf:19px;--tmw:70px}
 .pw .ov.cnp .cnp-play{width:70px;height:70px}
+.cnp-ld{display:none;position:absolute;left:0;right:0;top:calc(50% + 52px);text-align:center;font:700 13px system-ui,sans-serif;letter-spacing:.3px;color:#fff;text-shadow:0 1px 4px #000,0 0 8px #000;pointer-events:none}
+.pw.cnld .cnp-ld{display:block}
+.pw.cnld .cnp-play::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:4px solid rgba(255,255,255,.18);border-top-color:#fff;animation:spn .9s linear infinite;pointer-events:none}
+.pw.ff.cnld .cnp-play::after,.pw:fullscreen.cnld .cnp-play::after{inset:-14px;border-width:6px}
+.pw.ff .cnp-ld,.pw:fullscreen .cnp-ld{top:calc(50% + 100px);font-size:18px}
 .pw .ov.cnp .cnp-play svg{width:36px;height:36px}
 :is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .ov.cnp .cnp-play{width:134px;height:134px}
 :is(.pw.ff,.pw:fullscreen,.pw:-webkit-full-screen) .ov.cnp .cnp-play svg{width:68px;height:68px}
@@ -843,13 +848,13 @@ function play(id,eid,li){
 const cu=()=>{const c=S.cur;return c.e?c.e.url:(vids(c.t)[c.li]||{}).url};
 const dl=()=>on('downloads_on')&&S.cur?.v?`<a class="ib" href="${esc(cu())}" download target="_blank">${ic(I.d)}</a>`:'';
 const dzv=k=>ovn('ov_dz_'+k,k=='dr'?ovn('ov_dz',2):1),dzs=z=>{return ` class="dz" style="width:${z*100}%;height:${z*100}%;transform:scale(${(1/z).toFixed(4)})"`};
-const cnpH=(t,e)=>`<div class="ov cnp"><div class="cnp-top"><button class="cnp-b" id="cb" aria-label="Voltar">${ic(I.b,2)}</button><button class="cnp-b" id="rt" onclick="fs()" aria-label="Girar tela">${rIc()}</button><div class="cnp-t"><b>${esc(t.name)}</b><small>${e?`T${e.season} • ${t.section=='novela'?'Cap.':'Ep.'} ${e.num}${e.name?' - '+esc(e.name):''}`:esc([t.year,t.audio].filter(Boolean).join(' • '))}</small></div><button class="cnp-b" id="qg" aria-label="Qualidade">${ic('M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z',1.8)}</button><button class="cnp-b" id="cc" aria-label="Legendas"><b style="font:inherit;letter-spacing:-.5px">CC</b></button></div><div class="cnp-mid"><button class="cnp-play" id="bp" aria-label="Reproduzir ou pausar"></button></div><div class="cnp-bot"><div class="cnp-row"><span id="tm">0:00</span><input id="sk" type="range" min="0" max="1000" value="0" style="--p:0%"><span id="tt">0:00</span></div><div class="cnp-row cnp-r2"><button class="cnp-b cnp-sp" id="spd" aria-label="Velocidade">1x</button><button class="cnp-b cnp-m" id="mu" aria-label="Som">${ic(I.v)}</button></div></div></div>`;
+const cnpH=(t,e)=>`<div class="ov cnp"><div class="cnp-top"><button class="cnp-b" id="cb" aria-label="Voltar">${ic(I.b,2)}</button><button class="cnp-b" id="rt" onclick="fs()" aria-label="Girar tela">${rIc()}</button><div class="cnp-t"><b>${esc(t.name)}</b><small>${e?`T${e.season} • ${t.section=='novela'?'Cap.':'Ep.'} ${e.num}${e.name?' - '+esc(e.name):''}`:esc([t.year,t.audio].filter(Boolean).join(' • '))}</small></div><button class="cnp-b" id="qg" aria-label="Qualidade">${ic('M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z',1.8)}</button><button class="cnp-b" id="cc" aria-label="Legendas"><b style="font:inherit;letter-spacing:-.5px">CC</b></button></div><div class="cnp-mid"><button class="cnp-play" id="bp" aria-label="Reproduzir ou pausar"></button></div><div class="cnp-ld">Carregando seu vídeo</div><div class="cnp-bot"><div class="cnp-row"><span id="tm">0:00</span><input id="sk" type="range" min="0" max="1000" value="0" style="--p:0%"><span id="tt">0:00</span></div><div class="cnp-row cnp-r2"><button class="cnp-b cnp-sp" id="spd" aria-label="Velocidade">1x</button><button class="cnp-b cnp-m" id="mu" aria-label="Som">${ic(I.v)}</button></div></div></div>`;
 /* ---------- capa do vídeo (poster antes do play) ---------- */
 const vcKey=(t,e,li)=>e?'vcap_e'+e.id:((vids(t)[li||0]||{}).id?'vcap_l'+vids(t)[li||0].id:'');
 const vcUrl=(t,e,li)=>{const k=vcKey(t,e,li);return (k&&S.set[k])||(S.set.vcap_auto=='1'?(t.banner||t.cover||''):'')};
 const vcId=()=>S.cur?S.cur.t.id+':'+(S.cur.e?S.cur.e.id:'')+':'+S.cur.li:'';
 function vcHide(){S.vcd=vcId();const c=document.getElementById('vcap');if(c)c.remove()}
-function vcTap(){vcHide();pbGo()}
+function vcTap(){vcHide();pbGo();try{const w=document.getElementById('pw');if(w&&w._cnplay&&S.cur&&(S.cur.pk=='ok'||S.cur.pk=='vk'))w._cnplay()}catch(e){}}
 document.addEventListener('play',e=>{if(e.target&&e.target.id=='vd')vcHide()},true);
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#bp,.ob.ppb'))vcHide()},true);
 window.addEventListener('message',e=>{if(!document.getElementById('vcap'))return;const w=document.getElementById('pw'),f=w&&w.querySelector('iframe');if(!f||e.source!==f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
@@ -1147,7 +1152,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-10 (34) · ok.ru: sem barra/diagnóstico do ok.ru + controles originais sob demanda';
+const APP_V='2026-11-10 (36) · ok.ru: círculo "Carregando seu vídeo" · dublagem entra depois que o vídeo começa';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -2008,11 +2013,11 @@ function vkWire(){
  const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>';
  const st={f,play:0,cur:0,dur:0,muted:false,rate:1,vol:1,drag:0,vk:1,cmd:()=>{}};VKP.st=st;
  let P=null,ok=0,dead=0;
- let ht;const show=()=>{w.classList.remove('ovh');clearTimeout(ht);if(st.play)ht=setTimeout(()=>w.classList.add('ovh'),4000)};
+ let ht;const ldg=()=>!!st.wait&&!st.moved&&!dead;const show=()=>{w.classList.remove('ovh');clearTimeout(ht);if(st.play&&!ldg())ht=setTimeout(()=>w.classList.add('ovh'),4000)};
  st.show=show;
- st.ui=()=>{bp.innerHTML=st.play?PAI:PLI;if(!st.drag){if(st.dur>0){sk.value=Math.min(1000,st.cur/st.dur*1000);sk.style.setProperty('--p',(sk.value/10)+'%')}tm.textContent=fm(st.cur)}if(tt)tt.textContent=fm(st.dur);if(mu)mu.style.opacity=st.muted?.4:1;if(sp){sp.textContent='1x';sp.style.opacity=.4}};
+ st.ui=()=>{const L=ldg();if(w.classList.contains('cnld')!==L){w.classList.toggle('cnld',L);if(L)w.classList.remove('ovh');else if(st.play)show()}bp.innerHTML=st.play?PAI:PLI;if(!st.drag){if(st.dur>0){sk.value=Math.min(1000,st.cur/st.dur*1000);sk.style.setProperty('--p',(sk.value/10)+'%')}tm.textContent=fm(st.cur)}if(tt)tt.textContent=fm(st.dur);if(mu)mu.style.opacity=st.muted?.4:1;if(sp){sp.textContent='1x';sp.style.opacity=.4}};
  /* sem resposta da API: devolve os controles do VK */
- const give=()=>{if(dead)return;dead=1;const sh=w.querySelector('.vksh');if(sh)sh.remove();const c=w.querySelector('.cnp');if(c)c.style.display='none';w.classList.remove('ovh');if(VKP.st===st)VKP.st=null};
+ const give=()=>{if(dead)return;dead=1;w.classList.remove('cnld');const sh=w.querySelector('.vksh');if(sh)sh.remove();const c=w.querySelector('.cnp');if(c)c.style.display='none';w.classList.remove('ovh');if(VKP.st===st)VKP.st=null};
  const sync=d=>{if(!d||dead)return;ok=1;
   if(typeof d.time=='number'){st.cur=d.time;st._ref={t:d.time,at:Date.now()}}
   if(d.duration>0)st.dur=d.duration;
@@ -2031,7 +2036,8 @@ function vkWire(){
  setTimeout(()=>{if(!ok)give()},12000);
  w.addEventListener('pointerdown',show);w.addEventListener('touchstart',show,{passive:true});
  let wt=null;
- bp.onclick=()=>{if(st.play){st.play=0;st.cmd('pause');clearInterval(wt)}else{st.play=1;st.moved=0;st.cmd('play');clearInterval(wt);let n=0;
+ w._cnplay=()=>{if(!st.play&&bp.onclick)bp.onclick()};
+ bp.onclick=()=>{if(st.play){st.play=0;st.wait=0;st.cmd('pause');clearInterval(wt)}else{st.play=1;st.wait=1;st.moved=0;st.cmd('play');clearInterval(wt);let n=0;
   /* vídeo lento para começar: repete o play a cada 3 s e só desiste depois de 30 s sem nenhum sinal de que começou */
   wt=setInterval(()=>{if(dead||st.moved||!document.contains(f)){clearInterval(wt);return}n++;if(n>=10){clearInterval(wt);VKP.err='o player não começou a tocar em 30 s';give();return}st.cmd('play')},3000)}st.ui();show()};
  sk.oninput=()=>{st.drag=1;sk.style.setProperty('--p',(sk.value/10)+'%');tm.textContent=fm(sk.value/1000*st.dur);show()};
@@ -2080,8 +2086,8 @@ window.addEventListener('message',e=>{try{const w=document.getElementById('pw'),
 setInterval(()=>{try{const c=document.getElementById('sbc'),w=document.getElementById('pw'),f=w&&w.querySelector('iframe[src*="ok.ru/videoembed"]');let n=document.getElementById('okdbg');
  const bb=document.getElementById('okprb');if(bb)bb.remove();
  if(!c||!f||S.tab!='play'){if(n)n.remove();return}
- if(!n){n=document.createElement('a');n.id='okdbg';n.className='mu';n.href='#';n.style.cssText='display:block;margin:0 14px 8px;font-size:11px;opacity:.6;text-decoration:underline';n.onclick=ev=>{ev.preventDefault();const r=w.classList.toggle('okraw');n.textContent=r?'Voltar aos controles do app':'Controles originais do ok.ru (ajustes do player)'};n.textContent='Controles originais do ok.ru (ajustes do player)';c.appendChild(n)}
- if(!w.classList.contains('okraw'))n.textContent='Controles originais do ok.ru (ajustes do player)'}catch(e){}},1000);
+ if(!n){n=document.createElement('a');n.id='okdbg';n.className='mu';n.href='#';n.style.cssText='display:block;margin:0 14px 8px;font-size:11px;opacity:.6;text-decoration:underline';n.onclick=ev=>{ev.preventDefault();const r=w.classList.toggle('okraw');n.textContent=r?'✔️ Pronto, voltar aos controles do app':'⚙️ Desligar a ficha de informações do ok.ru'};n.textContent='⚙️ Desligar a ficha de informações do ok.ru';c.appendChild(n)}
+ if(!w.classList.contains('okraw'))n.textContent='⚙️ Desligar a ficha de informações do ok.ru'}catch(e){}},1000);
 
 /* ===== Gestos também no YouTube e no Vimeo (player do app) =====
    direita ↕ = volume · esquerda ↕ = brilho · 2 toques nas laterais = ±10s (toques seguidos continuam pulando) */
@@ -2125,7 +2131,7 @@ document.addEventListener('pointerup',e=>{
 
 /* ===== Dublagem: áudio extra tocando em sincronia com o vídeo (Internet Archive, Drive, mp3/m4a) ===== */
 (()=>{
-let A=null,on=false,fail=false,msg='',busy=false;
+let A=null,on=false,fail=false,msg='',busy=false,pend=false,pt=0;
 const AUD=/\.(mp3|m4a|aac|ogg|oga|opus|flac|wav|mka|mp4|m4v|webm)$/i;
 /* Internet Archive: aceita link da página (details), embed ou arquivo direto (download). Se for só o item, procura o áudio nos metadados. */
 const arList=async u=>{const m=String(u).match(/archive\.org\/(?:details|embed|download|stream)\/([^\/?#]+)(?:\/([^?#]+))?/i);if(!m)return null;
@@ -2142,7 +2148,7 @@ const dubUrls=async u=>{u=String(u||'').trim();const ar=await arList(u).catch(()
  return L};
 window.cnDubResolve=dubUrls;
 const dkey=()=>{const c=S&&S.cur;if(!c)return'';return c.e?'dub_e'+c.e.id:'dub_l'+((vids(c.t)[c.li]||{}).id||'')};
-const lbl=()=>fail?'🎧 Dublagem: não carregou (toque p/ tentar de novo)':busy?'🎧 Dublagem: carregando…':on?'🎧 Dublagem: ligada':'🎧 Dublagem: desligada (toque para ligar)';
+const lbl=()=>fail?'🎧 Dublagem: não carregou (toque p/ tentar de novo)':busy?'🎧 Dublagem: carregando…':pend&&!on?'🎧 Dublagem: entra sozinha depois que o vídeo começar':on?'🎧 Dublagem: ligada':'🎧 Dublagem: desligada (toque para ligar)';
 const ovb=()=>{const cc=document.getElementById('cc');let d=document.getElementById('dbb');
  if(!A||!cc){if(d)d.remove();return}
  if(!d){d=document.createElement('button');d.id='dbb';d.className='cnp-b';d.setAttribute('aria-label','Dublagem');d.textContent='🎧';d.onclick=e=>{e.stopPropagation();tog()};cc.after(d)}
@@ -2159,25 +2165,26 @@ const mute=m=>{if(!SRC||!alive())return;if(SRC.k=='n')SRC.v.muted=m;else{const q
 const info=()=>{const s=SRC;return s.k=='n'?{pl:!s.v.paused,t:s.v.currentTime,r:s.v.playbackRate||1}:{pl:!!s.vm.play,t:s.vm.cur||0,r:s.vm.rate||1}};
 function tog(){
  if(fail){fail=false;msg='';if(A){try{A._i=0;A.src=A._L[0];A.load()}catch(e){}}bar();return}
- if(!A||!SRC)return;on=!on;try{localStorage.cn_dub=on?'1':'0'}catch(e){}
- mute(on);
+ if(!A||!SRC)return;pend=false;on=!on;try{localStorage.cn_dub=on?'1':'0'}catch(e){}
+ lastMute=0;if(!on)mute(false);
  if(on){const i=info();try{A.currentTime=i.t}catch(e){}if(i.pl)A.play().catch(()=>{})}else A.pause();
  bar()}
 function attach(src,urls){
  SRC=src;ref={t:0,at:0};lastSeek=0;fail=false;msg='';A=new Audio();A.preload='auto';A._L=urls;A._i=0;A.src=urls[0];
- try{on=localStorage.cn_dub=='1'}catch(e){on=false}
+ let want=false;try{want=localStorage.cn_dub=='1'}catch(e){}on=false;pend=want;pt=0;
  const me=A;
  A.addEventListener('error',()=>{if(A!==me)return;if(A._i<A._L.length-1){A._i++;A.src=A._L[A._i];try{A.load()}catch(e){}return}fail=true;msg='confira o link do áudio';if(on)mute(false);bar()});
  A.addEventListener('canplay',()=>{if(A!==me)return;fail=false;msg='';bar()});
- if(on)mute(true);
  bar()}
 /* sincroniza o áudio com o vídeo. Corrige a posição só quando passa de ~1 s e no máximo a cada 3 s (corrigir toda hora faz o áudio picotar) */
 let ref={t:0,at:0},lastSeek=0,lastMute=0,lastGet=0;
 window.addEventListener('message',e=>{try{const s=SRC;if(!s||s.k!='v'||e.source!==s.vm.f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
  if(d.method=='getCurrentTime'&&typeof d.value=='number')ref={t:d.value,at:Date.now()};
  else if(d.event=='timeupdate'&&d.data&&typeof d.data.seconds=='number')ref={t:d.data.seconds,at:Date.now()}}catch(x){}});
-setInterval(()=>{try{if(!A||!SRC||!on||fail)return;if(!alive())return;const now=Date.now(),i=info();
- if(now-lastMute>1000){lastMute=now;mute(true)}
+setInterval(()=>{try{
+ if(A&&SRC&&pend&&!on&&!fail&&alive()){const i0=info(),n0=Date.now();if(i0.pl){if(!pt)pt=n0;if(n0-pt>2500&&A.readyState>=2){pend=false;on=true;lastSeek=0;lastMute=0;if(SRC.k=='n'){try{A.currentTime=i0.t}catch(e){}}bar()}}else pt=0}
+ if(!A||!SRC||!on||fail)return;if(!alive())return;const now=Date.now(),i=info();
+ if(now-lastMute>500){lastMute=now;mute(!A.paused&&A.readyState>=3)}
  A.volume=SRC.k=='v'&&SRC.vm.muted?0:1;
  let t=i.t,fresh=true;
  if(SRC.k=='v'){const r2=SRC.vm._ref;if(SRC.vm.vk&&r2&&r2.at>ref.at)ref=r2;if(now-lastGet>1000){lastGet=now;SRC.vm.cmd('getCurrentTime')}
