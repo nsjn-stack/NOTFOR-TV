@@ -355,7 +355,7 @@ body.hb .pw .ob.ls,body.hb .pw .ob.ex{opacity:0!important;pointer-events:none!im
 html.pnoff .pw:has(.cnp){border:1px solid #3a1212;box-shadow:none}
 html.pnoff .pw.ff:has(.cnp),html.pnoff .pw:fullscreen:has(.cnp){border:0}
 .pw.ff:has(.cnp),.pw:fullscreen:has(.cnp){border:0;border-radius:0;box-shadow:none}
-.pw .ytsh,.pw .vmsh{position:absolute;inset:0;z-index:2;background:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.pw .ytsh,.pw .vmsh,.pw .vksh{position:absolute;inset:0;z-index:2;background:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 /* === Player novo (CINE NOTFOR): botões redondos, barras vermelhas e fundo quase invisível === */
 .pw .ov.cnp{inset:0;padding:6px 8px;justify-content:space-between;gap:0;background:linear-gradient(180deg,rgba(0,0,0,.14),rgba(0,0,0,0) 28%);pointer-events:none;color:#fff}
 .cnp button,.cnp input,.cnp .cnp-vt{pointer-events:auto}
@@ -510,7 +510,7 @@ html.pnoff .pw.ff:has(.cnp),html.pnoff .pw:fullscreen:has(.cnp){border:0}
 :is(#pw.ff,#pw:fullscreen,#pw:-webkit-full-screen) #gxh .gk svg{width:64px;height:64px}
 /* enquanto arrasta volume/brilho, os controles ficam bem fracos para o indicador aparecer limpo */
 .pw:has(#gxh.on.v) .ov.cnp{opacity:.12}
-.pw .ytsh,.pw .vmsh{position:absolute;inset:0;z-index:2;background:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.pw .ytsh,.pw .vmsh,.pw .vksh{position:absolute;inset:0;z-index:2;background:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 
 /* ===== ajustes pedidos: barra de baixo menor, botão play maior, barras de volume/brilho menores ===== */
 .pw .ov.cnp{--bb:38px;--sk:30px;--tk:6px;--th:22px;--sp:54px;--spf:15px;--bpad:5px 14px 7px;--br:22px;--gap:10px;--bgap:3px;--rowf:14px;--tmw:50px}
@@ -564,7 +564,7 @@ html.pnoff .pw.ff:has(.cnp),html.pnoff .pw:fullscreen:has(.cnp){border:0}
 #gxh .gk svg{width:30px;height:30px}
 #gxh.txt{padding:6px 10px;border-radius:12px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.25)}
 </style>
-<style>/* Drive/Archive no player do app: sem faixa preta atrás dos controles */.pw.nvp .cnp-bot{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.pw.nvp .ov.cnp{background:none!important}.pw.nvp .bl,.pw.nvp .tz:not(.ed){display:none!important}.pw.nvp .cnp-row,.pw.nvp .cnp-row span{text-shadow:0 1px 3px #000,0 0 calc(6px*var(--ni)) #000}.pw.ndd{background:#000!important}.pw.ndd:not(.ff):not(:fullscreen):not(:-webkit-full-screen){display:block;box-sizing:border-box;width:calc(100% - 24px)!important;max-width:none;align-self:stretch;aspect-ratio:16/9;min-height:180px}body.ffo #app{visibility:hidden}body.ffo #pw{visibility:visible}body.ffo nav{display:none!important}.pw.ndd video{object-fit:contain;background:#000}</style><style>#pw.gxp,#pw .ytsh,#pw .vmsh,#pw.gxp video{touch-action:none!important}</style><style>
+<style>/* Drive/Archive no player do app: sem faixa preta atrás dos controles */.pw.nvp .cnp-bot{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}.pw.nvp .ov.cnp{background:none!important}.pw.nvp .bl,.pw.nvp .tz:not(.ed){display:none!important}.pw.nvp .cnp-row,.pw.nvp .cnp-row span{text-shadow:0 1px 3px #000,0 0 calc(6px*var(--ni)) #000}.pw.ndd{background:#000!important}.pw.ndd:not(.ff):not(:fullscreen):not(:-webkit-full-screen){display:block;box-sizing:border-box;width:calc(100% - 24px)!important;max-width:none;align-self:stretch;aspect-ratio:16/9;min-height:180px}body.ffo #app{visibility:hidden}body.ffo #pw{visibility:visible}body.ffo nav{display:none!important}.pw.ndd video{object-fit:contain;background:#000}</style><style>#pw.gxp,#pw .ytsh,#pw .vmsh,#pw .vksh,#pw.gxp video{touch-action:none!important}</style><style>
 #qg.cnp-b,#cc.cnp-b,#dbb.cnp-b{border-color:rgba(var(--pkr),.9)}
 #dbb.cnp-b{font-size:16px;line-height:1}
 #dbb.cnp-b.on{background:linear-gradient(var(--pkc),#b00500)}#cc.cnp-b.on{background:linear-gradient(var(--pkc),#b00500)}
@@ -803,14 +803,14 @@ function qr(){$('#qr').innerHTML='<div class="qr" id="qc"></div>';new QRCode($('
 /* ---------- player ---------- */
 function embed(u){
  u=(u||'').trim();let m;
- if(m=u.match(/(?:^|\/\/|\.)ok\.ru\/(?:[^?#\s]*\/)?(?:videoembed|video|live)\/(\d{6,})/i))return{t:'if',s:'https://ok.ru/videoembed/'+m[1],k:'ok'};
+ if(m=u.match(/(?:^|\/\/|\.)ok\.ru\/(?:[^?#\s]*\/)?(?:videoembed|video|live)\/(\d{6,})/i))return{t:'if',s:'https://ok.ru/videoembed/'+m[1]+'?js_api=1',k:'ok'};
  if(m=u.match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/))return{t:'if',s:'https://www.youtube.com/embed/'+m[1]+'?playsinline=1&rel=0&enablejsapi=1&fs=0&modestbranding=1&iv_load_policy=3&disablekb=1',k:'yt'};
  if(m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/)||u.match(/drive\.google\.com\/[^\s]*[?&]id=([\w-]+)/)||u.match(/drive\.usercontent\.google\.com\/[^\s]*[?&]id=([\w-]+)/))return{t:'if',s:'https://drive.google.com/file/d/'+m[1]+'/preview',k:'dr'};
  if(m=u.match(/archive\.org\/(?:details|embed)\/([^\/?#]+)(?:\/([^?#]+))?/))return{t:'if',s:'https://archive.org/embed/'+m[1]+(m[2]?'/'+m[2]:''),k:'ar'};
  if(m=u.match(/vimeo\.com\/(?:[^?#]*\/)?(\d{6,})(?:\/([0-9a-f]{8,}))?/i)){const h=m[2]||(u.match(/[?&]h=([0-9a-f]+)/i)||[])[1];return{t:'if',s:'https://player.vimeo.com/video/'+m[1]+'?api=1&title=0&byline=0&portrait=0'+(h?'&h='+h:''),k:'vm'}}
  if(m=u.match(/(?:dailymotion\.com\/(?:embed\/)?video\/|dai\.ly\/|dailymotion\.com\/player[^?]*\?[^#]*video=)([a-z0-9]+)/i))return{t:'if',s:'https://www.dailymotion.com/embed/video/'+m[1],k:'dm'};
  if(m=u.match(/(?:t\.me|telegram\.me)\/(?!c\/|\+|joinchat)([A-Za-z0-9_]{4,})\/(\d+)/i))return{t:'if',s:'https://t.me/'+m[1]+'/'+m[2]+'?embed=1&mode=tme',k:'tg'};
- if(/(?:^|\/\/|\.)(?:vk\.com|vk\.ru|vkvideo\.ru)\//i.test(u)){let o,i,h;const q=u.match(/video_ext\.php\?([^#\s]*)/i);if(q){const g=n=>(q[1].match(new RegExp('(?:^|&)'+n+'=(-?[\\w]+)'))||[])[1];o=g('oid');i=g('id');h=g('hash')}else{const r=u.match(/video(-?\d+)_(\d+)/i);if(r){o=r[1];i=r[2];h=(u.match(/[?&]hash=([0-9a-f]+)/i)||[])[1]}}if(o&&i)return{t:'if',s:'https://'+(/vkvideo\.ru/i.test(u)?'vkvideo.ru':'vk.com')+'/video_ext.php?oid='+o+'&id='+i+'&hd=2'+(h?'&hash='+h:''),k:'vk'}}
+ if(/(?:^|\/\/|\.)(?:vk\.com|vk\.ru|vkvideo\.ru)\//i.test(u)){let o,i,h;const q=u.match(/video_ext\.php\?([^#\s]*)/i);if(q){const g=n=>(q[1].match(new RegExp('(?:^|&)'+n+'=(-?[\\w]+)'))||[])[1];o=g('oid');i=g('id');h=g('hash')}else{const r=u.match(/video(-?\d+)_(\d+)/i);if(r){o=r[1];i=r[2];h=(u.match(/[?&]hash=([0-9a-f]+)/i)||[])[1]}}if(o&&i)return{t:'if',s:'https://'+(/vkvideo\.ru/i.test(u)?'vkvideo.ru':'vk.com')+'/video_ext.php?oid='+o+'&id='+i+'&hd=2&js_api=1'+(h?'&hash='+h:''),k:'vk'}}
  if(/\.(mp4|webm|m4v)(\?|$)/i.test(u))return{t:'v',s:u,k:'mp'};
  return{t:'x',s:u,k:'ot'};
 }
@@ -878,8 +878,8 @@ function ndWire(v){
 function pPlay(){
  const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.nd=false;S.cur.pk='ot';
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
- else{let m=embed(u);{const nt=natSrc(m);if(nt)m={t:'v',s:nt.s,k:m.k,nd:1,o:m.s,aid:nt.aid,alt:nt.alt}}S.cur.nd=!!m.nd;S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0,vmc=m.k=='vm'&&m.t=='if'&&ovn('vm_cn',1)!=0;
-  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(yc?'&controls=0'+(/^https?:$/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):''):'')+(vmc?'&controls=0&playsinline=1':'')+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>${yc?'<div class="ytsh"></div>'+cnpH(t,e):vmc?'<div class="vmsh"></div>'+cnpH(t,e):''}`
+ else{let m=embed(u);{const nt=natSrc(m);if(nt)m={t:'v',s:nt.s,k:m.k,nd:1,o:m.s,aid:nt.aid,alt:nt.alt}}S.cur.nd=!!m.nd;S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0,vmc=m.k=='vm'&&m.t=='if'&&ovn('vm_cn',1)!=0,vkc=m.k=='vk'&&m.t=='if'&&ovn('vk_cn',1)!=0;
+  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(yc?'&controls=0'+(/^https?:$/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):''):'')+(vmc?'&controls=0&playsinline=1':'')+(m.k=='vk'&&pf('rs')&&getPos(ckey())>10?(g=>'&t='+String(Math.floor(g/3600)).padStart(2,'0')+'h'+String(Math.floor(g%3600/60)).padStart(2,'0')+'m'+String(Math.floor(g%60)).padStart(2,'0')+'s')(getPos(ckey())):'')+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>${yc?'<div class="ytsh"></div>'+cnpH(t,e):vmc?'<div class="vmsh"></div>'+cnpH(t,e):vkc?'<div class="vksh"></div>'+cnpH(t,e):''}`
   :m.t=='v'?`<video id="vd"${m.k=='dr'?' referrerpolicy="no-referrer"':''}${m.s?` src="${esc(m.s)}"`:''}${m.nd?` data-nd="1" data-o="${esc(m.o)}"${m.alt&&m.alt.length?` data-alt="${esc(JSON.stringify(m.alt))}"`:''}${m.aid?` data-aid="${esc(m.aid)}"`:''}`:''} playsinline preload="metadata"></video>${cnpH(t,e)}`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
@@ -1105,7 +1105,7 @@ function ytWire(){
  st.ui();show();
 }
 function wire(){
- const v=$('#vd');if(!v){ytWire();vmWire();return}if(v.dataset.nd)ndWire(v);
+ const v=$('#vd');if(!v){ytWire();vmWire();vkWire();return}if(v.dataset.nd)ndWire(v);
  const bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),pw=$('#pw'),f=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
  const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>';
  const up=()=>{bp.innerHTML=v.paused?PLI:PAI};
@@ -1144,7 +1144,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-09 (26) · Vimeo: mantém só a legenda escolhida';
+const APP_V='2026-11-09 (28) · ok.ru: diagnóstico + legendas do app';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -1243,6 +1243,8 @@ window.addEventListener('message',e=>{try{const s=typeof VM!='undefined'&&VM.st;
  if(d.method=='getCurrentTime'&&typeof d.value=='number')s._ref={t:d.value,at:Date.now()};
  else if(d.event=='timeupdate'&&d.data&&typeof d.data.seconds=='number')s._ref={t:d.data.seconds,at:Date.now()}}catch(x){}});
 const sbExt=()=>{try{const v=typeof VM!='undefined'&&VM.st;if(v&&document.contains(v.f)){const n=Date.now();if(n-(v._gt||0)>1000){v._gt=n;v.cmd('getCurrentTime')}const r=v._ref;if(!r)return v.cur||0;return r.t+(v.play&&n-r.at<3000?(n-r.at)/1000*(v.rate||1):0)}
+ const k=typeof VKP!='undefined'&&VKP.st;if(k&&document.contains(k.f)){const n=Date.now(),r=k._ref;if(!r)return k.cur||0;return r.t+(k.play&&n-r.at<3000?(n-r.at)/1000:0)}
+ const o=typeof OKP!='undefined'&&OKP.st;if(o&&document.contains(o.f)&&o._ref){const n=Date.now(),r=o._ref;return r.t+(o.play&&n-r.at<3000?(n-r.at)/1000:0)}
  const y=typeof YT!='undefined'&&YT.st;if(y&&document.contains(y.f))return y.cur||0}catch(e){}return null};
 const sbNow=()=>{const vd=document.querySelector('#pw video');if(vd)return vd.currentTime;const x=sbExt();if(x!==null)return x;const k=S.sk;return k.p+(k.run?(Date.now()-k.at)/1000:0)};
 function sbTick(){const el=$('#sbt');if(!el){clearInterval(S.sbi);return}const tr=S.sv[S.si];let x='';if(tr){const t=sbNow()+S.so;for(const q of tr.c)if(t>=q[0]&&t<=q[1]){x=q[2];break}}if(el._x!==x){el._x=x;el.textContent=x}}
@@ -1986,24 +1988,90 @@ function vmWire(){
  st.ui();show();
 }
 
+/* ===== VK Vídeo com os controles do app (API oficial do player: VK.VideoPlayer, iframe com js_api=1) =====
+   Se a API do VK não responder em ~12 s, o app devolve os controles do próprio VK (o vídeo continua tocando). */
+const VKP={st:null,ld:null};
+const vkLoad=()=>VKP.ld||(VKP.ld=new Promise((ok,no)=>{if(window.VK&&VK.VideoPlayer)return ok();const hs=['https://vk.com/js/api/videoplayer.js','https://vk.ru/js/api/videoplayer.js'];let i=0;const t=()=>{if(i>=hs.length){VKP.ld=null;return no()}const sc=document.createElement('script');sc.src=hs[i++];sc.onload=()=>window.VK&&VK.VideoPlayer?ok():t();sc.onerror=t;document.head.appendChild(sc)};t()}));
+function vkWire(){
+ const w=$('#pw'),f=w&&w.querySelector('iframe[src*="video_ext.php"]'),bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),mu=$('#mu'),sp=$('#spd'),cb=$('#cb');
+ if(!f||!bp||!sk||!w.querySelector('.cnp')||!w.querySelector('.vksh'))return;
+ const fm=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
+ const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>';
+ const st={f,play:0,cur:0,dur:0,muted:false,rate:1,vol:1,drag:0,vk:1,cmd:()=>{}};VKP.st=st;
+ let P=null,ok=0,dead=0;
+ let ht;const show=()=>{w.classList.remove('ovh');clearTimeout(ht);if(st.play)ht=setTimeout(()=>w.classList.add('ovh'),4000)};
+ st.show=show;
+ st.ui=()=>{bp.innerHTML=st.play?PAI:PLI;if(!st.drag){if(st.dur>0){sk.value=Math.min(1000,st.cur/st.dur*1000);sk.style.setProperty('--p',(sk.value/10)+'%')}tm.textContent=fm(st.cur)}if(tt)tt.textContent=fm(st.dur);if(mu)mu.style.opacity=st.muted?.4:1;if(sp){sp.textContent='1x';sp.style.opacity=.4}};
+ /* sem resposta da API: devolve os controles do VK */
+ const give=()=>{if(dead)return;dead=1;const sh=w.querySelector('.vksh');if(sh)sh.remove();const c=w.querySelector('.cnp');if(c)c.style.display='none';w.classList.remove('ovh');if(VKP.st===st)VKP.st=null};
+ const sync=d=>{if(!d||dead)return;ok=1;
+  if(typeof d.time=='number'){st.cur=d.time;st._ref={t:d.time,at:Date.now()}}
+  if(d.duration>0)st.dur=d.duration;
+  if(d.state)st.play=d.state=='playing'?1:0;
+  if(typeof d.volume=='number'&&d.volume>0)st.vol=d.volume;
+  st.muted=d.muted===true||d.muted==='true';
+  st.ui()};
+ vkLoad().then(()=>{if(dead||!document.contains(f))return;
+  try{P=VK.VideoPlayer(f)}catch(e){give();return}
+  st.cmd=(m,v)=>{try{if(m=='play')P.play();else if(m=='pause')P.pause();else if(m=='setCurrentTime')P.seek(v);else if(m=='setVolume')P.setVolume(v)}catch(e){}};
+  ['inited','timeupdate','volumechange','paused','resumed','started'].forEach(ev=>P.on(ev,d=>{sync(d);if(ev=='started'||ev=='resumed'){st.play=1;st.ui();show()}if(ev=='paused'){st.play=0;st.ui();show()}}));
+  P.on('ended',d=>{sync(d);st.play=0;st.ui();show();if(typeof onEnd=='function')onEnd()});
+  P.on('error',()=>give());
+ }).catch(give);
+ setTimeout(()=>{if(!ok)give()},12000);
+ w.addEventListener('pointerdown',show);w.addEventListener('touchstart',show,{passive:true});
+ bp.onclick=()=>{if(st.play){st.play=0;st.cmd('pause')}else{st.play=1;st.cmd('play')}st.ui();show()};
+ sk.oninput=()=>{st.drag=1;sk.style.setProperty('--p',(sk.value/10)+'%');tm.textContent=fm(sk.value/1000*st.dur);show()};
+ sk.onchange=()=>{if(st.dur>0){st.cur=sk.value/1000*st.dur;st.cmd('setCurrentTime',st.cur)}setTimeout(()=>{st.drag=0},400)};
+ if(sp)sp.onclick=()=>{};
+ if(mu)mu.onclick=()=>{st.muted=!st.muted;st.cmd('setVolume',st.muted?0:st.vol);st.ui()};
+ if(cb)cb.onclick=()=>{if(S.ff||document.fullscreenElement||document.webkitFullscreenElement)fsExit();else go(S.prev||'home')};
+ st.ui();show();
+}
+
+/* ===== ok.ru: leitura passiva do player (diagnóstico + legendas do app acompanham o vídeo) =====
+   O player do ok.ru é o mesmo motor do VK Vídeo. Aqui o app só ESCUTA o que o iframe envia; os controles continuam sendo os do ok.ru. */
+const OKP={st:null,log:[],n:0,last:''};
+window.addEventListener('message',e=>{try{const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[src*="ok.ru/videoembed"]');if(!f||e.source!==f.contentWindow)return;
+ let d=e.data;if(typeof d=='string'&&/^[\[{]/.test(d)){try{d=JSON.parse(d)}catch(x){}}
+ if(OKP.st&&OKP.st.f!==f){OKP.n=0;OKP.log=[];OKP.last=''}
+ OKP.n++;OKP.last=String(typeof d=='string'?d:JSON.stringify(d)).slice(0,150);
+ const key=typeof d=='string'?d.slice(0,30):(d&&(d.event||d.type||d.method||d.name||Object.keys(d).slice(0,3).join('+')))||'?';
+ if(!OKP.log.includes(key)){OKP.log.push(key);if(OKP.log.length>8)OKP.log.shift()}
+ let st=OKP.st;if(!st||st.f!==f)st=OKP.st={f,play:0,cur:0,dur:0,vk:1,cmd:()=>{}};
+ const o=d&&typeof d=='object'?(d.data&&typeof d.data=='object'?Object.assign({},d,d.data):d):{};
+ const ev=String(typeof d=='string'?d:(o.event||o.type||o.method||'')).toLowerCase();
+ const t=[o.time,o.currentTime,o.seconds,o.position].find(x=>typeof x=='number');
+ if(typeof t=='number'){st.cur=t;st._ref={t,at:Date.now()}}
+ if(o.duration>0)st.dur=o.duration;
+ if(/(started|resumed|play|playing)$/.test(ev)&&!/pause/.test(ev))st.play=1;else if(/(paused|pause|ended|stop)/.test(ev))st.play=0;
+ if(typeof o.state=='string')st.play=o.state=='playing'?1:(o.state=='paused'||o.state=='ended'?0:st.play)
+}catch(x){}});
+setInterval(()=>{try{const c=document.getElementById('sbc'),w=document.getElementById('pw'),f=w&&w.querySelector('iframe[src*="ok.ru/videoembed"]');let n=document.getElementById('okdbg');
+ if(!c||!f||S.tab!='play'){if(n)n.remove();return}
+ if(!n){n=document.createElement('div');n.id='okdbg';n.className='mu';n.style.cssText='margin:0 14px 8px;font-size:11px;opacity:.75;word-break:break-all';c.appendChild(n)}
+ const st=OKP.st&&OKP.st.f===f?OKP.st:null;
+ n.textContent='📡 ok.ru → app: '+(OKP.n&&st?OKP.n+' msgs · tipos: '+OKP.log.join(', ')+' · '+(st.play?'tocando':'parado')+' · '+Math.floor(st.cur||0)+'s · última: '+OKP.last:'nenhuma mensagem recebida ainda (dê play no vídeo)')}catch(e){}},1000);
+
 /* ===== Gestos também no YouTube e no Vimeo (player do app) =====
    direita ↕ = volume · esquerda ↕ = brilho · 2 toques nas laterais = ±10s (toques seguidos continuam pulando) */
 (()=>{
 const cl=(x,a,b)=>Math.max(a,Math.min(b,x));
 let D=null,tap=null,chain={s:'',t:0,acc:0},vol=1;
 try{const a=parseFloat(localStorage.cn_gxv);if(a>=0&&a<=1)vol=a}catch(e){}
-const kind=pw=>pw.querySelector('.ytsh')?'yt':pw.querySelector('.vmsh')?'vm':'';
+const kind=pw=>pw.querySelector('.ytsh')?'yt':pw.querySelector('.vmsh,.vksh')?'vm':'';
+const VMX=()=>{const a=typeof VM!='undefined'&&VM.st&&document.contains(VM.st.f)?VM.st:null,b=typeof VKP!='undefined'&&VKP.st&&document.contains(VKP.st.f)?VKP.st:null;return a||b};
 const setVol=(k,x)=>{vol=cl(x,0,1);
  if(k=='yt'&&YT.st){try{YT.st.f.contentWindow.postMessage(JSON.stringify({event:'command',func:'setVolume',args:[Math.round(vol*100)]}),'*');if(vol>0&&YT.st.muted){YT.st.muted=false;YT.st.f.contentWindow.postMessage(JSON.stringify({event:'command',func:'unMute',args:[]}),'*')}}catch(e){}}
- if(k=='vm'&&VM.st){VM.st.vol=vol;VM.st.muted=vol==0;VM.st.cmd('setVolume',vol)}};
-const seekBy=(k,d)=>{const s=k=='yt'?YT.st:VM.st;if(!s)return;const t=cl((s.cur||0)+d,0,s.dur>0?s.dur:1e9);s.cur=t;
+ if(k=='vm'&&VMX()){const q=VMX();q.vol=vol||q.vol;q.muted=vol==0;q.cmd('setVolume',vol)}};
+const seekBy=(k,d)=>{const s=k=='yt'?YT.st:VMX();if(!s)return;const t=cl((s.cur||0)+d,0,s.dur>0?s.dur:1e9);s.cur=t;
  if(k=='yt')s.f.contentWindow.postMessage(JSON.stringify({event:'command',func:'seekTo',args:[t,true]}),'*');else s.cmd('setCurrentTime',t);
  s.ui&&s.ui()};
 function ensureB(pw){if(!pw.querySelector('#gxb')){const b=document.createElement('div');b.id='gxb';const f=pw.querySelector('iframe');pw.insertBefore(b,f?f.nextSibling:pw.firstChild)}window.cnGx.sb(window.cnGx.gb())}
 document.addEventListener('pointerdown',e=>{
  D=null;if(e.pointerType=='mouse'&&e.button!==0)return;
  const pw=document.getElementById('pw');if(!pw||(typeof S!='undefined'&&(S.oved||S.bled)))return;
- const k=kind(pw);if(!k)return;const t=e.target;if(!(t.classList.contains('ytsh')||t.classList.contains('vmsh')))return;
+ const k=kind(pw);if(!k)return;const t=e.target;if(!(t.classList.contains('ytsh')||t.classList.contains('vmsh')||t.classList.contains('vksh')))return;
  ensureB(pw);const p=cnGx.loc(pw,e.clientX,e.clientY),f=p.x/p.w;
  D={pw,k,id:e.pointerId,x:p.x,y:p.y,sx:e.clientX,sy:e.clientY,z:f<.4?'L':f>.6?'R':'C',m:0,t:Date.now(),v0:vol,b0:cnGx.gb()}},true);
 document.addEventListener('pointermove',e=>{
@@ -2055,7 +2123,7 @@ const bar=()=>{ovb();const c=document.getElementById('sbc');if(!c)return;let b=d
  const t=lbl()+(msg?' — '+msg:'');if(b.textContent!==t)b.textContent=t;b.style.borderColor=on&&!fail?'#2ee66b':''};
 /* fonte do vídeo: nativo (#vd) ou Vimeo (VM.st, pela API do player) */
 let SRC=null;
-const vmNow=()=>{try{return typeof VM!='undefined'&&VM.st&&document.contains(VM.st.f)?VM.st:null}catch(e){return null}};
+const vmNow=()=>{try{const a=typeof VM!='undefined'&&VM.st&&document.contains(VM.st.f)?VM.st:null;if(a)return a;const b=typeof VKP!='undefined'&&VKP.st&&document.contains(VKP.st.f)?VKP.st:null;return b}catch(e){return null}};
 const alive=()=>SRC&&(SRC.k=='n'?document.contains(SRC.v):document.contains(SRC.vm.f));
 const mute=m=>{if(!SRC||!alive())return;if(SRC.k=='n')SRC.v.muted=m;else{const q=SRC.vm;q.cmd('setVolume',m?0:(q.muted?0:(q.vol||1)))}};
 const info=()=>{const s=SRC;return s.k=='n'?{pl:!s.v.paused,t:s.v.currentTime,r:s.v.playbackRate||1}:{pl:!!s.vm.play,t:s.vm.cur||0,r:s.vm.rate||1}};
@@ -2082,7 +2150,7 @@ setInterval(()=>{try{if(!A||!SRC||!on||fail)return;if(!alive())return;const now=
  if(now-lastMute>1000){lastMute=now;mute(true)}
  A.volume=SRC.k=='v'&&SRC.vm.muted?0:1;
  let t=i.t,fresh=true;
- if(SRC.k=='v'){if(now-lastGet>1000){lastGet=now;SRC.vm.cmd('getCurrentTime')}
+ if(SRC.k=='v'){const r2=SRC.vm._ref;if(SRC.vm.vk&&r2&&r2.at>ref.at)ref=r2;if(now-lastGet>1000){lastGet=now;SRC.vm.cmd('getCurrentTime')}
   fresh=ref.at>0&&now-ref.at<3000;t=ref.t+(i.pl&&fresh?(now-ref.at)/1000*i.r:0)}
  if(i.pl){
   if(fresh&&A.readyState>=2&&!A.seeking&&now-lastSeek>3000&&Math.abs(A.currentTime-t)>(SRC.k=='n'?.6:1.2)){lastSeek=now;try{A.currentTime=t}catch(e){}}
