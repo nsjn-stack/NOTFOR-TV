@@ -621,6 +621,7 @@ html body,html body button,html body input,html body select,html body textarea{f
 html body #pw,html body #pw *{font-family:Roboto,-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif}
 </style>
 <style>.pw .vkpc{display:none;position:absolute;inset:0;z-index:1;background:#000;pointer-events:none}</style>
+<style>.pw.vkset .vksh,.pw.vkset .cnp,.pw.vkset .ppb,.pw.vkset .vkpc{display:none!important}#vkok{position:absolute;z-index:99999;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);padding:8px 18px;border-radius:20px;border:2px solid #e10600;background:rgba(0,0,0,.75);color:#fff;font:700 14px system-ui}</style>
 </head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -2038,7 +2039,7 @@ function vkWire(){
  const isOk=/ok\.ru\/videoembed/.test(f.src);
  /* esconde a lista "Смотрите также" que o VK mostra quando o vídeo está pausado */
  let cv=w.querySelector('.vkpc');if(!cv){cv=document.createElement('div');cv.className='vkpc';w.insertBefore(cv,w.querySelector('.vksh'))}
- const pcv=()=>{if(isOk)return;cv.style.display=(!st.play&&st.moved&&!st.drag)?'block':'none'};
+ const pcv=()=>{if(isOk)return;cv.style.display=(!st.play&&st.moved&&!st.drag&&!w.classList.contains('vkset'))?'block':'none'};
  setInterval(()=>{if(!document.contains(f))return;pcv()},500);
  (isOk?Promise.resolve():vkLoad()).then(()=>{if(dead||!document.contains(f))return;
   try{P=isOk?okPlayer(f):VK.VideoPlayer(f);VKP.err='';st.api=1;if(isOk)ok=1}catch(e){VKP.err=String(e&&e.message||e).slice(0,60);give();return}
@@ -2268,7 +2269,7 @@ const cnQ=(()=>{
   m.innerHTML=(nat?'<small>Esta fonte tem qualidade única</small>'+(v&&v.dataset.o&&/drive\.google/.test(v.dataset.o)?'<button id="qdr">Usar player do Drive (várias qualidades)</button>':''):OPT.map(q=>`<button data-q="${q}" class="${q==cur?'on':''}">${q=='auto'?'Auto':q}</button>`).join(''));
   pw.appendChild(m)};
  document.addEventListener('click',e=>{
-  const g=e.target.closest&&e.target.closest('#qg');if(g){e.stopPropagation();open();return}
+  const g=e.target.closest&&e.target.closest('#qg');if(g){e.stopPropagation();if(window.cnVkSet&&window.cnVkSet())return;open();return}
   const dr=e.target.closest&&e.target.closest('#qdr');if(dr){e.stopPropagation();const v=document.querySelector('#pw video'),o=v&&v.dataset.o;close();if(o){(S.ndOff=S.ndOff||{})[o]=1;draw()}return}
   const b=e.target.closest&&e.target.closest('#qm button');if(b){e.stopPropagation();const q=b.dataset.q;set(q);n=0;const v=document.querySelector('#pw video');if(v&&v._qs)swapNative(v,q);else apply();close();return}
   if(!(e.target.closest&&e.target.closest('#qm')))close()},true);
@@ -2364,5 +2365,11 @@ async function svQK(){const k=$('#qks').value,f=$('#qkf').value,m=$('#qkm').valu
   if(f){const c=qcfg('ok');if(c.f){const n=f._qn=(f._qn||0)+1;if(n==3||n==8||n==15){okSend(f,okFmt(),'setQuality',c.f);okSend(f,okFmt(),'setQuality',OKQ[c.f])}}}
  }catch(x){}},1000);
 })();
+
+/* VK: a engrenagem do app libera o toque no player para você usar a engrenagem do próprio VK (resolução fixa) */
+window.cnVkSet=()=>{const w=document.getElementById('pw'),st=typeof VKP!='undefined'&&VKP.st;if(!w||!st||!document.contains(st.f)||!/video_ext\.php/.test(st.f.src))return false;
+ const off=()=>{w.classList.remove('vkset');const b=document.getElementById('vkok');if(b)b.remove()};
+ if(w.classList.contains('vkset')){off();return true}
+ w.classList.add('vkset');const b=document.createElement('button');b.id='vkok';b.textContent='✓ Pronto';b.onclick=ev=>{ev.stopPropagation();off()};w.appendChild(b);return true};
 </script>
 </body></html>
