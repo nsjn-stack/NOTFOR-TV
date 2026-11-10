@@ -1144,7 +1144,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-09 (31) · ok.ru: teste automático de comandos';
+const APP_V='2026-11-09 (32) · ok.ru com controles do app (comando descoberto)';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -2042,7 +2042,8 @@ const OKP={st:null,log:[],n:0,last:''};
 const OKF=[];['method','event','action','type','cmd','command','name','func'].forEach(k=>{OKF.push({k,j:0});OKF.push({k,j:1})});OKF.push({s:'plain'},{s:'embed'});
 const okMsg=(fi,m,v)=>{const F=OKF[fi];if(F.s=='plain')return m;if(F.s=='embed')return 'embed-'+m;const o={};o[F.k]=m;if(v!==undefined){o.time=v;o.value=v;o.position=v;o.seconds=v;o.volume=v;o.params=[v];o.args=[v]}return F.j?JSON.stringify(o):o};
 const okSend=(f,fi,m,v)=>{try{f.contentWindow.postMessage(okMsg(fi,m,v),'*')}catch(e){}};
-const okFmt=()=>{try{const n=parseInt(localStorage.cn_okfmt);return n>=0&&n<OKF.length?n:NaN}catch(e){return NaN}};
+/* #4 = {action:'play'|'pause'|...}: formato que o ok.ru obedeceu no teste (vale para todos os aparelhos) */
+const okFmt=()=>{try{const n=parseInt(localStorage.cn_okfmt);return n>=0&&n<OKF.length?n:4}catch(e){return 4}};
 const okPlayer=f=>{const fi=okFmt();if(isNaN(fi))throw new Error('sem comando salvo: use o botão 🧪');const H={};
  OKP.hook=(ev,d)=>{(H[ev]||[]).forEach(fn=>{try{fn(d)}catch(e){}})};
  return{on:(e,fn)=>{(H[e]=H[e]||[]).push(fn)},play:()=>okSend(f,fi,'play'),pause:()=>okSend(f,fi,'pause'),seek:t=>okSend(f,fi,'seek',t),setVolume:v=>okSend(f,fi,'setVolume',v)}};
