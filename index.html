@@ -241,6 +241,13 @@ html.neo body #ad .btn:not(.s)::after{inset:-3px;border-width:1px}
 #ad label.k{margin:4px 0;font-size:13px}
 #ad .nmw button{width:38px;height:34px;margin:2px 0}
 #ad .row{gap:6px}
+
+/* Player 1 (app) / Player 2 (VK nativo) */
+.pmt{display:flex;gap:8px;justify-content:center;margin:8px 14px 4px}
+.pmb{flex:1;max-width:150px;padding:6px 14px;border-radius:99em;border:1.5px solid var(--nc,#ff1a0f);background:#050000;color:#fff;font-weight:700;font-size:12.5px;opacity:.75}
+.pmb.on{background:var(--nc,#e10600);opacity:1}
+.pw.p2::before,.pw.p2::after{display:none!important}
+.pw.p2 .tz,.pw.p2 .bkz,.pw.p2 .ppb,.pw.p2 .ob:not(.ex),.pw.p2 .vcap{display:none!important}
 </style><style id="gest-css">
 .pw.vmo .ob.ex{opacity:var(--o,1);pointer-events:auto}
 body.hb .pw.vmo .ob.ex{opacity:0!important;pointer-events:none!important}
@@ -876,6 +883,8 @@ function play(id,eid,li){
  {const sc=document.querySelector('.sc'),a=sc&&sc.querySelector('.ep.on');if(sc&&a){if(keep!=null)sc.scrollLeft=keep;const sr=sc.getBoundingClientRect(),ar=a.getBoundingClientRect();if(keep==null||ar.left<sr.left||ar.right>sr.right)sc.scrollLeft+=(ar.left-sr.left)-(sc.clientWidth-a.offsetWidth)/2}}
  if(!S.bled&&!S.oved&&(ovn('ov_au',1)||(ovn('ov_ar',1)&&(S.phL||arLand())))&&document.querySelector('#pw iframe,#pw video'))setTimeout(fkOn()?fkEnter:fsEnter,150);
 }
+const pm2=()=>{try{return localStorage.cn_pm=='2'}catch(e){return false}};
+function setPm(n){try{localStorage.cn_pm=String(n)}catch(e){}draw()}
 const cu=()=>{const c=S.cur;return c.e?c.e.url:(vids(c.t)[c.li]||{}).url};
 const dl=()=>on('downloads_on')&&S.cur?.v?`<a class="ib" href="${esc(cu())}" download target="_blank">${ic(I.d)}</a>`:'';
 const dzv=k=>ovn('ov_dz_'+k,k=='dr'?ovn('ov_dz',2):1),dzs=z=>{return ` class="dz" style="width:${z*100}%;height:${z*100}%;transform:scale(${(1/z).toFixed(4)})"`};
@@ -915,9 +924,9 @@ function ndWire(v){
   v.src='https://archive.org/download/'+j.metadata.identifier+'/'+f.name.split('/').map(encodeURIComponent).join('/')}).catch(fb);
 }
 function pPlay(){
- const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.nd=false;S.cur.pk='ot';
+ const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.nd=false;S.cur.pk='ot';S.cur.p2=false;
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
- else{let m=embed(u);{const nt=natSrc(m);if(nt)m={t:'v',s:nt.s,k:m.k,nd:1,o:m.s,aid:nt.aid,alt:nt.alt}}S.cur.nd=!!m.nd;S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0,vmc=m.k=='vm'&&m.t=='if'&&ovn('vm_cn',1)!=0,vkc=(m.k=='vk'&&m.t=='if'&&ovn('vk_cn',1)!=0)||(m.k=='ok'&&m.t=='if'&&ovn('ok_cn',1)!=0);
+ else{let m=embed(u);{const nt=natSrc(m);if(nt)m={t:'v',s:nt.s,k:m.k,nd:1,o:m.s,aid:nt.aid,alt:nt.alt}}S.cur.nd=!!m.nd;S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';S.cur.p2=(m.k=='vk'||m.k=='ok')&&m.t=='if'&&pm2();const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0,vmc=m.k=='vm'&&m.t=='if'&&ovn('vm_cn',1)!=0,vkc=!S.cur.p2&&((m.k=='vk'&&m.t=='if'&&ovn('vk_cn',1)!=0)||(m.k=='ok'&&m.t=='if'&&ovn('ok_cn',1)!=0));
   S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(yc?'&controls=0'+(/^https?:$/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):''):'')+(vmc?'&controls=0&playsinline=1':'')+(m.k=='vk'&&pf('rs')&&getPos(ckey())>10?(g=>'&t='+String(Math.floor(g/3600)).padStart(2,'0')+'h'+String(Math.floor(g%3600/60)).padStart(2,'0')+'m'+String(Math.floor(g%60)).padStart(2,'0')+'s')(getPos(ckey())):'')+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>${yc?'<div class="ytsh"></div>'+cnpH(t,e):vmc?'<div class="vmsh"></div>'+cnpH(t,e):vkc?'<div class="vksh"></div>'+cnpH(t,e):''}`
   :m.t=='v'?`<video id="vd"${m.k=='dr'?' referrerpolicy="no-referrer"':''}${m.s?` src="${esc(m.s)}"`:''}${m.nd?` data-nd="1" data-o="${esc(m.o)}"${m.alt&&m.alt.length?` data-alt="${esc(JSON.stringify(m.alt))}"`:''}${m.aid?` data-aid="${esc(m.aid)}"`:''}`:''} playsinline preload="metadata"></video>${cnpH(t,e)}`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
@@ -941,7 +950,7 @@ function pPlay(){
   ycv=p.includes('ytsh')?`<div class="ytcv"><div class="ytcv-f"${ycu?` style="background-image:url('${esc(gd(ycu,'B').replace(/'/g,'%27'))}')"`:''}><b>CINE NOTFOR</b></div><div class="ytcv-t"></div><div class="ytcv-b"></div></div>`:'',
   vch=vcu?`<div class="vcap" id="vcap" style="background-image:url('${esc(gd(vcu,'B').replace(/'/g,'%27'))}')" onclick="vcTap()">${p.includes('ov cnp')?'':'<i></i>'}</div>`:'',
   bar=mf==0||mc==0?`<div class="${rw?'bar2 ':''}pbar" ${rw?'':'style="display:flex;flex-direction:column;gap:8px;margin:0 14px 8px"'}>${mf==0?pF(0):''}${mc==0?pC(0):''}</div>`:'';
- return `<div class="pw${S.cur.pk=='tg'?' tgw':''}${p.includes('ytsh')?' ytfull':''}${S.cur.nd?' nvp':''}${S.cur.nd&&S.cur.pk=='dr'?' ndd':''}" id="pw">${p}${vch}${ycv}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div>${bar}<div id="sbc"></div>${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}
+ return `<div class="pw${S.cur.pk=='tg'?' tgw':''}${p.includes('ytsh')?' ytfull':''}${S.cur.nd?' nvp':''}${S.cur.nd&&S.cur.pk=='dr'?' ndd':''}${S.cur.p2?' p2':''}" id="pw">${p}${vch}${ycv}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div>${bar}<div id="sbc"></div>${u&&(S.cur.pk=='vk'||S.cur.pk=='ok')&&hasV?`<div class="pmt"><button type="button" class="pmb${S.cur.p2?'':' on'}" onclick="setPm(1)">Player 1</button><button type="button" class="pmb${S.cur.p2?' on':''}" onclick="setPm(2)">Player 2</button></div>`:''}${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}
  ${!e&&vs.length>1?`<div class="tabs">${vs.map((l,i)=>`<button class="${i==li?'on':''}" onclick="play(${t.id},0,${i})">${esc(l.label||'Link '+(i+1))}</button>`).join('')}</div>`:''}
  <div class="pt"><h1>${esc(t.name)}</h1><p>${e?`Temporada ${e.season} • ${t.section=='novela'?'Capítulo':'Episódio'} ${e.num}${e.name?' — '+esc(e.name):''}`:esc([t.year,t.country,t.audio].filter(Boolean).join(' • '))}</p></div>
  <div class="chips pchips" style="margin:10px 14px"><span class="chip">HD</span><span class="chip r">${esc(t.rating||'Livre')}</span>${t.genres?`<span class="chip">${esc(t.genres)}</span>`:''}</div>
