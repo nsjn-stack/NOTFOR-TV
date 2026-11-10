@@ -1144,7 +1144,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-09 (32) · ok.ru com controles do app (comando descoberto)';
+const APP_V='2026-11-09 (33) · ok.ru: espera até 30 s e repete o play';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -2021,13 +2021,16 @@ function vkWire(){
  (isOk?Promise.resolve():vkLoad()).then(()=>{if(dead||!document.contains(f))return;
   try{P=isOk?okPlayer(f):VK.VideoPlayer(f);VKP.err='';st.api=1;if(isOk)ok=1}catch(e){VKP.err=String(e&&e.message||e).slice(0,60);give();return}
   st.cmd=(m,v)=>{try{if(m=='play')P.play();else if(m=='pause')P.pause();else if(m=='setCurrentTime')P.seek(v);else if(m=='setVolume')P.setVolume(v)}catch(e){}};
-  ['inited','timeupdate','volumechange','paused','resumed','started'].forEach(ev=>P.on(ev,d=>{sync(d);if(ev=='started'||ev=='resumed'){st.play=1;st.moved=1;st.ui();show()}if(ev=='paused'){st.play=0;st.ui();show()}}));
+  ['inited','timeupdate','volumechange','paused','resumed','started'].forEach(ev=>P.on(ev,d=>{sync(d);if(ev=='started'||ev=='resumed'||ev=='timeupdate'&&st.play){st.moved=1}if(ev=='started'||ev=='resumed'){st.play=1;st.moved=1;st.ui();show()}if(ev=='paused'){st.play=0;st.ui();show()}}));
   P.on('ended',d=>{sync(d);st.play=0;st.ui();show();if(typeof onEnd=='function')onEnd()});
   P.on('error',()=>give());
  }).catch(give);
  setTimeout(()=>{if(!ok)give()},12000);
  w.addEventListener('pointerdown',show);w.addEventListener('touchstart',show,{passive:true});
- bp.onclick=()=>{if(st.play){st.play=0;st.cmd('pause')}else{st.play=1;st.cmd('play');const t0=ok;setTimeout(()=>{if(!dead&&!st.moved){VKP.err='o player não obedeceu ao play';give()}},5000)}st.ui();show()};
+ let wt=null;
+ bp.onclick=()=>{if(st.play){st.play=0;st.cmd('pause');clearInterval(wt)}else{st.play=1;st.moved=0;st.cmd('play');clearInterval(wt);let n=0;
+  /* vídeo lento para começar: repete o play a cada 3 s e só desiste depois de 30 s sem nenhum sinal de que começou */
+  wt=setInterval(()=>{if(dead||st.moved||!document.contains(f)){clearInterval(wt);return}n++;if(n>=10){clearInterval(wt);VKP.err='o player não começou a tocar em 30 s';give();return}st.cmd('play')},3000)}st.ui();show()};
  sk.oninput=()=>{st.drag=1;sk.style.setProperty('--p',(sk.value/10)+'%');tm.textContent=fm(sk.value/1000*st.dur);show()};
  sk.onchange=()=>{if(st.dur>0){st.cur=sk.value/1000*st.dur;st.cmd('setCurrentTime',st.cur)}setTimeout(()=>{st.drag=0},400)};
  if(sp)sp.onclick=()=>{};
@@ -2046,7 +2049,7 @@ const okSend=(f,fi,m,v)=>{try{f.contentWindow.postMessage(okMsg(fi,m,v),'*')}cat
 const okFmt=()=>{try{const n=parseInt(localStorage.cn_okfmt);return n>=0&&n<OKF.length?n:4}catch(e){return 4}};
 const okPlayer=f=>{const fi=okFmt();if(isNaN(fi))throw new Error('sem comando salvo: use o botão 🧪');const H={};
  OKP.hook=(ev,d)=>{(H[ev]||[]).forEach(fn=>{try{fn(d)}catch(e){}})};
- return{on:(e,fn)=>{(H[e]=H[e]||[]).push(fn)},play:()=>okSend(f,fi,'play'),pause:()=>okSend(f,fi,'pause'),seek:t=>okSend(f,fi,'seek',t),setVolume:v=>okSend(f,fi,'setVolume',v)}};
+ return{on:(e,fn)=>{(H[e]=H[e]||[]).push(fn)},play:()=>okSend(f,fi,'play'),pause:()=>okSend(f,fi,'pause'),seek:t=>okSend(f,fi,'seek',t),setVolume:v=>{okSend(f,fi,'setVolume',v);okSend(f,fi,v>0?'unmute':'mute')}}};
 /* descobre qual formato de comando o ok.ru obedece: manda "pause" em cada formato e vê se o vídeo parou */
 window.cnOkProbe=async()=>{const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[src*="ok.ru/videoembed"]'),st=OKP.st;
  if(!f||!st||st.f!==f||!st.play){OKP.res='dê play no vídeo do ok.ru e toque de novo';return}
