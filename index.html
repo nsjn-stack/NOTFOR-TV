@@ -222,6 +222,25 @@ label.k input{width:auto}
 #fw.mn{width:auto;min-width:170px;max-width:230px;height:auto;max-height:none}#fw.mn .fwh{border-radius:13px;gap:10px}
 .nmw{display:flex;gap:6px;align-items:center}.nmw input{flex:1;min-width:0}.nmw button{flex:none;width:46px;height:44px;margin:3px 0;border-radius:10px;border:1px solid #ff1a0f;background:linear-gradient(#ff1a0f,#b00500);font-size:18px}
 
+
+/* admin compacto */
+.tmw{display:flex;justify-content:center;margin:2px 14px 6px}
+html body #ad .btn{padding:7px 14px;font-size:calc(12.5px*var(--bs));border-width:1.5px;line-height:1.25;white-space:nowrap}
+html body #ad .btn.s{padding:4px 11px;font-size:calc(11.5px*var(--bs))}
+html.neo body #ad .btn:not(.s)::after{inset:-3px;border-width:1px}
+#ad input,#ad select,#ad textarea{padding:7px 10px;margin:2px 0;font-size:13.5px;border-radius:8px}
+#ad input[type=checkbox]{padding:0}
+#ad textarea{min-height:48px}
+#ad .box{margin:6px 10px;padding:8px 10px}
+#ad .box.vbx{margin:3px 10px;padding:6px 10px}
+#ad .trw{padding:6px 10px;margin:4px 10px}
+#ad .trn b{font-size:13px}
+#ad .trn small{font-size:11px}
+#ad .mu{font-size:11.5px;line-height:1.35}
+#ad .dt summary{font-size:13.5px}
+#ad label.k{margin:4px 0;font-size:13px}
+#ad .nmw button{width:38px;height:34px;margin:2px 0}
+#ad .row{gap:6px}
 </style><style id="gest-css">
 .pw.vmo .ob.ex{opacity:var(--o,1);pointer-events:auto}
 body.hb .pw.vmo .ob.ex{opacity:0!important;pointer-events:none!important}
@@ -843,7 +862,8 @@ const vkHd=()=>{const c=qcfg('vk'),ix=h=>h<=240?0:h<=360?1:h<=480?2:h<=720?3:4;r
 const qcfg=k=>{const f=ovn('ov_qf_'+k,0),m=ovn('ov_qm_'+k,0);return{f:f?Math.max(f,m):0,m}};
 const ppb=(b,k,d)=>ovn(b+'_'+k,ovn(b,d)),mS=()=>{const m=blM();return m=='n'?'':'_'+m},ppo=(b,k,d)=>{const m=blM(),v=m=='n'?NaN:parseFloat(S.set[b+'_'+k+'_'+m]);return isNaN(v)?ppb(b,k,d):v};
 const ovp=(x,y)=>`left:${x}%;top:${y}%;transform:translate(-${x}%,-${y}%)`;
-const vids=t=>S.L.filter(l=>l.title_id==t.id);
+const lOrd=t=>{try{const a=JSON.parse((S.set||{})['lord_'+t.id]||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}};
+const vids=t=>{const a=S.L.filter(l=>l.title_id==t.id);if(!t||t.section!='movies')return a;const o=lOrd(t);if(!o.length)return a;return a.map((l,i)=>[l,i]).sort((p,q)=>{const x=o.indexOf(p[0].id),y=o.indexOf(q[0].id);return(x<0?1e6+p[1]:x)-(y<0?1e6+q[1]:y)}).map(p=>p[0])};
 function play(id,eid,li){
  clearInterval(S.nxT);
  const sc0=S.tab=='play'&&S.cur&&S.cur.t&&S.cur.t.id==id?document.querySelector('.sc'):null,keep=sc0?sc0.scrollLeft:null;
@@ -1186,7 +1206,7 @@ async function ad(f){
 <div class="mfg2"><select id="f_section">${secOrd().map(s=>`<option value="${s.key}" ${e.section==s.key?'selected':''}>${esc(s.label)}</option>`).join('')}</select><select id="f_rating">${['Livre','10+','12+','14+','16+','18+'].map(x=>`<option ${e.rating==x?'selected':''}>${x}</option>`).join('')}</select></div>
 <select id="f_audio"><option value="">Áudio</option>${['dublado','legendado'].map(x=>`<option ${(e.audio||(S.ed?'':'dublado'))==x?'selected':''}>${x}</option>`).join('')}</select>
 <div class="mfk"><label class="k"><input type="checkbox" id="f_featured" ${e.featured?'checked':''}> Destaque</label><label class="k"><input type="checkbox" id="f_coff" ${e.comments_off?'checked':''}> Sem comentários</label></div>
-<div class="row" style="margin-top:6px;flex-wrap:nowrap"><button class="btn" style="flex:1" onclick="svT()">${S.ed?'Salvar alterações':'Adicionar título'}</button><button class="btn o" onclick="tmG()" title="Google Imagens">🖼</button><button class="btn o" onclick="tmKey()" title="Chave do TMDB">🔑</button></div></div>`+`<div class="box sbx"><span>🔎</span><input id="t_q" placeholder="Pesquisar títulos…" oninput="fq('t_q','.tbx')"></div>`+S.T.map(t=>`<div class="box tbx trw"><div class="trn"><b>${esc(t.name)}</b><small class="mu">${esc(lab(t.section))}</small></div><button class="btn o s" onclick="S.ed=T(${t.id});ad();scrollTo(0,0)">Editar</button><button class="btn o s" onclick="dT(${t.id})">Apagar</button></div>`).join('');
+<div class="row" style="margin-top:6px;flex-wrap:nowrap"><button class="btn" style="flex:1" onclick="svT()">${S.ed?'Salvar alterações':'Adicionar título'}</button><button class="btn o" onclick="tmG()" title="Google Imagens">🖼</button><button class="btn o" onclick="tmKey()" title="Chave do TMDB">🔑</button></div></div>`+`<div class="box sbx"><span>🔎</span><input id="t_q" placeholder="Pesquisar títulos…" oninput="tF()"></div><div class="tmw"><button type="button" class="btn o s" id="t_more" onclick="S.tAll=!S.tAll;tF()"></button></div>`+S.T.map(t=>`<div class="box tbx trw"><div class="trn"><b>${esc(t.name)}</b><small class="mu">${esc(lab(t.section))}</small></div><button class="btn o s" onclick="S.ed=T(${t.id});ad();scrollTo(0,0)">Editar</button><button class="btn o s" onclick="dT(${t.id})">Apagar</button></div>`).join('');tF();
  }
  if(a=='v'){const et=S.et&&T(S.et)?S.et:S.T[0]?.id;S.et=et;
   const vq0=(S.vq||'').toLowerCase(),tl=vq0?S.T.filter(t=>t.name.toLowerCase().includes(vq0)):S.T;if(tl.length&&!tl.some(t=>t.id==S.et)){S.et=tl[0].id}const et2=S.et,qm=!vq0||(T(et2)&&T(et2).name.toLowerCase().includes(vq0));
@@ -1195,7 +1215,7 @@ async function ad(f){
 <div class="box mf"><label class="k"><input type="checkbox" ${S.set.vcap_auto=='1'?'checked':''} onchange="cf('vcap_auto',this.checked?1:0)"> Se o vídeo não tiver capa própria, usar o banner/capa do título</label><div class="mu" style="padding:2px 0">A capa aparece na tela inicial do vídeo e some quando ele começa. Para cada vídeo, cole o link da imagem no campo "Link da capa" abaixo do episódio/link.</div></div>
 <details class="box mf dt" ${mv?'':'open'}><summary>＋ Episódio</summary><div class="mfg2"><input id="e_s" type="number" placeholder="Temporada" value="1"><input id="e_n" type="number" placeholder="Episódio"></div><input id="e_m" placeholder="Nome (opcional)"><input id="e_u" placeholder="Link do vídeo"><button class="btn" style="width:100%;margin-top:4px" onclick="svE()">Adicionar episódio</button></details>
 <details class="box mf dt" ${mv?'open':''}><summary>＋ Link do filme</summary><input id="l_l" placeholder="Nome do link (ex.: Link 1)"><input id="l_u" placeholder="Link do vídeo"><button class="btn" style="width:100%;margin-top:4px" onclick="svL()">Adicionar link</button></details>
-<details class="box mf dt"><summary>＋ Vários episódios de uma vez</summary><div class="mu" style="padding:2px 0 4px">Um link por linha, em ordem.</div><div class="mfg2"><input id="m_s" type="number" placeholder="Temporada" value="1"><input id="m_n" type="number" placeholder="1º episódio" value="1"></div><textarea id="m_u" rows="5" placeholder="https://...&#10;https://..."></textarea><button class="btn" style="width:100%;margin-top:4px" onclick="svM()">Adicionar todos</button></details>`+S.E.filter(x=>x.title_id==et2&&(qm||(`t${x.season} e${x.num} ${x.name||''}`).toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>T${x.season} • E${x.num}</b><small class="mu">${esc(x.name||'')}</small></div><button class="btn o s" onclick="dE(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_e${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_e${x.id}','vc_e${x.id}')">Salvar capa</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="db_e${x.id}" placeholder="🎧 Link da dublagem (Drive ou .mp3/.m4a)" value="${esc(S.set['dub_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svDub('dub_e${x.id}','db_e${x.id}')">Salvar dublagem</button></div></div>`).join('')+S.L.filter(x=>x.title_id==et2&&(qm||(x.label||x.url||'').toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>Link</b><small class="mu">${esc(x.label||x.url)}</small></div><button class="btn o s" onclick="dL(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_l${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_l${x.id}','vc_l${x.id}')">Salvar capa</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="db_l${x.id}" placeholder="🎧 Link da dublagem (Drive ou .mp3/.m4a)" value="${esc(S.set['dub_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svDub('dub_l${x.id}','db_l${x.id}')">Salvar dublagem</button></div></div>`).join(''):'<p class="mu">Cadastre um título primeiro.</p>';
+<details class="box mf dt"><summary>＋ Vários episódios de uma vez</summary><div class="mu" style="padding:2px 0 4px">Um link por linha, em ordem.</div><div class="mfg2"><input id="m_s" type="number" placeholder="Temporada" value="1"><input id="m_n" type="number" placeholder="1º episódio" value="1"></div><textarea id="m_u" rows="5" placeholder="https://...&#10;https://..."></textarea><button class="btn" style="width:100%;margin-top:4px" onclick="svM()">Adicionar todos</button></details>`+S.E.filter(x=>x.title_id==et2&&(qm||(`t${x.season} e${x.num} ${x.name||''}`).toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>T${x.season} • E${x.num}</b><small class="mu">${esc(x.name||'')}</small></div><button class="btn o s" onclick="dE(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_e${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_e${x.id}','vc_e${x.id}')">Salvar capa</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="db_e${x.id}" placeholder="🎧 Link da dublagem (Drive ou .mp3/.m4a)" value="${esc(S.set['dub_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svDub('dub_e${x.id}','db_e${x.id}')">Salvar dublagem</button></div></div>`).join('')+S.L.filter(x=>x.title_id==et2&&(qm||(x.label||x.url||'').toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>Link</b><small class="mu">${esc(x.label||x.url)}</small></div>${((T(x.title_id)||{}).section=='movies')?`<button class="btn o s" onclick="lMov(${x.id},-1)" aria-label="Subir">▲</button><button class="btn o s" onclick="lMov(${x.id},1)" aria-label="Descer">▼</button>`:''}<button class="btn o s" onclick="dL(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="ln_${x.id}" placeholder="Nome do player (ex.: vk.video, Player 2)" value="${esc(x.label||'')}" style="margin:0"><button class="btn o s" onclick="lRen(${x.id})">Salvar nome</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_l${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_l${x.id}','vc_l${x.id}')">Salvar capa</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="db_l${x.id}" placeholder="🎧 Link da dublagem (Drive ou .mp3/.m4a)" value="${esc(S.set['dub_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svDub('dub_l${x.id}','db_l${x.id}')">Salvar dublagem</button></div></div>`).join(''):'<p class="mu">Cadastre um título primeiro.</p>';
   if(S.T.length)subAdm();
  }
  if(a=='l'){d.innerHTML=lyAdm();return}
@@ -1334,6 +1354,7 @@ async function tmPick(t,id){
 function tmSet(k,el){$('#f_'+k).value=el.dataset.u;el.parentNode.querySelectorAll('img').forEach(i=>i.classList.toggle('on',i===el));pvC()}
 
 const secOrd=()=>{const r=k=>k=='movies'?0:k=='series'?1:2;return S.secs.slice().sort((a,b)=>r(a.key)-r(b.key))};
+function tF(){const q=(($('#t_q')||{}).value||'').toLowerCase().trim(),rows=document.querySelectorAll('.tbx');rows.forEach((e,i)=>{e.style.display=q?(e.textContent.toLowerCase().includes(q)?'':'none'):(S.tAll||i<3?'':'none')});const b=$('#t_more');if(b){b.parentNode.style.display=(q||rows.length<=3)?'none':'';b.textContent=S.tAll?'▲ Mostrar só os 3 últimos':'▼ Ver todos ('+rows.length+')'}}
 function fq(id,sel){const q=($('#'+id).value||'').toLowerCase().trim();document.querySelectorAll(sel).forEach(e=>e.style.display=!q||e.textContent.toLowerCase().includes(q)?'':'none')}
 function vq(){S.vq=($('#v_q').value||'').trim();ad()}
 function tgBox(){const d=$('#ad');if(!d||$('#tgbx'))return;d.insertAdjacentHTML('beforeend',`<div class="box" id="tgbx"><b>Telegram: cortar faixa branca</b><div class="mu" style="padding:4px 0">Se ainda sobrar faixa branca no player do Telegram, aumente o corte do topo ou do rodapé.</div>${[['tg_t','Corte do topo',20,80,44],['tg_b','Corte do rodapé',20,80,46]].map(([k,n,a,b,df])=>`<div class="rg"><span>${n}</span><span class="mu" id="o_${k}" style="padding:0">${ovn(k,df)}px</span><input type="range" min="${a}" max="${b}" value="${ovn(k,df)}" oninput="S.set['${k}']=this.value;$('#o_${k}').textContent=this.value+'px';tgFit()" onchange="cf('${k}',this.value)"></div>`).join('')}</div>`)}
@@ -1473,6 +1494,8 @@ async function svM(){
 }
 async function svL(){const u=$('#l_u').value.trim();if(!u)return alert('Informe o link.');if(ok(await sb.from('links').insert({title_id:S.et,label:$('#l_l').value.trim()||null,url:u}))){await load();ad()}}
 async function dE(id){if(confirm('Apagar episódio?')){await sb.from('episodes').delete().eq('id',id);await load();ad()}}
+async function lRen(id){const v=($('#ln_'+id).value||'').trim();if(ok(await sb.from('links').update({label:v||null}).eq('id',id))){await load();ad();alert('Nome salvo.')}}
+async function lMov(id,d){const x=S.L.find(l=>l.id==id),t=x&&T(x.title_id);if(!t||t.section!='movies')return;const ids=vids(t).map(l=>l.id),i=ids.indexOf(id),j=i+d;if(i<0||j<0||j>=ids.length)return;[ids[i],ids[j]]=[ids[j],ids[i]];const k='lord_'+t.id,v=JSON.stringify(ids);if(ok(await sb.from('settings').upsert([{key:k,value:v}]))){S.set[k]=v;ad()}}
 async function dL(id){if(confirm('Apagar link?')){await sb.from('links').delete().eq('id',id);await load();ad()}}
 const secBox=()=>`<div class="box"><b>Seções (abas)</b><div class="mu" style="padding:4px 0">Marque para mostrar. Mude o nome e toque em Salvar. Use ▲ ▼ para a ordem. Só dá para apagar uma seção sem títulos.</div>${S.secs.map(x=>`<div class="row" style="align-items:center;flex-wrap:nowrap;gap:6px"><input type="checkbox" ${x.enabled?'checked':''} onchange="tSec('${x.key}',this.checked)" style="width:auto;margin:0;flex:none"><input id="sn_${x.key}" value="${esc(x.label)}" style="flex:1;min-width:0;margin:0"><button class="btn o s" onclick="secRen('${x.key}')">Salvar</button><button class="btn o s" onclick="secMv('${x.key}',-1)">▲</button><button class="btn o s" onclick="secMv('${x.key}',1)">▼</button><button class="btn o s" onclick="secDel('${x.key}')">🗑</button></div>`).join('')}<div class="row" style="margin-top:8px"><input id="sn_new" placeholder="Nome da nova seção (ex.: Documentários)" style="flex:1"><button class="btn s" onclick="secAdd()">Adicionar</button></div></div>`;
 async function secRen(k){const v=$('#sn_'+k).value.trim();if(!v)return alert('Informe o nome.');if(ok(await sb.from('sections').update({label:v}).eq('key',k))){await load();ad();alert('Nome salvo.')}}
@@ -2368,25 +2391,8 @@ async function svQK(){const k=$('#qks').value,f=$('#qkf').value,m=$('#qkm').valu
 
 /* VK: a engrenagem do app libera o toque no player para você usar a engrenagem do próprio VK (resolução fixa) */
 window.cnVkSet=()=>{const w=document.getElementById('pw'),st=typeof VKP!='undefined'&&VKP.st;if(!w||!st||!document.contains(st.f)||!/video_ext\.php/.test(st.f.src))return false;
- const off=()=>{w.classList.remove('vkset');const b=document.getElementById('vkok');if(b)b.remove();try{st.f.blur();window.focus()}catch(e){}};
+ const off=()=>{w.classList.remove('vkset');const b=document.getElementById('vkok');if(b)b.remove()};
  if(w.classList.contains('vkset')){off();return true}
  w.classList.add('vkset');const b=document.createElement('button');b.id='vkok';b.textContent='✓ Pronto';b.onclick=ev=>{ev.stopPropagation();off()};w.appendChild(b);return true};
-/* ===== VK: só a engrenagem do VK fica tocável (buraco na camada de bloqueio) =====
-   Em pé: engrenagem do VK perto do canto inferior direito do player. Deitado/tela cheia: idem, na barra de baixo.
-   Para mexer no buraco: em pé = --vkx1/--vkx2 (esquerda/direita) e --vky1/--vky2 (topo/baixo); deitado = --vlx1... */
-</script>
-<style id="vkhole-css">
-.pw{--vkx1:90%;--vkx2:99.8%;--vky1:77.5%;--vky2:91.5%;--vlx1:94%;--vlx2:100%;--vly1:85%;--vly2:98%}
-.pw .vksh{clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,var(--vkx1) var(--vky1),var(--vkx2) var(--vky1),var(--vkx2) var(--vky2),var(--vkx1) var(--vky2),var(--vkx1) var(--vky1))}
-.pw:is(.ff,:fullscreen,:-webkit-full-screen) .vksh{clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,var(--vlx1) var(--vly1),var(--vlx2) var(--vly1),var(--vlx2) var(--vly2),var(--vlx1) var(--vly2),var(--vlx1) var(--vly1))}
-/* engrenagem ⚙ do app some nos vídeos do VK (a do VK é a que vale) */
-.pw:has(iframe[src*="video_ext.php"]) #qg{display:none!important}
-</style>
-<script>
-/* toque no buraco = o iframe do VK ganha o foco: libera o player para escolher a resolução; "✓ Pronto" volta a bloquear */
-window.addEventListener('blur',()=>{setTimeout(()=>{try{
- const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[src*="video_ext.php"]');
- if(!f||document.activeElement!==f||!w.querySelector('.vksh')||w.classList.contains('vkset'))return;
- if(window.cnVkSet)window.cnVkSet()}catch(e){}},0)});
 </script>
 </body></html>
