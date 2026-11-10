@@ -1144,7 +1144,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-09 (20) · Vimeo: desliga todas as legendas de uma vez';
+const APP_V='2026-11-09 (21) · testes de dublagem/legenda com aviso de erro';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -1229,9 +1229,13 @@ const sbTg=()=>[S.et,+$('#sb_e').value||0];
 async function subList(){const[t,e]=sbTg(),v=await sbLoad(t,e,1);$('#sb_ls').innerHTML=v.map((x,i)=>`<div class="mu" style="padding:4px 0">${esc(x.l)} · ${x.c.length} falas <button class="btn o s" onclick="subDel(${i})">Apagar</button></div>`).join('')||'<div class="mu">Nenhuma legenda neste vídeo.</div>'}
 function subAdm(){const es=S.E.filter(x=>x.title_id==S.et);$('#ad').insertAdjacentHTML('beforeend',`<div class="box"><b>🔑 Chave do Google Drive</b><div class="mu" style="padding:4px 0">Com a chave (API key do Google Cloud, com a Drive API ativada) os vídeos do Drive carregam mais rápido e sem faixa preta. O arquivo precisa estar como “Qualquer pessoa com o link”.</div><input id="gd_k" placeholder="Cole a chave aqui" value="${esc(S.set.gd_key||'')}"><button class="btn s" onclick="svGdKey()">Salvar chave</button></div>`+`<div class="box"><b>Legendas</b><div class="mu" style="padding:4px 0">Para o título escolhido acima. Escolha o vídeo, dê um nome (ex.: Português BR) e adicione por link (site ou Google Drive) ou com um arquivo .srt/.vtt do celular. Se o site bloquear o link, baixe o arquivo e use “Escolher do celular”.</div><select id="sb_e" onchange="subList()"><option value="0">Filme / link único</option>${es.map(x=>`<option value="${x.id}">T${x.season} • E${x.num}</option>`).join('')}</select><input id="sb_l" placeholder="Nome (ex.: Português BR)"><input id="sb_u" placeholder="Link da legenda (.srt / .vtt)"><div class="row"><button class="btn s" onclick="sbUrl()">Adicionar por link</button><button class="btn o s" onclick="$('#sb_f').click()">Escolher do celular</button></div><input id="sb_f" type="file" accept=".srt,.vtt,.txt" style="display:none" onchange="sbFile(this)"><div id="sb_ls"></div></div>`);subList()}
 async function sbAdd(tx){const c=sbParse(tx);if(!c.length)return alert('Não achei falas nesse arquivo. Use .srt ou .vtt.');const[t,e]=sbTg(),v=await sbLoad(t,e,1);v.push({l:$('#sb_l').value.trim()||'Legenda '+(v.length+1),c});if(await subSave(t,e,v)){$('#sb_u').value='';subList();alert('Legenda adicionada.')}}
-async function sbArchive(u){const m=String(u).match(/archive\.org\/(?:details|embed|download|stream)\/([^\/?#]+)(?:\/([^?#]+))?/i);if(!m)return null;const id=decodeURIComponent(m[1]),f=m[2]?decodeURIComponent(m[2]):'',enc=x=>x.split('/').map(encodeURIComponent).join('/');let L=[];if(f&&/\.(srt|vtt|txt|ass|sub)$/i.test(f))L=[f];else{const j=await(await fetch('https://archive.org/metadata/'+encodeURIComponent(id))).json();L=(j.files||[]).map(x=>x.name).filter(n=>/\.(srt|vtt)$/i.test(n))}for(const n of L){try{const r=await fetch('https://archive.org/download/'+encodeURIComponent(id)+'/'+enc(n));if(!r.ok)continue;const t=await sbTxt(await r.arrayBuffer());if(t.includes('-->'))return t}catch(e){}}return null}
+async function sbArchive(u){window._sbErr='';const m=String(u).match(/archive\.org\/(?:details|embed|download|stream)\/([^\/?#]+)(?:\/([^?#]+))?/i);if(!m)return null;const id=decodeURIComponent(m[1]),f=m[2]?decodeURIComponent(m[2]):'',enc=x=>x.split('/').map(encodeURIComponent).join('/');let L=[];
+ if(f&&/\.(srt|vtt|txt|ass|sub)$/i.test(f))L=[f];else{let j;try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(id));j=await r.json()}catch(e){window._sbErr='não consegui consultar o item no Archive ('+(e&&e.message||e)+')';return null}
+  if(!j||!j.files){window._sbErr='o item "'+id+'" não existe ou ainda está sendo processado pelo Archive; espere alguns minutos';return null}
+  L=j.files.map(x=>x.name).filter(n=>/\.(srt|vtt)$/i.test(n));if(!L.length){window._sbErr='o item existe, mas não achei arquivo .srt/.vtt nele (arquivos: '+j.files.slice(0,4).map(x=>x.name).join(', ')+')';return null}}
+ for(const n of L){try{const r=await fetch('https://archive.org/download/'+encodeURIComponent(id)+'/'+enc(n));if(!r.ok){window._sbErr='o Archive respondeu erro '+r.status+' ao baixar '+n;continue}const t=await sbTxt(await r.arrayBuffer());if(t.includes('-->'))return t;window._sbErr=n+' não tem falas no formato .srt/.vtt'}catch(e){window._sbErr='o navegador bloqueou o download de '+n+' (CORS)'}}return null}
 async function sbGet(u){try{const a=await sbArchive(u);if(a)return a}catch(e){}const m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]+)/)||u.match(/[?&]id=([\w-]+)/),L=[];if(m){const id=m[1];L.push('https://drive.usercontent.google.com/download?id='+id+'&export=download','https://drive.google.com/uc?export=download&id='+id)}else L.push(u);const P=[x=>x,x=>'https://corsproxy.io/?url='+encodeURIComponent(x),x=>'https://api.allorigins.win/raw?url='+encodeURIComponent(x),x=>'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(x)];let html=0;for(const p of P)for(const x of L){try{const r=await fetch(p(x));if(!r.ok)continue;const t=await sbTxt(await r.arrayBuffer());if(/^\s*<(!doctype|html)/i.test(t)){html=1;continue}if(t.includes('-->'))return t}catch(e){}}throw html?'html':'fail'}
-async function sbUrl(){const u=$('#sb_u').value.trim();if(!u)return;const b=event&&event.target;if(b)b.disabled=true;try{sbAdd(await sbGet(u))}catch(x){alert(x=='html'?'O Google Drive devolveu uma página em vez do arquivo. No Drive, toque em Compartilhar e deixe como “Qualquer pessoa com o link” (Leitor), depois tente de novo.':'Não consegui ler a legenda por esse link. Baixe o arquivo e use “Escolher do celular”.')}if(b)b.disabled=false}
+async function sbUrl(){const u=$('#sb_u').value.trim();if(!u)return;const b=event&&event.target;if(b)b.disabled=true;try{sbAdd(await sbGet(u))}catch(x){alert(x!='html'&&window._sbErr?'Não consegui ler a legenda: '+window._sbErr+'. Se não resolver, use “Escolher do celular”.':x=='html'?'O Google Drive devolveu uma página em vez do arquivo. No Drive, toque em Compartilhar e deixe como “Qualquer pessoa com o link” (Leitor), depois tente de novo.':'Não consegui ler a legenda por esse link. Baixe o arquivo e use “Escolher do celular”.')}if(b)b.disabled=false}
 async function sbFile(i){const f=i.files[0];if(f)sbAdd(await sbTxt(await f.arrayBuffer()));i.value=''}
 async function subDel(i){const[t,e]=sbTg(),v=await sbLoad(t,e,1);v.splice(i,1);if(await subSave(t,e,v))subList()}
 const sbNow=()=>{const vd=document.querySelector('#pw video');if(vd)return vd.currentTime;const k=S.sk;return k.p+(k.run?(Date.now()-k.at)/1000:0)};
@@ -1939,7 +1943,9 @@ async function svGdKey(){const v=$('#gd_k').value.trim();if(ok(await sb.from('se
 function dubUrl(u){u=String(u||'').trim();const m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/)||u.match(/[?&]id=([\w-]+)/);
  if(m&&/google\.com/.test(u))return S.set.gd_key?'https://www.googleapis.com/drive/v3/files/'+m[1]+'?alt=media&key='+encodeURIComponent(S.set.gd_key):'https://drive.usercontent.google.com/download?id='+m[1]+'&export=download&confirm=t';
  return u}
-async function svDub(k,i){const v=$('#'+i).value.trim();if(ok(await sb.from('settings').upsert({key:k,value:v}))){S.set[k]=v;alert(v?'Dublagem salva.':'Dublagem removida.')}}
+async function svDub(k,i){const v=$('#'+i).value.trim();if(!ok(await sb.from('settings').upsert({key:k,value:v})))return;S.set[k]=v;if(!v)return alert('Dublagem removida.');
+ let r='erro';try{const L=await window.cnDubResolve(v);r=await new Promise(res=>{const a=new Audio();a.preload='metadata';let n=0;const go=()=>{if(n>=L.length)return res('erro');a.src=L[n++]};const t=setTimeout(()=>res('tempo'),20000);a.onloadedmetadata=()=>{clearTimeout(t);res('ok:'+Math.round((a.duration||0)/60))};a.onerror=()=>go();go()})}catch(e){}
+ alert(r.startsWith('ok')?'Dublagem salva e testada: o áudio carregou ('+r.slice(3)+' min).':r=='tempo'?'Dublagem salva, mas o teste demorou demais (arquivo grande ou internet lenta). Abra o vídeo para conferir.':'Dublagem salva, mas o áudio NÃO carregou. Use o link direto do arquivo (archive.org/download/ID/ARQUIVO.mp3) e confira se ele abre no navegador.')}
 
 /* ===== Vimeo com os controles do app (mesmo estilo do YouTube, sem faixa preta) ===== */
 const VM={st:null,h:0};
@@ -2030,6 +2036,7 @@ const dubUrls=async u=>{u=String(u||'').trim();const ar=await arList(u).catch(()
  const f=dubUrl(u),L=[f],m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/)||u.match(/[?&]id=([\w-]+)/);
  if(m&&/google\.com/.test(u)){const id=m[1];['https://drive.usercontent.google.com/download?id='+id+'&export=download&confirm=t','https://drive.google.com/uc?export=download&confirm=t&id='+id].forEach(x=>{if(!L.includes(x))L.push(x)})}
  return L};
+window.cnDubResolve=dubUrls;
 const dkey=()=>{const c=S&&S.cur;if(!c)return'';return c.e?'dub_e'+c.e.id:'dub_l'+((vids(c.t)[c.li]||{}).id||'')};
 const lbl=()=>fail?'🎧 Dublagem: não carregou (toque p/ tentar de novo)':busy?'🎧 Dublagem: carregando…':on?'🎧 Dublagem: ligada':'🎧 Dublagem: desligada (toque para ligar)';
 const ovb=()=>{const cc=document.getElementById('cc');let d=document.getElementById('dbb');
@@ -2063,10 +2070,18 @@ function attach(v,urls){
  bar()}
 /* lê a dublagem direto do banco (não depende das configurações carregadas na abertura do app) */
 const getDub=async k=>{let u=S.set[k];try{const{data}=await sb.from('settings').select('value').eq('key',k).maybeSingle();if(data&&data.value!=null){u=data.value;S.set[k]=u}}catch(e){}return u};
+const NK={};
+const note=()=>{const c=document.getElementById('sbc');if(!c||!S.cur)return;const k=dkey();let n=document.getElementById('dubn');
+ if(!k){if(n)n.remove();return}
+ if(!(k in NK)){NK[k]='';getDub(k).then(u=>{NK[k]=u||''})}
+ if(!NK[k]){if(n)n.remove();return}
+ if(!n){n=document.createElement('div');n.id='dubn';n.className='mu';n.style.cssText='margin:0 14px 8px;font-size:12px;color:#ffb347';n.textContent='🎧 Este vídeo tem dublagem cadastrada, mas ele não está no player do app (Archive, Drive ou .mp4). Neste player a dublagem não toca.';c.appendChild(n)}};
 let cur='';
 setInterval(async()=>{try{
  const v=document.getElementById('vd');
- if(!v||S.tab!='play'){if(A){A.pause();A=null}cur='';return}
+ if(S.tab!='play'){if(A){A.pause();A=null}cur='';return}
+ if(!v){if(A){A.pause();A=null}cur='';note();return}
+ {const n=document.getElementById('dubn');if(n)n.remove()}
  const k=dkey();
  if(v._dub===k){bar();return}
  if(busy)return;
