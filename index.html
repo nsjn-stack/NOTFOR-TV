@@ -248,6 +248,10 @@ html.neo body #ad .btn:not(.s)::after{inset:-3px;border-width:1px}
 .pmb.on{background:var(--nc,#e10600);opacity:1}
 .pw.p2::before,.pw.p2::after{display:none!important}
 .pw.p2 .tz,.pw.p2 .bkz,.pw.p2 .ppb,.pw.p2 .ob:not(.ex),.pw.p2 .vcap{display:none!important}
+.pw.p2 .p2m{position:absolute;left:8%;right:8%;top:12%;bottom:14%;z-index:5;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;background:radial-gradient(closest-side,#000 0,#000 72%,rgba(0,0,0,.55) 88%,rgba(0,0,0,0) 100%)}
+.p2b{width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(6px)}
+.p2b svg{width:34px;height:34px;fill:#fff;margin-left:3px}
+.p2t{color:#fff;font:600 14px Poppins,sans-serif;opacity:.9}
 </style><style id="gest-css">
 .pw.vmo .ob.ex{opacity:var(--o,1);pointer-events:auto}
 body.hb .pw.vmo .ob.ex{opacity:0!important;pointer-events:none!important}
@@ -1153,7 +1157,7 @@ function ytWire(){
  st.ui();show();
 }
 function wire(){
- const v=$('#vd');if(!v){ytWire();vmWire();vkWire();return}if(v.dataset.nd)ndWire(v);
+ const v=$('#vd');if(!v){ytWire();vmWire();vkWire();vkP2Wire();return}if(v.dataset.nd)ndWire(v);
  const bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),pw=$('#pw'),f=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
  const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>';
  const up=()=>{bp.innerHTML=v.paused?PLI:PAI};
@@ -2049,6 +2053,23 @@ function vmWire(){
    Se a API do VK não responder em ~12 s, o app devolve os controles do próprio VK (o vídeo continua tocando). */
 const VKP={st:null,ld:null};
 const vkLoad=()=>VKP.ld||(VKP.ld=new Promise((ok,no)=>{if(window.VK&&VK.VideoPlayer)return ok();const hs=['https://vk.com/js/api/videoplayer.js','https://vk.ru/js/api/videoplayer.js'];let i=0;const t=()=>{if(i>=hs.length){VKP.ld=null;return no()}const sc=document.createElement('script');sc.src=hs[i++];sc.onload=()=>window.VK&&VK.VideoPlayer?ok():t();sc.onerror=t;document.head.appendChild(sc)};t()}));
+/* ===== Player 2 (VK nativo): máscara circular + botão play quando o vídeo está pausado ===== */
+function vkP2Wire(){
+ const w=$('#pw');if(!w||!w.classList.contains('p2'))return;
+ const f=w.querySelector('iframe[src*="video_ext.php"]');if(!f||w.querySelector('.p2m'))return;
+ const fm=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
+ const m=document.createElement('div');m.className='p2m';
+ m.innerHTML='<div class="p2b"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg></div><div class="p2t">0:00 / 0:00</div>';
+ w.appendChild(m);
+ const st={play:0,moved:0,cur:0,dur:0};let P=null;
+ const upd=()=>{m.style.display=(!st.play&&st.moved)?'flex':'none';m.querySelector('.p2t').textContent=fm(st.cur)+' / '+fm(st.dur)};
+ const sync=d=>{if(!d)return;if(typeof d.time=='number')st.cur=d.time;if(d.duration>0)st.dur=d.duration;if(d.state)st.play=d.state=='playing'?1:0;if(st.play)st.moved=1;upd()};
+ vkLoad().then(()=>{if(!document.contains(f))return;try{P=VK.VideoPlayer(f)}catch(e){return}
+  ['inited','timeupdate','volumechange','paused','resumed','started'].forEach(ev=>P.on(ev,d=>{sync(d);if(ev=='started'||ev=='resumed'){st.play=1;st.moved=1}if(ev=='paused')st.play=0;upd()}));
+  P.on('ended',d=>{sync(d);st.play=0;upd()});
+ }).catch(()=>{});
+ m.onclick=()=>{try{if(P){if(st.dur&&st.cur>=st.dur-1)P.seek(0);P.play()}}catch(e){}st.play=1;upd()};
+}
 function vkWire(){
  const w=$('#pw'),f=w&&w.querySelector('iframe[src*="video_ext.php"],iframe[src*="ok.ru/videoembed"]'),bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),mu=$('#mu'),sp=$('#spd'),cb=$('#cb');
  if(!f||!bp||!sk||!w.querySelector('.cnp')||!w.querySelector('.vksh'))return;
