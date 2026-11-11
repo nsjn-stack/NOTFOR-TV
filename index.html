@@ -980,7 +980,7 @@ function pPlay(){
 function tgFit(){const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[data-tg]');if(!f||!S.tgh)return;const FS=w.classList.contains('ff')||document.fullscreenElement===w||document.webkitFullscreenElement===w,FW=Math.max(260,Math.min(document.documentElement.clientWidth,720)-26);f.style.width=FS?FW+'px':'';const W=w.clientWidth,H=w.clientHeight,h=S.tgh,T=ovn('tg_t',44),B=ovn('tg_b',46),hv=Math.max(40,h-T-B),cw=hv*16/9,k=Math.min(W/cw,H/hv)*.99;const VZ=vzV('tg','vz',1),VX=vzV('tg','vx',0)/100*W,VY=vzV('tg','vy',0)/100*H;f.style.height=h+'px';const ET=ovn('tg_et',6),EB=ovn('tg_eb',10);f.style.clipPath='inset('+(T+ET)+'px 0 '+(B+EB)+'px 0)';f.style.transform='translate('+(-8*k+VX).toFixed(1)+'px,'+((B-T)/2*k+VY).toFixed(1)+'px) scale('+(k*VZ).toFixed(4)+')';w.classList.add('tgm')}
 window.addEventListener('message',e=>{
  if(e.origin=='https://t.me'||e.origin=='https://telegram.me'){try{const d=typeof e.data=='string'?JSON.parse(e.data):e.data,f=document.querySelector('#pw iframe[data-tg]');if(d&&d.event=='resize'&&+d.height>0&&f&&e.source===f.contentWindow){S.tgh=+d.height;tgFit();const w=f.parentNode;if(window.ResizeObserver&&S.tgw!==w){if(S.tgro)S.tgro.disconnect();S.tgw=w;S.tgro=new ResizeObserver(tgFit);S.tgro.observe(w)}}}catch(x){}return}
- if(e.origin=='https://player.vimeo.com'){try{const d=typeof e.data=='string'?JSON.parse(e.data):e.data;if(d.event=='ready')['timeupdate','pause'].forEach(v=>e.source.postMessage(JSON.stringify({method:'addEventListener',value:v}),'*'));else if(d.event=='timeupdate'&&S.sk)S.sk={p:d.data.seconds,at:Date.now(),run:1};else if(d.event=='pause'&&S.sk)S.sk.run=0}catch(x){}return}
+ if(e.origin=='https://player.vimeo.com'){try{const d=typeof e.data=='string'?JSON.parse(e.data):e.data;if(d.event=='timeupdate'&&d.data&&d.data.duration>120&&d.data.seconds>=d.data.duration-4)e.source.postMessage(JSON.stringify({method:'pause'}),'*');if(d.event=='ready')['timeupdate','pause'].forEach(v=>e.source.postMessage(JSON.stringify({method:'addEventListener',value:v}),'*'));else if(d.event=='timeupdate'&&S.sk)S.sk={p:d.data.seconds,at:Date.now(),run:1};else if(d.event=='pause'&&S.sk)S.sk.run=0}catch(x){}return}
  try{if(!new URL(e.origin).hostname.endsWith('youtube.com'))return}catch(x){return}
  let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}
  if(d&&(d.event=='onStateChange'||(d.event=='infoDelivery'&&d.info&&'playerState' in d.info)))S.showOv&&S.showOv();
@@ -1210,7 +1210,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-11 (38) · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
+const APP_V='2026-11-11 (41) · pausa 4s antes do fim (VK, ok.ru e Vimeo) · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -2051,7 +2051,7 @@ function vmWire(){
   else if(d.event=='texttrackchange'){s.ttc=d.data&&d.data.language?d.data.language+'|'+(d.data.kind||'subtitles'):'off';let q='off';try{q=localStorage.cn_vmt||'off'}catch(e){}if(q=='off'&&s.ttc!='off'){window.cnVmOff(s)}else if(q!='off'&&s.ttc!=q&&(s._fx||0)<3){s._fx=(s._fx||0)+1;const a=q.split('|');setTimeout(()=>s.cmd('enableTextTrack',{language:a[0],kind:a[1]||'subtitles'}),400)}}
   else if(d.event=='play'){s.play=1;s.show();s.ui()}
   else if(d.event=='pause'||d.event=='ended'){s.play=0;s.show();s.ui();if(d.event=='ended'&&typeof onEnd=='function')onEnd()}
-  else if(d.event=='timeupdate'&&d.data){s.cur=d.data.seconds||0;if(d.data.duration)s.dur=d.data.duration;if(!s.play){s.play=1}s.ui()}
+  else if(d.event=='timeupdate'&&d.data){s.cur=d.data.seconds||0;if(d.data.duration)s.dur=d.data.duration;if(!s.play){s.play=1}if(s.dur>120&&s.cur>=s.dur-4&&s.play){s.play=0;s.cmd('pause')}s.ui()}
   else if(d.event=='loaded'||d.event=='playProgress'){if(d.data&&d.data.duration){s.dur=d.data.duration;s.ui()}}})}
  f.addEventListener('load',listen);listen();let n=0;const iv=setInterval(()=>{if(!document.contains(f)||++n>12||st.dur>0){clearInterval(iv);return}listen()},700);
  w.addEventListener('pointerdown',show);w.addEventListener('touchstart',show,{passive:true});
@@ -2080,10 +2080,10 @@ function vkP2Wire(){
  const upd=()=>{m.style.display=(!st.play&&st.moved)?'flex':'none';m.querySelector('.p2t').textContent=fm(st.cur)+' / '+fm(st.dur)};
  const sync=d=>{if(!d)return;if(typeof d.time=='number')st.cur=d.time;if(d.duration>0)st.dur=d.duration;if(d.state)st.play=d.state=='playing'?1:0;if(st.play)st.moved=1;upd()};
  vkLoad().then(()=>{if(!document.contains(f))return;try{P=VK.VideoPlayer(f)}catch(e){return}
-  ['inited','timeupdate','volumechange','paused','resumed','started'].forEach(ev=>P.on(ev,d=>{sync(d);if(ev=='timeupdate'&&st.dur>5&&st.cur>=st.dur-1.5&&st.play){try{P.pause();P.seek(Math.max(0,st.dur-2.5))}catch(e){}st.play=0;st.moved=1}if(ev=='started'||ev=='resumed'){st.play=1;st.moved=1}if(ev=='paused')st.play=0;upd()}));
-  P.on('ended',d=>{sync(d);try{P.pause();P.seek(Math.max(0,st.dur-2.5))}catch(e){}st.play=0;st.moved=1;upd()});
+  ['inited','timeupdate','volumechange','paused','resumed','started'].forEach(ev=>P.on(ev,d=>{sync(d);if(ev=='timeupdate'&&st.dur>120&&st.cur>=st.dur-4&&st.play){try{P.pause()}catch(e){}st.play=0;st.moved=1}if(ev=='started'||ev=='resumed'){st.play=1;st.moved=1}if(ev=='paused')st.play=0;upd()}));
+  P.on('ended',d=>{sync(d);try{P.pause();P.seek(Math.max(0,st.dur-5))}catch(e){}st.play=0;st.moved=1;upd()});
  }).catch(()=>{});
- m.onclick=()=>{try{if(P){if(st.dur&&st.cur>=st.dur-3)P.seek(0);P.play()}}catch(e){}st.play=1;upd()};
+ m.onclick=()=>{try{if(P){if(st.dur&&st.cur>=st.dur-5)P.seek(0);P.play()}}catch(e){}st.play=1;upd()};
 }
 function vkWire(){
  const w=$('#pw'),f=w&&w.querySelector('iframe[src*="video_ext.php"],iframe[src*="ok.ru/videoembed"]'),bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),mu=$('#mu'),sp=$('#spd'),cb=$('#cb');
@@ -2112,8 +2112,8 @@ function vkWire(){
  (isOk?Promise.resolve():vkLoad()).then(()=>{if(dead||!document.contains(f))return;
   try{P=isOk?okPlayer(f):VK.VideoPlayer(f);VKP.err='';st.api=1;if(isOk)ok=1}catch(e){VKP.err=String(e&&e.message||e).slice(0,60);give();return}
   st.cmd=(m,v)=>{try{if(m=='play')P.play();else if(m=='pause')P.pause();else if(m=='setCurrentTime')P.seek(v);else if(m=='setVolume')P.setVolume(v)}catch(e){}};
-  ['inited','timeupdate','volumechange','paused','resumed','started'].forEach(ev=>P.on(ev,d=>{sync(d);if(!isOk&&ev=='timeupdate'&&st.dur>5&&st.cur>=st.dur-1.5&&st.play){try{P.pause();P.seek(Math.max(0,st.dur-2.5))}catch(e){}st.play=0}if(ev=='started'||ev=='resumed'||ev=='timeupdate'&&st.play){st.moved=1}if(ev=='started'||ev=='resumed'){st.play=1;st.moved=1;st.ui();show()}if(ev=='paused'){st.play=0;st.ui();show()}pcv()}));
-  P.on('ended',d=>{sync(d);try{if(!isOk){P.pause();P.seek(Math.max(0,st.dur-2.5))}}catch(e){}st.play=0;st.ui();show();pcv();if(typeof onEnd=='function')onEnd()});
+  ['inited','timeupdate','volumechange','paused','resumed','started'].forEach(ev=>P.on(ev,d=>{sync(d);if(!isOk&&ev=='timeupdate'&&st.dur>120&&st.cur>=st.dur-4&&st.play){try{P.pause()}catch(e){}st.play=0}if(ev=='started'||ev=='resumed'||ev=='timeupdate'&&st.play){st.moved=1}if(ev=='started'||ev=='resumed'){st.play=1;st.moved=1;st.ui();show()}if(ev=='paused'){st.play=0;st.ui();show()}pcv()}));
+  P.on('ended',d=>{sync(d);try{if(!isOk){P.pause();P.seek(Math.max(0,st.dur-5))}}catch(e){}st.play=0;st.ui();show();pcv();if(typeof onEnd=='function')onEnd()});
   P.on('error',()=>give());
  }).catch(give);
  setTimeout(()=>{if(!ok)give()},12000);
@@ -2175,7 +2175,7 @@ setInterval(()=>{try{const c=document.getElementById('sbc'),w=document.getElemen
 /* ===== ok.ru no Player 2: círculo girando + "Carregando seu vídeo" (igual ao player do app) =====
    1) cobre de preto enquanto o iframe do ok.ru ainda está abrindo; 2) depois que você toca no vídeo, mostra o círculo até ele começar a tocar */
 (()=>{const SEL='iframe[src*="ok.ru/videoembed"]';
- window.addEventListener('blur',()=>setTimeout(()=>{try{const a=document.activeElement;if(!a||!a.matches||!a.matches(SEL))return;const s=OKP.st&&OKP.st.f===a?OKP.st:null;a._ld=a._ld||{t0:Date.now()};if(!(s&&s.play))a._ld.tap=Date.now();setTimeout(()=>{try{a.blur()}catch(e){}},500)}catch(e){}},0));
+ window.addEventListener('blur',()=>setTimeout(()=>{try{const a=document.activeElement;if(!a||!a.matches||!a.matches(SEL))return;const s=OKP.st&&OKP.st.f===a?OKP.st:null;a._ld=a._ld||{t0:Date.now()};if(!(s&&s.play)&&!a._ld.tapped){a._ld.tap=Date.now();a._ld.tapped=1}}catch(e){}},0));
  setInterval(()=>{try{const w=document.getElementById('pw'),f=w&&w.querySelector(SEL);let L=w&&w.querySelector('.p2ld');
   if(!w||!f||!w.classList.contains('p2')){if(L)L.remove();return}
   if(!f._ld)f._ld={t0:Date.now()};if(!f._ldl){f._ldl=1;f.addEventListener('load',()=>{f._ld.ok=1})}
@@ -2186,6 +2186,15 @@ setInterval(()=>{try{const c=document.getElementById('sbc'),w=document.getElemen
   const mode=!loaded?'bk':(wait?'on':'');
   if(!L){L=document.createElement('div');L.className='p2ld';L.innerHTML='<i></i><b>Carregando seu vídeo</b>';w.appendChild(L)}
   L.classList.toggle('on',!!mode);L.classList.toggle('bk',mode=='bk')}catch(e){}},250)})();
+
+/* ===== ok.ru (Player 1 e Player 2): pausa 4 s antes do fim para não pular pro próximo vídeo =====
+   só funciona se o ok.ru obedecer o comando de pausa (teste do botão 🧪) */
+setInterval(()=>{try{const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[src*="ok.ru/videoembed"]'),s=OKP.st;
+ if(!f||!s||s.f!==f||!s.play||!(s.dur>120))return;
+ let cur=s.cur;if(s._ref)cur=Math.max(cur,s._ref.t+(Date.now()-s._ref.at)/1000);
+ if(cur<s.dur-4)return;
+ if(Date.now()-(s._gp||0)<2000)return;s._gp=Date.now();
+ okSend(f,okFmt(),'pause');s.play=0}catch(e){}},500);
 
 /* ===== Gestos também no YouTube e no Vimeo (player do app) =====
    direita ↕ = volume · esquerda ↕ = brilho · 2 toques nas laterais = ±10s (toques seguidos continuam pulando) */
