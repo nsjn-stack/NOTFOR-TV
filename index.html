@@ -670,7 +670,7 @@ html body,html body button,html body input,html body select,html body textarea{f
 html body #pw,html body #pw *{font-family:Roboto,-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif}
 </style>
 <style>.pw .vkpc{display:none;position:absolute;inset:0;z-index:1;background:#000;pointer-events:none}</style>
-<style>#vkmsg{position:absolute;z-index:99999;left:50%;top:50%;transform:translate(-50%,-50%);width:max-content;max-width:84%;padding:12px 18px;border-radius:16px;border:2px solid #e10600;background:rgba(0,0,0,.88);color:#fff;font:700 14px/1.35 system-ui,sans-serif;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.7)}</style><style>.pw.vkset .vksh,.pw.vkset .cnp,.pw.vkset .ppb,.pw.vkset .vkpc{display:none!important}#vkok{position:absolute;z-index:99999;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);padding:8px 18px;border-radius:20px;border:2px solid #e10600;background:rgba(0,0,0,.75);color:#fff;font:700 14px system-ui}</style>
+<style>.pw.rtad .vmsh,.pw.rtad .cnp{display:none!important}</style><style>#vkmsg{position:absolute;z-index:99999;left:50%;top:50%;transform:translate(-50%,-50%);width:max-content;max-width:84%;padding:12px 18px;border-radius:16px;border:2px solid #e10600;background:rgba(0,0,0,.88);color:#fff;font:700 14px/1.35 system-ui,sans-serif;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.7)}</style><style>.pw.vkset .vksh,.pw.vkset .cnp,.pw.vkset .ppb,.pw.vkset .vkpc{display:none!important}#vkok{position:absolute;z-index:99999;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);padding:8px 18px;border-radius:20px;border:2px solid #e10600;background:rgba(0,0,0,.75);color:#fff;font:700 14px system-ui}</style>
 </head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -874,6 +874,11 @@ function embed(u){
  if(m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/)||u.match(/drive\.google\.com\/[^\s]*[?&]id=([\w-]+)/)||u.match(/drive\.usercontent\.google\.com\/[^\s]*[?&]id=([\w-]+)/))return{t:'if',s:'https://drive.google.com/file/d/'+m[1]+'/preview',k:'dr'};
  if(m=u.match(/archive\.org\/(?:details|embed)\/([^\/?#]+)(?:\/([^?#]+))?/))return{t:'if',s:'https://archive.org/embed/'+m[1]+(m[2]?'/'+m[2]:''),k:'ar'};
  if(m=u.match(/vimeo\.com\/(?:[^?#]*\/)?(\d{6,})(?:\/([0-9a-f]{8,}))?/i)){const h=m[2]||(u.match(/[?&]h=([0-9a-f]+)/i)||[])[1];return{t:'if',s:'https://player.vimeo.com/video/'+m[1]+'?api=1&title=0&byline=0&portrait=0'+(qcfg('vm').f?'&quality='+qcfg('vm').f+'p':'')+(h?'&h='+h:''),k:'vm'}}
+ if(m=u.match(/rutube\.ru\/(?:play\/embed|video(?:\/private)?|embed)\/([0-9a-f]{32}|\d{5,10})/i)){const p=(u.match(/[?&]p=([\w-]+)/i)||[])[1];return{t:'if',s:'https://rutube.ru/play/embed/'+m[1]+'/?skinColor=e10600'+(p?'&p='+p:''),k:'rt'}}
+ if(m=u.match(/my\.mail\.ru\/+(?:video\/embed|\+\/video\/meta)\/(\d{6,})/i))return{t:'if',s:'https://my.mail.ru/video/embed/'+m[1],k:'mr'};
+ if(m=u.match(/videoapi\.my\.mail\.ru\/videos\/embed\/([\w\/.@-]+?)\.html/i))return{t:'if',s:'https://videoapi.my.mail.ru/videos/embed/'+m[1]+'.html',k:'mr'};
+ if(m=u.match(/my\.mail\.ru\/+((?:[^\/?#]+\/+){2})video\/+([^\/?#]+\/+\d+)\.html/i))return{t:'if',s:'https://videoapi.my.mail.ru/videos/embed/'+(m[1]+m[2]).replace(/\/+/g,'/')+'.html',k:'mr'};
+ if(m=u.match(/rumble\.com\/embed\/([a-z0-9]+(?:\.[a-z0-9]+)?)/i))return{t:'if',s:'https://rumble.com/embed/'+m[1]+'/?rel=0',k:'rb'};
  if(m=u.match(/(?:dailymotion\.com\/(?:embed\/)?video\/|dai\.ly\/|dailymotion\.com\/player[^?]*\?[^#]*video=)([a-z0-9]+)/i))return{t:'if',s:'https://www.dailymotion.com/embed/video/'+m[1],k:'dm'};
  if(m=u.match(/(?:t\.me|telegram\.me)\/(?!c\/|\+|joinchat)([A-Za-z0-9_]{4,})\/(\d+)/i))return{t:'if',s:'https://t.me/'+m[1]+'/'+m[2]+'?embed=1&mode=tme',k:'tg'};
  if(/(?:^|\/\/|\.)(?:vk\.com|vk\.ru|vkvideo\.ru)\//i.test(u)){let o,i,h;const q=u.match(/video_ext\.php\?([^#\s]*)/i);if(q){const g=n=>(q[1].match(new RegExp('(?:^|&)'+n+'=(-?[\\w]+)'))||[])[1];o=g('oid');i=g('id');h=g('hash')}else{const r=u.match(/video(-?\d+)_(\d+)/i);if(r){o=r[1];i=r[2];h=(u.match(/[?&]hash=([0-9a-f]+)/i)||[])[1]}}if(o&&i)return{t:'if',s:'https://'+(/vkvideo\.ru/i.test(u)?'vkvideo.ru':'vk.com')+'/video_ext.php?oid='+o+'&id='+i+'&hd='+vkHd()+'&js_api=1'+(h?'&hash='+h:''),k:'vk'}}
@@ -949,8 +954,8 @@ function ndWire(v){
 function pPlay(){
  const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.nd=false;S.cur.pk='ot';S.cur.p2=false;
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
- else{let m=embed(u);{const nt=natSrc(m);if(nt)m={t:'v',s:nt.s,k:m.k,nd:1,o:m.s,aid:nt.aid,alt:nt.alt}}S.cur.nd=!!m.nd;S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';S.cur.p2=(m.k=='vk'||m.k=='ok')&&m.t=='if'&&pm2();const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0,vmc=m.k=='vm'&&m.t=='if'&&ovn('vm_cn',1)!=0,vkc=!S.cur.p2&&((m.k=='vk'&&m.t=='if'&&ovn('vk_cn',1)!=0)||(m.k=='ok'&&m.t=='if'&&ovn('ok_cn',1)!=0));
-  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(yc?'&controls=0'+(/^https?:$/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):''):'')+(vmc?'&controls=0&playsinline=1':'')+(m.k=='vk'&&pf('rs')&&getPos(ckey())>10?(g=>'&t='+String(Math.floor(g/3600)).padStart(2,'0')+'h'+String(Math.floor(g%3600/60)).padStart(2,'0')+'m'+String(Math.floor(g%60)).padStart(2,'0')+'s')(getPos(ckey())):'')+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>${yc?'<div class="ytsh"></div>'+cnpH(t,e):vmc?'<div class="vmsh"></div>'+cnpH(t,e):vkc?'<div class="vksh"></div>'+cnpH(t,e):''}`
+ else{let m=embed(u);{const nt=natSrc(m);if(nt)m={t:'v',s:nt.s,k:m.k,nd:1,o:m.s,aid:nt.aid,alt:nt.alt}}S.cur.nd=!!m.nd;S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';S.cur.p2=(m.k=='vk'||m.k=='ok')&&m.t=='if'&&pm2();const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0,vmc=m.k=='vm'&&m.t=='if'&&ovn('vm_cn',1)!=0,rtc=m.k=='rt'&&m.t=='if'&&ovn('rt_cn',1)!=0,vkc=!S.cur.p2&&((m.k=='vk'&&m.t=='if'&&ovn('vk_cn',1)!=0)||(m.k=='ok'&&m.t=='if'&&ovn('ok_cn',1)!=0));
+  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(yc?'&controls=0'+(/^https?:$/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):''):'')+(vmc?'&controls=0&playsinline=1':'')+(m.k=='rt'&&pf('rs')&&getPos(ckey())>10?'&t='+getPos(ckey())+'&bmstart='+getPos(ckey()):'')+(m.k=='vk'&&pf('rs')&&getPos(ckey())>10?(g=>'&t='+String(Math.floor(g/3600)).padStart(2,'0')+'h'+String(Math.floor(g%3600/60)).padStart(2,'0')+'m'+String(Math.floor(g%60)).padStart(2,'0')+'s')(getPos(ckey())):'')+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>${yc?'<div class="ytsh"></div>'+cnpH(t,e):vmc?'<div class="vmsh"></div>'+cnpH(t,e):rtc?'<div class="vmsh"></div>'+cnpH(t,e):vkc?'<div class="vksh"></div>'+cnpH(t,e):''}`
   :m.t=='v'?`<video id="vd"${m.k=='dr'?' referrerpolicy="no-referrer"':''}${m.s?` src="${esc(m.s)}"`:''}${m.nd?` data-nd="1" data-o="${esc(m.o)}"${m.alt&&m.alt.length?` data-alt="${esc(JSON.stringify(m.alt))}"`:''}${m.aid?` data-aid="${esc(m.aid)}"`:''}`:''} playsinline preload="metadata"></video>${cnpH(t,e)}`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
@@ -1176,7 +1181,7 @@ function ytWire(){
  st.ui();show();
 }
 function wire(){
- const v=$('#vd');if(!v){ytWire();vmWire();vkWire();vkP2Wire();return}if(v.dataset.nd)ndWire(v);
+ const v=$('#vd');if(!v){ytWire();vmWire();rtWire();vkWire();vkP2Wire();return}if(v.dataset.nd)ndWire(v);
  const bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),pw=$('#pw'),f=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
  const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>';
  const up=()=>{bp.innerHTML=v.paused?PLI:PAI};
@@ -1215,7 +1220,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-11 (43) · comentários não somem mais · olhinho p/ ocultar títulos · engrenagem VK/ok.ru avisa p/ usar o Player 2 · pausa 4s antes do fim · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
+const APP_V='2026-11-11 (46) · Rumble · Mail.ru Vídeo · Rutube com controles do app · comentários não somem mais · olhinho p/ ocultar títulos · engrenagem VK/ok.ru avisa p/ usar o Player 2 · pausa 4s antes do fim · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -1314,6 +1319,7 @@ window.addEventListener('message',e=>{try{const s=typeof VM!='undefined'&&VM.st;
  if(d.method=='getCurrentTime'&&typeof d.value=='number')s._ref={t:d.value,at:Date.now()};
  else if(d.event=='timeupdate'&&d.data&&typeof d.data.seconds=='number')s._ref={t:d.data.seconds,at:Date.now()}}catch(x){}});
 const sbExt=()=>{try{const v=typeof VM!='undefined'&&VM.st;if(v&&document.contains(v.f)){const n=Date.now();if(n-(v._gt||0)>1000){v._gt=n;v.cmd('getCurrentTime')}const r=v._ref;if(!r)return v.cur||0;return r.t+(v.play&&n-r.at<3000?(n-r.at)/1000*(v.rate||1):0)}
+ const rt=typeof RT!='undefined'&&RT.st;if(rt&&document.contains(rt.f)){const n=Date.now(),r=rt._ref;if(!r)return rt.cur||0;return r.t+(rt.play&&n-r.at<3000?(n-r.at)/1000:0)}
  const k=typeof VKP!='undefined'&&VKP.st;if(k&&document.contains(k.f)){const n=Date.now(),r=k._ref;if(!r)return k.cur||0;return r.t+(k.play&&n-r.at<3000?(n-r.at)/1000:0)}
  const o=typeof OKP!='undefined'&&OKP.st;if(o&&document.contains(o.f)&&o._ref){const n=Date.now(),r=o._ref;return r.t+(o.play&&n-r.at<3000?(n-r.at)/1000:0)}
  const y=typeof YT!='undefined'&&YT.st;if(y&&document.contains(y.f))return y.cur||0}catch(e){}return null};
@@ -1323,7 +1329,7 @@ function sbAdj(d){S.so=Math.round((S.so+d)*10)/10;$('#sbo').textContent=(S.so>0?
 function sbPlay(){const k=S.sk;k.p=sbNow();k.at=Date.now();k.run=k.run?0:1;$('#sbp').textContent=k.run?'⏸':'▶'}
 function sbSeek(d){const k=S.sk;k.p=Math.max(0,sbNow()+d);k.at=Date.now()}
 async function sbLocal(i){const f=i.files[0];if(!f)return;const c=sbParse(await sbTxt(await f.arrayBuffer()));i.value='';if(!c.length)return alert('Não achei falas nesse arquivo. Use .srt ou .vtt.');S.sv.push({l:f.name.replace(/\.\w+$/,''),c});S.si=S.sv.length-1;sbBar()}
-function sbBar(){const man=!['yt','vm','mp'].includes(S.cur.pk);$('#sbc').innerHTML=`<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 14px 8px"><select style="flex:1;min-width:130px;margin:0" onchange="S.si=+this.value;localStorage.cn_sb=this.value">${S.sv.map((x,i)=>`<option value="${i}" ${i==S.si?'selected':''}>CC: ${esc(x.l)}</option>`).join('')}<option value="-1" ${S.si<0?'selected':''}>CC: desligada</option></select><button class="btn o s" onclick="sbAdj(-.5)">−</button><span id="sbo" class="mu" style="padding:0">${S.so}s</span><button class="btn o s" onclick="sbAdj(.5)">+</button>${man?'<button class="btn o s" onclick="sbSeek(-5)">⏪5</button><button class="btn o s" id="sbp" onclick="sbPlay()">▶</button><button class="btn o s" onclick="sbSeek(5)">5⏩</button>':''}<button class="btn o s" onclick="$('#sbf').click()">📁</button><input id="sbf" type="file" accept=".srt,.vtt,.txt" style="display:none" onchange="sbLocal(this)"></div>`}
+function sbBar(){const man=!['yt','vm','mp','rt'].includes(S.cur.pk);$('#sbc').innerHTML=`<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 14px 8px"><select style="flex:1;min-width:130px;margin:0" onchange="S.si=+this.value;localStorage.cn_sb=this.value">${S.sv.map((x,i)=>`<option value="${i}" ${i==S.si?'selected':''}>CC: ${esc(x.l)}</option>`).join('')}<option value="-1" ${S.si<0?'selected':''}>CC: desligada</option></select><button class="btn o s" onclick="sbAdj(-.5)">−</button><span id="sbo" class="mu" style="padding:0">${S.so}s</span><button class="btn o s" onclick="sbAdj(.5)">+</button>${man?'<button class="btn o s" onclick="sbSeek(-5)">⏪5</button><button class="btn o s" id="sbp" onclick="sbPlay()">▶</button><button class="btn o s" onclick="sbSeek(5)">5⏩</button>':''}<button class="btn o s" onclick="$('#sbf').click()">📁</button><input id="sbf" type="file" accept=".srt,.vtt,.txt" style="display:none" onchange="sbLocal(this)"></div>`}
 async function sbInit(){clearInterval(S.sbi);const c=S.cur;S.sk={p:0,at:0,run:0};S.so=0;S.sv=[];S.si=-1;if(!c||!$('#pw iframe,#pw video'))return;const v=await sbLoad(c.t.id,c.e?c.e.id:0);if(S.cur!==c||!$('#sbt'))return;S.sv=v.slice();const z=parseInt(localStorage.cn_sb);S.si=v.length?(z<0?-1:Math.min(z||0,v.length-1)):-1;sbBar();S.sbi=setInterval(sbTick,200)}
 const TMI='https://image.tmdb.org/t/p/';
 const TMK=()=>localStorage.cn_tmdb||'';
@@ -1549,7 +1555,7 @@ async function tHide(id,ev){if(ev){ev.stopPropagation();ev.preventDefault()}if(!
 async function cf(k,v){if(ok(await sb.from('settings').upsert({key:k,value:String(v)})))S.set[k]=String(v)}
 function ovs(k,v,u){S.set[k]=String(v);$('#o_'+k).textContent=v+u;const a=$('#pv1'),b=$('#pv2'),c=$('#pv3');if(a)a.style.cssText=ovp(ovn('ov_fx',12),ovn('ov_fy',50))+';--s:'+ovn('ov_sf',1);if(b)b.style.cssText=ovp(ovn('ov_rx',88),ovn('ov_ry',50))+';--s:'+ovn('ov_sr',1);if(c)c.style.cssText='--s:'+ovn('ov_sl',1)}
 function lss(k,v,u){S.set[k]=String(v);$('#o_'+k).textContent=v+u;const c=$('#lpv');if(c)c.style.cssText=ovp(ovn('ov_lx',97),ovn('ov_ly',6))+';--s:'+ovn('ov_sl',1)+';--o:'+ovn('ov_lo',100)/100+';--bo:'+ovn('ov_bd',100)/100+';--bf:'+ovn('ov_bf',100)/100}
-const PK=[['yt','YouTube'],['dr','Google Drive'],['ar','Internet Archive'],['vm','Vimeo'],['dm','Dailymotion'],['vk','VK Video'],['tg','Telegram'],['mp','Vídeo .mp4'],['ot','Outros']];
+const PK=[['yt','YouTube'],['dr','Google Drive'],['ar','Internet Archive'],['vm','Vimeo'],['rt','Rutube'],['mr','Mail.ru'],['rb','Rumble'],['dm','Dailymotion'],['vk','VK Video'],['tg','Telegram'],['mp','Vídeo .mp4'],['ot','Outros']];
 const ppx=k=>ovn('ov_lx_'+k,ovn('ov_lx',97)),ppy=k=>ovn('ov_ly_'+k,ovn('ov_ly',6));
 const PPK=[['ov_lx','ppx'],['ov_ly','ppy'],['ov_sl','ppsl'],['ov_lo','pplo'],['ov_ra','ppra'],['ov_bd','ppbd'],['ov_bf','ppbf']];
 function ppSel(){const k=$('#pps').value;$('#ppx').value=ppx(k);$('#ppy').value=ppy(k);$('#ppsl').value=ppo('ov_sl',k,1);$('#pplo').value=ppo('ov_lo',k,100);$('#ppra').value=ppo('ov_ra',k,2);$('#ppbd').value=ppo('ov_bd',k,100);$('#ppbf').value=ppo('ov_bf',k,100);$('#pptg').checked=!!ppo('ov_tg',k,0);ppUp(k)}
@@ -2079,6 +2085,45 @@ function vmWire(){
  st.ui();show();
 }
 
+/* ===== Rutube com os controles do app (API oficial do player: postMessage "player:*") ===== */
+const RT={st:null,h:0};
+function rtWire(){
+ const w=$('#pw'),f=w&&w.querySelector('iframe[src*="rutube.ru/play/embed"]'),bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),mu=$('#mu'),sp=$('#spd'),cb=$('#cb');
+ if(!f||!bp||!sk||!w.querySelector('.cnp')||!w.querySelector('.vmsh'))return;
+ const fm=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
+ const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>';
+ const st={f,play:0,cur:0,dur:0,muted:false,rate:1,vol:1,drag:0};RT.st=st;
+ const send=(type,data)=>{try{f.contentWindow.postMessage(JSON.stringify({type,data:data||{}}),'*')}catch(e){}};
+ /* mesma "linguagem" do Vimeo (cmd) para os gestos, dublagem e legendas do app funcionarem também no Rutube */
+ const cmd=(m,v)=>{if(m=='play')send('player:play');else if(m=='pause')send('player:pause');
+  else if(m=='setCurrentTime')send('player:setCurrentTime',{time:+v||0});
+  else if(m=='setVolume'){v=Math.max(0,Math.min(1,+v||0));if(v==0)send('player:mute');else{send('player:unMute');send('player:setVolume',{volume:v})}}};
+ st.cmd=cmd;
+ let ht;const show=()=>{w.classList.remove('ovh');clearTimeout(ht);if(st.play)ht=setTimeout(()=>w.classList.add('ovh'),4000)};
+ st.show=show;
+ st.ui=()=>{bp.innerHTML=st.play?PAI:PLI;if(!st.drag){if(st.dur>0){sk.value=Math.min(1000,st.cur/st.dur*1000);sk.style.setProperty('--p',(sk.value/10)+'%')}tm.textContent=fm(st.cur)}if(tt)tt.textContent=fm(st.dur);if(mu)mu.style.opacity=st.muted?.4:1};
+ if(!RT.h){RT.h=1;window.addEventListener('message',e=>{const s=RT.st;if(!s||!document.contains(s.f)||e.source!==s.f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d||typeof d.type!='string')return;
+  const t=d.type,x=d.data||{},pw=document.getElementById('pw');
+  if(t=='player:changeState'){s._cs=1;const v=x.state;if(v=='playing'){s.play=1;s.show();s.ui()}else if(v=='paused'||v=='pause'||v=='stopped'){s.play=0;s.show();s.ui()}}
+  else if(t=='player:durationChange'){if(x.duration>0){s.dur=x.duration;s.ui()}}
+  else if(t=='player:currentTime'){const c=+x.time||0;if(!s._cs&&c>(s._pc||0)+.15&&!s.play){s.play=1;s.show()}s._pc=c;s.cur=c;s._ref={t:c,at:Date.now()};
+   if(c>5&&Date.now()-(s._sp||0)>3000){s._sp=Date.now();try{setPos(ckey(),c);if(s.dur&&c/s.dur>.9&&pf('sn')&&!lj('cn_seen')[ckey()])setSeen(ckey(),1)}catch(er){}}
+   if(S.sk){S.sk={p:c,at:Date.now(),run:s.play?1:0}}
+   s.ui()}
+  else if(t=='player:playComplete'){s.play=0;s.show();s.ui();if(typeof onEnd=='function')onEnd()}
+  else if(t=='player:volumeChange'){const v=+x.volume;if(v>=0){s.vol=v||s.vol;s.muted=v==0;s.ui()}}
+  else if(t=='player:rollState'){/* anúncio do Rutube: libera o toque para dar para pular; volta a proteger quando ele termina */
+   if(pw&&/(pre|mid|post)roll/i.test(String(x.rollState||''))){if(x.state=='play'){pw.classList.add('rtad');clearTimeout(s._ad);s._ad=setTimeout(()=>pw.classList.remove('rtad'),120000)}else{pw.classList.remove('rtad');clearTimeout(s._ad)}}}})}
+ w.addEventListener('pointerdown',show);w.addEventListener('touchstart',show,{passive:true});
+ bp.onclick=()=>{if(st.play){st.play=0;cmd('pause')}else{st.play=1;cmd('play')}st.ui();show()};
+ sk.oninput=()=>{st.drag=1;sk.style.setProperty('--p',(sk.value/10)+'%');tm.textContent=fm(sk.value/1000*st.dur);show()};
+ sk.onchange=()=>{if(st.dur>0){st.cur=sk.value/1000*st.dur;cmd('setCurrentTime',st.cur)}setTimeout(()=>{st.drag=0},400)};
+ if(sp)sp.style.display='none'; /* o Rutube não tem comando de velocidade */
+ if(mu)mu.onclick=()=>{st.muted=!st.muted;cmd('setVolume',st.muted?0:st.vol);st.ui()};
+ if(cb)cb.onclick=()=>{if(S.ff||document.fullscreenElement||document.webkitFullscreenElement)fsExit();else go(S.prev||'home')};
+ st.ui();show();
+}
+
 /* ===== VK Vídeo com os controles do app (API oficial do player: VK.VideoPlayer, iframe com js_api=1) =====
    Se a API do VK não responder em ~12 s, o app devolve os controles do próprio VK (o vídeo continua tocando). */
 const VKP={st:null,ld:null};
@@ -2218,7 +2263,7 @@ const cl=(x,a,b)=>Math.max(a,Math.min(b,x));
 let D=null,tap=null,chain={s:'',t:0,acc:0},vol=1;
 try{const a=parseFloat(localStorage.cn_gxv);if(a>=0&&a<=1)vol=a}catch(e){}
 const kind=pw=>pw.querySelector('.ytsh')?'yt':pw.querySelector('.vmsh,.vksh')?'vm':'';
-const VMX=()=>{const a=typeof VM!='undefined'&&VM.st&&document.contains(VM.st.f)?VM.st:null,b=typeof VKP!='undefined'&&VKP.st&&document.contains(VKP.st.f)?VKP.st:null;return a||b};
+const VMX=()=>{const a=typeof VM!='undefined'&&VM.st&&document.contains(VM.st.f)?VM.st:null,b=typeof VKP!='undefined'&&VKP.st&&document.contains(VKP.st.f)?VKP.st:null,c=typeof RT!='undefined'&&RT.st&&document.contains(RT.st.f)?RT.st:null;return a||b||c};
 const setVol=(k,x)=>{vol=cl(x,0,1);
  if(k=='yt'&&YT.st){try{YT.st.f.contentWindow.postMessage(JSON.stringify({event:'command',func:'setVolume',args:[Math.round(vol*100)]}),'*');if(vol>0&&YT.st.muted){YT.st.muted=false;YT.st.f.contentWindow.postMessage(JSON.stringify({event:'command',func:'unMute',args:[]}),'*')}}catch(e){}}
  if(k=='vm'&&VMX()){const q=VMX();q.vol=vol||q.vol;q.muted=vol==0;q.cmd('setVolume',vol)}};
@@ -2281,7 +2326,7 @@ const bar=()=>{ovb();const c=document.getElementById('sbc');if(!c)return;let b=d
  const t=lbl()+(msg?' — '+msg:'');if(b.textContent!==t)b.textContent=t;b.style.borderColor=on&&!fail?'#2ee66b':''};
 /* fonte do vídeo: nativo (#vd) ou Vimeo (VM.st, pela API do player) */
 let SRC=null;
-const vmNow=()=>{try{const a=typeof VM!='undefined'&&VM.st&&document.contains(VM.st.f)?VM.st:null;if(a)return a;const b=typeof VKP!='undefined'&&VKP.st&&document.contains(VKP.st.f)?VKP.st:null;return b}catch(e){return null}};
+const vmNow=()=>{try{const a=typeof VM!='undefined'&&VM.st&&document.contains(VM.st.f)?VM.st:null;if(a)return a;const b=typeof VKP!='undefined'&&VKP.st&&document.contains(VKP.st.f)?VKP.st:null;if(b)return b;return typeof RT!='undefined'&&RT.st&&document.contains(RT.st.f)?RT.st:null}catch(e){return null}};
 const alive=()=>SRC&&(SRC.k=='n'?document.contains(SRC.v):document.contains(SRC.vm.f));
 const mute=m=>{if(!SRC||!alive())return;if(SRC.k=='n')SRC.v.muted=m;else{const q=SRC.vm;q.cmd('setVolume',m?0:(q.muted?0:(q.vol||1)))}};
 const info=()=>{const s=SRC;return s.k=='n'?{pl:!s.v.paused,t:s.v.currentTime,r:s.v.playbackRate||1}:{pl:!!s.vm.play,t:s.vm.cur||0,r:s.vm.rate||1}};
