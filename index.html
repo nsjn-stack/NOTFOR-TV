@@ -1246,7 +1246,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-17 (52) · teste Mail.ru · zoom centralizado no Rutube · botão de zoom/preencher no player · Rutube sem controles próprios · Rumble sem controles próprios · início/fim programável por vídeo · Rutube: toque por baixo + play automático · Rumble com controles do app · Mail.ru Vídeo · Rutube com controles do app · comentários não somem mais · olhinho p/ ocultar títulos · engrenagem VK/ok.ru avisa p/ usar o Player 2 · pausa 4s antes do fim · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
+const APP_V='2026-11-17 (53) · teste Mail.ru v2 · zoom centralizado no Rutube · botão de zoom/preencher no player · Rutube sem controles próprios · Rumble sem controles próprios · início/fim programável por vídeo · Rutube: toque por baixo + play automático · Rumble com controles do app · Mail.ru Vídeo · Rutube com controles do app · comentários não somem mais · olhinho p/ ocultar títulos · engrenagem VK/ok.ru avisa p/ usar o Player 2 · pausa 4s antes do fim · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -2611,33 +2611,59 @@ setInterval(tick,400);
 </script>
 <script id="mr-probe">
 (()=>{
-/* TESTE Mail.ru: mostra um quadrinho verde com o que o player do Mail.ru responde e se o vídeo direto (mp4) pode ser aberto pelo app */
-let sig='',msgs=[],res={},box=null,off='';
+/* TESTE Mail.ru v2: aprende sozinho qual formato de comando o player do Mail.ru aceita (pausar, tocar, pular) */
+let sig='',st=null,box=null,off='';
 const fr=()=>{const w=document.getElementById('pw');return w&&w.querySelector('iframe[src*="mail.ru"]')};
-addEventListener('message',e=>{const f=fr();if(!f||e.source!==f.contentWindow)return;let t;try{t=typeof e.data=='string'?e.data:JSON.stringify(e.data)}catch(x){t='?'}res.n=(res.n||0)+1;msgs.push(String(t).slice(0,80));if(msgs.length>5)msgs.shift()});
-const run=f=>{
- const m=String(f.src).match(/video\/embed\/(\d{6,})/);
- if(!m){res.meta='sem id numérico no link';return}
- res.meta='buscando...';
- fetch('https://my.mail.ru/+/video/meta/'+m[1],{credentials:'include'}).then(r=>{res.meta='http '+r.status;return r.json()}).then(j=>{
-  const v=(j&&j.videos)||[];res.meta='ok, '+v.length+' qualidades'+(v[0]?' ('+v.map(x=>x.key).join(',')+')':'');
-  if(!v[0]){res.mp4='sem links';return}
-  let u=v[0].url;if(u.startsWith('//'))u='https:'+u;res.mp4='testando...';
-  const t=document.createElement('video');t.muted=true;t.preload='metadata';
-  const to=setTimeout(()=>{if(res.mp4=='testando...')res.mp4='sem resposta em 10s'},10000);
-  t.onloadedmetadata=()=>{clearTimeout(to);res.mp4='ok, abre ('+Math.round(t.duration)+'s)';t.removeAttribute('src');t.load()};
-  t.onerror=()=>{clearTimeout(to);res.mp4='erro '+(t.error?t.error.code:'?')};
-  t.src=u;
- }).catch(e=>{if(!/^http/.test(res.meta)||res.meta=='buscando...')res.meta='bloqueado ('+(e&&e.name||'erro')+')'});
+const SH=[m=>({method:m}),m=>({type:m}),m=>({action:m}),m=>({command:m}),m=>({cmd:m}),m=>({name:m}),
+ m=>({name:'method',method:m}),m=>({name:'command',message:m}),m=>({name:'data',message:m}),m=>({name:'action',message:m}),m=>({name:'method',message:m}),
+ m=>({event:'command',func:m,args:[]}),m=>({func:m}),m=>({event:m}),m=>({message:m}),m=>({type:'player:'+m,data:{}}),m=>({context:'player.js',method:m}),m=>({name:'player',method:m}),m=>m];
+const CA=[];SH.forEach((s,i)=>{CA.push([i,0]);CA.push([i,1])});
+const NM=['seek','seekTo','setCurrentTime','currentTime','setTime'];
+const KX=t=>[{time:t},{value:t},{seconds:t},{currentTime:t},{position:t},{args:[t]},{data:{time:t}}];
+const SEEKC=[];NM.forEach(n=>[0,1,2,3,4,5,6].forEach(k=>SEEKC.push([n,k])));
+const send=(f,i,enc,m,x)=>{let p=SH[i](m);if(x&&typeof p=='object')p=Object.assign(p,x);if(enc&&typeof p=='object')p=JSON.stringify(p);try{f.contentWindow.postMessage(p,'*')}catch(e){}};
+const mk=()=>({n:0,types:{},ex:[],cur:0,dur:0,lastInc:0,t0:Date.now(),ph:0,idx:0,pend:0,found:null,play:'',seek:'',sidx:0,base:0,msg:'aguardando o vídeo tocar'});
+addEventListener('message',e=>{
+ const f=fr();if(!f||e.source!==f.contentWindow||!st)return;
+ let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){}}
+ st.n++;const o=d&&typeof d=='object';
+ const k=o?((d.message||d.name||d.type||d.event||'?')+(d.eventName&&d.eventName!=d.message?'/'+d.eventName:'')):'txt';
+ if(!st.types[k]){st.types[k]=1;if(st.ex.length<6){let t;try{t=typeof e.data=='string'?e.data:JSON.stringify(e.data)}catch(x){t='?'}st.ex.push(t.slice(0,120))}}
+ if(o&&typeof d.currentTime=='number'){if(d.currentTime>st.cur+0.05)st.lastInc=Date.now();st.cur=d.currentTime;if(d.duration>0)st.dur=d.duration}
+});
+const step=f=>{
+ const now=Date.now(),playing=now-st.lastInc<1000;
+ if(st.ph==0){if(playing&&now-st.t0>5000){st.ph=1;st.msg='testando pausa'}return}
+ if(st.ph==1){
+  if(st.pend){if(now-st.pend<1500)return;st.pend=0;
+   if(now-st.lastInc>1100){st.found=CA[st.idx];st.ph=2;st.msg='PAUSA funcionou. Testando tocar';return}
+   st.idx++}
+  if(st.idx>=CA.length){st.ph=9;st.msg='nenhum formato de pausa funcionou';return}
+  if(!playing)return;
+  send(f,CA[st.idx][0],CA[st.idx][1],'pause');st.pend=now;st.msg='testando pausa '+(st.idx+1)+'/'+CA.length;return}
+ if(st.ph==2){
+  if(!st.pend){send(f,st.found[0],st.found[1],'play');st.pend=now;return}
+  if(now-st.pend<1800)return;st.pend=0;
+  if(playing){st.play='ok';st.ph=3;st.msg='tocar funcionou. Testando pular'}else{st.play='não voltou sozinho';st.ph=9;st.msg='pausa ok, tocar falhou'}return}
+ if(st.ph==3){
+  if(st.pend){if(now-st.pend<1500)return;st.pend=0;
+   if(st.cur>st.base+25){st.seek='ok: '+JSON.stringify(SEEKC[st.sidx]);st.ph=9;st.msg='TUDO TESTADO';return}
+   st.sidx++}
+  if(st.sidx>=SEEKC.length){st.seek='nenhum funcionou';st.ph=9;st.msg='pausa/tocar ok, pular falhou';return}
+  if(!playing||st.dur&&st.cur>st.dur-90)return;
+  const c=SEEKC[st.sidx],t=Math.floor(st.cur)+40;st.base=st.cur;
+  send(f,st.found[0],st.found[1],c[0],KX(t)[c[1]]);st.pend=now;st.msg='testando pular '+(st.sidx+1)+'/'+SEEKC.length}
 };
 setInterval(()=>{
  const f=fr();
- if(!f){if(box){box.remove();box=null}sig='';return}
- if(f.src!==sig){sig=f.src;msgs=[];res={};run(f)}
+ if(!f){if(box){box.remove();box=null}sig='';st=null;return}
+ if(f.src!==sig){sig=f.src;st=mk()}
+ try{step(f)}catch(e){}
  if(off===sig)return;
- if(!box){box=document.createElement('div');box.id='mrdbg';box.style.cssText='position:fixed;left:4px;bottom:70px;max-width:92vw;z-index:99999;background:rgba(0,0,0,.82);color:#7f7;font:10px/1.35 monospace;padding:5px 7px;border-radius:6px;white-space:pre-wrap;word-break:break-all';box.onclick=()=>{off=sig;box.remove();box=null};document.body.appendChild(box)}
- box.textContent='TESTE MAIL.RU (toque para fechar)\nmensagens do player: '+(res.n||0)+(msgs.length?'\n'+msgs.join('\n'):'')+'\nmeta: '+(res.meta||'-')+'\nmp4: '+(res.mp4||'-');
-},1000);
+ if(!box){box=document.createElement('div');box.id='mrdbg';box.style.cssText='position:fixed;left:4px;bottom:70px;max-width:94vw;z-index:99999;background:rgba(0,0,0,.85);color:#7f7;font:10px/1.35 monospace;padding:5px 7px;border-radius:6px;white-space:pre-wrap;word-break:break-all';box.onclick=()=>{off=sig;box.remove();box=null};document.body.appendChild(box)}
+ const fd=st.found?'\nPAUSA: '+(st.found[1]?'JSON.stringify ':'objeto ')+JSON.stringify(SH[st.found[0]]('pause')):'';
+ box.textContent='TESTE MAIL.RU v2 (toque para fechar)\n'+st.msg+'\nmsgs: '+st.n+' | tipos: '+Object.keys(st.types).join(', ')+'\n'+st.ex.join('\n')+fd+(st.play?'\nTOCAR: '+st.play:'')+(st.seek?'\nPULAR: '+st.seek:'');
+},700);
 })();
 </script>
 </body></html>
