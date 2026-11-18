@@ -2637,6 +2637,13 @@ setInterval(tick,400);
 #pty .pb.d{border-color:#555;box-shadow:none}
 #pty input{background:#141414;border:1px solid #2b2b2b;border-radius:99em;padding:9px 14px;color:#fff;font-size:16px;margin:0;width:100%;min-width:0}
 #pty-who{display:flex;flex-wrap:wrap;gap:6px}
+#pty-vz{display:none;max-height:36%;overflow-y:auto;background:#0d0000;border:1px solid #3a0a0a;border-radius:12px;padding:4px 10px}
+#pty-vz .vr{display:flex;align-items:center;gap:8px;padding:5px 0}
+#pty-vz .vr span{flex:0 0 27%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+#pty-vz .vr input[type=range]{flex:1;min-width:0;padding:0;border:0;background:none;border-radius:0;accent-color:var(--nc,#ff2a1a);height:28px}
+#pty-vz .vr output{width:40px;text-align:right;font-size:12px;color:#ccc}
+#pty-vz .vm{background:none;border:0;color:#fff;font-size:19px;padding:0 4px;line-height:1}
+#pty-vz .vh{font-size:11px;opacity:.6;padding:2px 0 4px}
 #pty .pp{display:inline-flex;gap:4px;align-items:center;padding:3px 10px;border-radius:99em;border:1.5px solid #333;font-size:12px}
 #pty .pp.sp{border-color:#3dff7a;box-shadow:0 0 8px #3dff7a}
 #pty .pp small{opacity:.6}
@@ -2649,7 +2656,43 @@ setInterval(tick,400);
 #pty .sy{align-self:center;opacity:.6;font-size:12px;text-align:center}
 #pty-cd{position:fixed;inset:0;display:none;place-items:center;font-size:30vmin;font-weight:900;text-shadow:0 0 24px var(--nc,#ff2a1a);background:rgba(0,0,0,.45)}
 #pty>#pty-cd{pointer-events:none}
-@media (orientation:landscape) and (max-height:520px){#pty-pn{left:auto;top:0;height:100%;width:min(380px,55vw);border-radius:18px 0 0 18px;border-top:0;border-left:2px solid var(--nc,#ff2a1a)}}
+/* ===== modo deitado: vidro transparente no canto, minimizável, contador de mensagens novas ===== */
+#pty[data-rot]{inset:auto;top:0;left:0;width:100vh;width:100dvh;height:100vw;transform-origin:top left;transform:translateX(100vw) rotate(90deg)}
+#pty[data-rot="-1"]{transform:translateY(100vh) rotate(-90deg);transform:translateY(100dvh) rotate(-90deg)}
+#pty{--pa:.55}
+#pty.lsc{--pa:.32}
+#pty-pn{background:rgba(8,0,0,var(--pa))}
+#pty-pn .hd .hb2{display:flex;gap:2px;align-items:center}
+#pty-pn .hd button{min-width:30px;line-height:1}
+#pty .m{background:rgba(26,26,26,.55);text-shadow:0 1px 3px #000}
+#pty .m.me{background:rgba(90,16,10,.6)}
+#pty .sy{text-shadow:0 1px 3px #000;opacity:.75}
+#pty-sg{background:rgba(26,10,0,.55)}
+#pty.lsc #pty-pn{left:auto;top:auto;right:10px;bottom:84px;width:min(270px,40%);height:min(60%,230px);border:1px solid rgba(var(--nr,255,42,26),.55);border-radius:14px;background:rgba(0,0,0,var(--pa));-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);padding:5px 7px;box-shadow:none}
+#pty.lsc.mo #pty-pn{height:min(88%,330px);width:min(300px,46%)}
+#pty.lsc #pty-pn [data-v]{gap:4px}
+#pty.lsc #pty-pn p{font-size:12px}
+#pty.lsc .pb{padding:4px 9px;font-size:12px;background:rgba(5,0,0,.55);box-shadow:none}
+#pty.lsc #pty-who .pp{font-size:11px;padding:1px 7px;background:rgba(0,0,0,.4)}
+#pty.lsc #pty-vz{max-height:32%;background:rgba(13,0,0,.55)}
+#pty.lsc #pty-sg{font-size:12px;padding:3px 8px}
+#pty.lsc #pty-pn .hd{margin-bottom:1px}
+#pty.lsc #pty-pn .hd b{font-size:13px}
+#pty.lsc #pty-pn .hd button{font-size:17px;padding:0 6px}
+#pty.lsc #pty-msgs{gap:4px}
+#pty.lsc .m{font-size:13px;padding:4px 9px;max-width:90%}
+#pty.lsc input{padding:6px 11px;font-size:14px;background:rgba(20,20,20,.55);border-color:rgba(255,255,255,.18)}
+#pty.lsc:not(.mo) #pty-who,#pty.lsc:not(.mo) #pty-vz,#pty.lsc:not(.mo) #pty-room-btns{display:none!important}
+#pty.lsc #pty-room-btns{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+#pty.lsc.mo #pty-room-btns{flex-wrap:wrap}
+#pty.lsc #pty-room-btns::-webkit-scrollbar{display:none}
+#pty .fab{background:rgba(5,0,0,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+#pty.lsc .fab{top:auto;bottom:84px;right:10px;width:44px;height:44px;font-size:19px;opacity:.6;box-shadow:none}
+#pty.lsc .fab.nw{opacity:1;box-shadow:0 0 12px rgba(var(--nr,255,42,26),.9)}
+#pty .fab b{min-width:24px;height:24px;border-radius:12px;font-size:13px;font-weight:700;top:-9px;right:-9px;background:#ff2a1a;border:1.5px solid #fff;box-shadow:0 0 8px #000}
+#pty .fab.nw{animation:ptyp 1.4s ease-in-out infinite}
+@keyframes ptyp{50%{transform:scale(1.12)}}
+#pty.lsc #pty-peek{top:auto;bottom:84px;right:62px;max-width:min(260px,46%);background:rgba(8,0,0,.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);font-size:12px;border-width:1px}
 </style>
 <script id="party-js">
 (()=>{
@@ -2661,19 +2704,22 @@ const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
 const rid=()=>Math.random().toString(36).slice(2,10);
 const P={code:'',id:'',name:'',ch:null,peers:{},msgs:[],unread:0,stream:null,muted:false,pend:null,lt:'',fs:0};
 const AN={};let AC=null,gname='',cdT=0,pkT=0;
+const VZ={open:0,key:''};
+const peerGain=p=>(p.mm?0:1)*(p.vol==null?1:p.vol)*(P.mv==null?1:P.mv);
+function applyVol(p){if(!p)return;const g=peerGain(p);if(p.gn){try{p.gn.gain.value=g}catch(e){}}else if(p.a){p.a.volume=Math.min(1,g);p.a.muted=g===0}}
 const R=document.createElement('div');R.id='pty';R.dataset.st='lobby';
 R.innerHTML=`<button class="fab" id="pty-fab" aria-label="Assistir junto">👥<b id="pty-bd"></b><i id="pty-dot"></i></button>
 <div id="pty-peek"></div><div id="pty-cd"></div>
 <div id="pty-pn">
- <div class="hd"><b id="pty-ttl">Assistir junto</b><button id="pty-x" aria-label="Fechar">✕</button></div>
+ <div class="hd"><b id="pty-ttl">Assistir junto</b><span class="hb2"><button id="pty-ap" aria-label="Transparência">◐</button><button id="pty-mo" aria-label="Opções">⚙</button><button id="pty-x" aria-label="Minimizar">—</button></span></div>
  <div data-v="lobby"><p>Crie uma sala e mande o link: quem abrir já cai neste filme, com voz e chat ao mesmo tempo.</p>
   <button class="pb" id="pty-new">Criar sala</button>
   <div class="rw"><input id="pty-cin" placeholder="Ou digite o código da sala" maxlength="6" autocapitalize="characters" autocomplete="off"><button class="pb" id="pty-go">Entrar</button></div></div>
  <div data-v="invite"><p id="pty-ivt"></p>
   <button class="pb" id="pty-iv">🎤 Entrar com voz e chat</button><button class="pb d" id="pty-ic">Só chat (sem microfone)</button><button class="pb d" id="pty-in2">Agora não</button></div>
  <div data-v="room">
-  <div id="pty-who"></div><div id="pty-sg"></div>
-  <div class="rw wr"><button class="pb" id="pty-mic"></button><button class="pb" id="pty-sy">🔄 Sincronizar</button><button class="pb" id="pty-c3">⏱ 3-2-1</button><button class="pb" id="pty-inv">Convidar</button><button class="pb d" id="pty-lv">Sair</button></div>
+  <div id="pty-who"></div><div id="pty-sg"></div><div id="pty-vz"></div>
+  <div class="rw wr" id="pty-room-btns"><button class="pb" id="pty-mic"></button><button class="pb" id="pty-vzb">🔊 Vozes</button><button class="pb" id="pty-sy">🔄 Sincronizar</button><button class="pb" id="pty-c3">⏱ 3-2-1</button><button class="pb" id="pty-inv">Convidar</button><button class="pb d" id="pty-lv">Sair</button></div>
   <div id="pty-msgs"></div>
   <div class="rw"><input id="pty-in" maxlength="300" placeholder="Mensagem..." autocomplete="off"><button class="pb" id="pty-snd">Enviar</button></div>
  </div>
@@ -2684,7 +2730,7 @@ const setSt=()=>{R.dataset.st=P.ch?'room':P.pend&&P.pend.ok?'invite':'lobby'};
 const myName=()=>{const n=((S.p&&S.p.name)||'').trim()||(S.me&&S.me.email?S.me.email.split('@')[0]:'');return n||gname||(gname='Visitante '+(10+Math.floor(Math.random()*90)))};
 const ac=()=>{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume().catch(()=>{});return AC};
 const link=()=>{const c=S.cur,u=new URL(location.href);u.search='';u.hash='';u.searchParams.set('sala',P.code);if(c&&c.t){u.searchParams.set('t',c.t.id);if(c.e)u.searchParams.set('e',c.e.id)}return u.toString()};
-const badge=()=>{const b=q('#pty-bd');b.textContent=P.unread>9?'9+':P.unread;b.style.display=P.unread?'grid':'none';q('#pty-dot').style.display=P.ch?'block':'none'};
+const badge=()=>{const b=q('#pty-bd');b.textContent=P.unread>99?'99+':P.unread;b.style.display=P.unread?'grid':'none';q('#pty-fab').classList.toggle('nw',!!P.unread);q('#pty-dot').style.display=P.ch?'block':'none'};
 /* convite pelo link */
 try{const u=new URLSearchParams(location.search),c=(u.get('sala')||'').toUpperCase();if(/^[A-Z0-9]{6}$/.test(c))P.pend={code:c,t:Number(u.get('t'))||0,e:Number(u.get('e'))||0}}catch(e){}
 
@@ -2692,7 +2738,7 @@ try{const u=new URLSearchParams(location.search),c=(u.get('sala')||'').toUpperCa
 function renderMsgs(){const b=q('#pty-msgs');b.innerHTML=P.msgs.map(m=>m.sys?`<div class="sy">${E(m.text)}</div>`:`<div class="m${m.from===P.id?' me':''}"><small>${E(m.from===P.id?'Você':m.name)}</small>${E(m.text)}</div>`).join('');b.scrollTop=b.scrollHeight}
 function addMsg(m){P.msgs.push(m);if(P.msgs.length>120)P.msgs.shift();renderMsgs()}
 const sys=t=>addMsg({sys:1,text:t});
-function peek(m){const p=q('#pty-peek');p.innerHTML='<b>'+E(m.name)+'</b> '+E(m.text);p.style.display='block';clearTimeout(pkT);pkT=setTimeout(()=>p.style.display='none',4500)}
+function peek(m){const p=q('#pty-peek');p.innerHTML=(P.unread>1?'<small style="color:#ff8a80">'+P.unread+' mensagens novas</small><br>':'')+'<b>'+E(m.name)+'</b> '+E(m.text);p.style.display='block';clearTimeout(pkT);pkT=setTimeout(()=>p.style.display='none',4500)}
 function onChat(m){if(!m||m.from===P.id)return;addMsg(m);if(!R.classList.contains('op')){P.unread++;badge();peek(m)}}
 function send(){const i=q('#pty-in'),t=i.value.trim().slice(0,300);if(!t||!P.ch)return;i.value='';const m={from:P.id,name:P.name,text:t};P.ch.send({type:'broadcast',event:'chat',payload:m});addMsg(m);i.focus()}
 
@@ -2702,6 +2748,7 @@ function renderRoom(){
  const ps=[{id:'me',name:'Você',mic:!!P.stream&&!P.muted,no:!P.stream}].concat(Object.keys(P.peers).map(id=>({id,name:P.peers[id].name||'Alguém',mic:P.peers[id].mic,st:P.peers[id].st})));
  q('#pty-who').innerHTML=ps.map(p=>`<span class="pp" data-id="${p.id}"><i>${p.no?'🚫':p.mic?'🎤':'🔇'}</i>${E(p.name)}${p.st&&p.st!=='connected'?' <small>conectando…</small>':''}</span>`).join('');
  q('#pty-ttl').textContent='Sala '+P.code+' · '+ps.length+(ps.length>1?' pessoas':' pessoa');
+ if(VZ.open){const k=Object.keys(P.peers).map(id=>id+(P.peers[id].name||'')).join(',');if(k!==VZ.key)renderVz()}
  q('#pty-mic').textContent=P.stream?(P.muted?'🔇 Mudo':'🎤 Mic ligado'):'🎤 Ativar mic';
  const c=S.cur,o=Object.keys(P.peers).map(k=>P.peers[k]).find(p=>Number(p.t)&&T(p.t)&&(!c||!c.t||c.t.id!=p.t||(p.e&&(!c.e||c.e.id!=p.e)))),sg=q('#pty-sg');
  if(o){sg.style.display='block';sg.innerHTML='🎬 '+E(o.name)+' está em “'+E(T(o.t).name)+'” — <u>ir para lá</u>';sg.onclick=()=>play(Number(o.t),o.e?Number(o.e):undefined)}else sg.style.display='none'}
@@ -2716,7 +2763,9 @@ function mk(id,init){
  const pc=new RTCPeerConnection({iceServers:ICE.concat(window.CN_TURN||[])});p.pc=pc;
  if(init){p.snd=pc.addTransceiver('audio',{direction:'sendrecv'}).sender;setTrack(p)}
  pc.onicecandidate=e=>{if(e.candidate)sigTo(id,{c:e.candidate.toJSON()})};
- pc.ontrack=e=>{const a=p.a||(p.a=document.createElement('audio'));a.autoplay=true;a.playsInline=true;a.srcObject=e.streams[0]||new MediaStream([e.track]);R.appendChild(a);a.play().catch(()=>{});watch(id,a.srcObject)};
+ pc.ontrack=e=>{const a=p.a||(p.a=document.createElement('audio'));a.autoplay=true;a.playsInline=true;a.srcObject=e.streams[0]||new MediaStream([e.track]);R.appendChild(a);a.play().catch(()=>{});watch(id,a.srcObject);
+  try{if(p.src){try{p.src.disconnect()}catch(x){}}p.gn=null;a.muted=false;const c=ac();if(c.createMediaStreamSource&&c.createGain){const sr=c.createMediaStreamSource(a.srcObject),gn=c.createGain();sr.connect(gn);gn.connect(c.destination);p.src=sr;p.gn=gn;a.muted=true}}catch(x){p.gn=null;a.muted=false}
+  applyVol(p)};
  pc.onconnectionstatechange=()=>{p.st=pc.connectionState;if(pc.connectionState==='failed'&&P.id<id)call(id);renderRoom()};
  return pc}
 async function call(id){
@@ -2734,7 +2783,7 @@ async function onSig(m){
   }else if(m.d&&p.pc){await p.pc.setRemoteDescription(m.d);flush()}
   else if(m.c){if(p.pc&&p.pc.remoteDescription)await p.pc.addIceCandidate(m.c).catch(()=>{});else p.q.push(m.c)}
  }catch(e){console.warn('sig',e)}}
-function drop(id,quiet){const p=P.peers[id];if(!p)return;try{p.pc&&p.pc.close()}catch(e){}if(p.a){p.a.srcObject=null;p.a.remove()}delete AN[id];delete P.peers[id];if(!quiet)sys((p.name||'Alguém')+' saiu')}
+function drop(id,quiet){const p=P.peers[id];if(!p)return;try{p.pc&&p.pc.close()}catch(e){}try{p.src&&p.src.disconnect();p.gn&&p.gn.disconnect()}catch(e){}if(p.a){p.a.srcObject=null;p.a.remove()}delete AN[id];delete P.peers[id];if(!quiet)sys((p.name||'Alguém')+' saiu')}
 function onSync(){
  if(!P.ch)return;
  const st=P.ch.presenceState(),ids=Object.keys(st);
@@ -2780,7 +2829,18 @@ async function leave(){
  if(P.stream){P.stream.getTracks().forEach(t=>t.stop());P.stream=null}
  delete AN.me;const ch=P.ch;P.ch=null;P.peers={};P.msgs=[];P.code='';P.unread=0;
  if(ch){try{await sb.removeChannel(ch)}catch(e){}}
- q('#pty-ttl').textContent='Assistir junto';setSt();badge()}
+ q('#pty-ttl').textContent='Assistir junto';VZ.open=0;VZ.key='';q('#pty-vz').style.display='none';setSt();badge()}
+
+/* ---- volume das vozes (separado do volume do vídeo) ---- */
+const pc100=v=>Math.round((v==null?1:v)*100)+'%';
+function renderVz(){
+ const b=q('#pty-vz'),ids=Object.keys(P.peers);
+ b.innerHTML='<div class="vh">Só muda a voz das pessoas, não o volume do vídeo. 100% é o normal; vai até 200%.</div><div class="vr"><span>Todas</span><input type="range" min="0" max="200" step="5" value="'+Math.round((P.mv==null?1:P.mv)*100)+'" data-g="*"><output>'+pc100(P.mv)+'</output></div>'
+ +(ids.length?ids.map(id=>{const p=P.peers[id];return '<div class="vr"><span>'+E(p.name||'Alguém')+'</span><button class="vm" data-m="'+id+'" aria-label="Silenciar">'+(p.mm?'🔇':'🔊')+'</button><input type="range" min="0" max="200" step="5" value="'+Math.round((p.vol==null?1:p.vol)*100)+'" data-g="'+id+'"><output>'+pc100(p.vol)+'</output></div>'}).join(''):'<div class="vh">Ninguém mais na sala ainda.</div>');
+ VZ.key=ids.map(id=>id+(P.peers[id].name||'')).join(',')}
+q('#pty-vz').addEventListener('input',e=>{const t=e.target,g=t.dataset&&t.dataset.g;if(!g)return;const v=(+t.value)/100;if(g==='*'){P.mv=v;Object.keys(P.peers).forEach(k=>applyVol(P.peers[k]))}else if(P.peers[g]){P.peers[g].vol=v;applyVol(P.peers[g])}const o=t.parentNode.querySelector('output');if(o)o.textContent=Math.round(v*100)+'%'});
+q('#pty-vz').addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-m]');if(!t)return;const p=P.peers[t.dataset.m];if(!p)return;p.mm=!p.mm;applyVol(p);t.textContent=p.mm?'🔇':'🔊'});
+q('#pty-vzb').onclick=()=>{VZ.open=VZ.open?0:1;q('#pty-vz').style.display=VZ.open?'block':'none';if(VZ.open)renderVz()};
 
 /* ---- sincronia: play, pausa e avanço valem para todos da sala ---- */
 const VS={k:'',pl:null,t:0,at:0,sup:0,lead:0,hb:0};
@@ -2836,7 +2896,13 @@ async function invite(){
 
 /* ---- eventos ---- */
 const openP=v=>{R.classList.toggle('op',v);if(v){P.unread=0;badge();renderRoom();renderMsgs()}};
-q('#pty-fab').onclick=()=>openP(1);q('#pty-x').onclick=()=>openP(0);q('#pty-peek').onclick=()=>openP(1);
+q('#pty-fab').onclick=()=>openP(1);q('#pty-x').onclick=()=>openP(0);
+const PAS=[.12,.32,.55,.85];let pai=-1;
+const paSet=i=>{pai=i;R.style.setProperty('--pa',PAS[i]);try{localStorage.setItem('cnp_pa',i)}catch(e){}};
+try{const v=parseInt(localStorage.getItem('cnp_pa'));if(v>=0&&v<PAS.length)paSet(v)}catch(e){}
+q('#pty-ap').onclick=()=>{let i=pai<0?(R.classList.contains('lsc')?1:2):pai;paSet((i+1)%PAS.length)};
+q('#pty-mo').onclick=()=>R.classList.toggle('mo');
+q('#pty-peek').onclick=()=>openP(1);
 q('#pty-new').onclick=()=>{let c='';for(let i=0;i<6;i++)c+=CH[Math.floor(Math.random()*CH.length)];join(c,true)};
 q('#pty-go').onclick=()=>{const c=q('#pty-cin').value.trim().toUpperCase();if(/^[A-Z0-9]{6}$/.test(c))join(c,true);else alert('O código tem 6 letras ou números.')};
 q('#pty-iv').onclick=()=>P.pend&&join(P.pend.code,true);q('#pty-ic').onclick=()=>P.pend&&join(P.pend.code,false);
@@ -2844,9 +2910,20 @@ q('#pty-in2').onclick=()=>{P.pend=null;setSt();openP(0)};
 q('#pty-mic').onclick=mic;q('#pty-sy').onclick=()=>{if(!P.ch)return;P.ch.send({type:'broadcast',event:'vq',payload:{}});sys('Pedi o ponto do vídeo para os outros…')};q('#pty-c3').onclick=()=>{if(!P.ch)return;P.ch.send({type:'broadcast',event:'cd',payload:{name:P.name}});countdown('Você')};
 q('#pty-inv').onclick=invite;q('#pty-lv').onclick=async()=>{await leave();openP(0)};
 q('#pty-snd').onclick=send;q('#pty-in').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}};
-document.addEventListener('click',()=>Object.keys(P.peers).forEach(k=>{const a=P.peers[k].a;if(a&&a.paused)a.play().catch(()=>{})}),true);
+document.addEventListener('click',()=>{try{if(AC&&AC.state==='suspended')AC.resume()}catch(e){}Object.keys(P.peers).forEach(k=>{const a=P.peers[k].a;if(a&&a.paused)a.play().catch(()=>{})})},true);
 /* teclado do celular: o painel sobe junto */
-if(window.visualViewport){const f=()=>{const v=visualViewport;pn.style.bottom=Math.max(0,innerHeight-v.height-v.offsetTop)+'px';pn.style.maxHeight=v.height+'px'};visualViewport.addEventListener('resize',f);visualViewport.addEventListener('scroll',f)}
+const vvf=()=>{const v=window.visualViewport,kb=v?Math.max(0,innerHeight-v.height-v.offsetTop):0;
+ if(R.classList.contains('lsc')){pn.style.maxHeight='';pn.style.top='';if(R.dataset.rot){pn.style.bottom='';pn.style.right=(10+(R.dataset.rot==='1'?kb:0))+'px'}else{pn.style.right='';pn.style.bottom=(kb>0?kb+4:84)+'px'}}
+ else{pn.style.right='';pn.style.top='';pn.style.bottom=kb+'px';pn.style.maxHeight=(v?v.height:innerHeight)+'px'}};
+if(window.visualViewport){visualViewport.addEventListener('resize',vvf);visualViewport.addEventListener('scroll',vvf)}
+function lsUpd(){
+ const w=document.getElementById('pw');let r='',ch=0;
+ if(w&&w.classList.contains('ff')&&w.classList.contains('rot')&&innerHeight>innerWidth)r=w.classList.contains('rotn')?'-1':'1';
+ const lsc=!!r||(innerWidth>innerHeight&&innerHeight<=520);
+ if((R.dataset.rot||'')!==r){if(r)R.dataset.rot=r;else delete R.dataset.rot;ch=1}
+ if(R.classList.contains('lsc')!==lsc){R.classList.toggle('lsc',lsc);ch=1}
+ if(ch)vvf()}
+addEventListener('resize',lsUpd);addEventListener('orientationchange',lsUpd);document.addEventListener('click',()=>{setTimeout(lsUpd,80);setTimeout(lsUpd,400)},true);
 /* quem está falando acende verde */
 setInterval(()=>{for(const k in AN){const a=AN[k];a.an.getByteFrequencyData(a.d);let s=0;for(let i=0;i<a.d.length;i++)s+=a.d[i];const el=R.querySelector('.pp[data-id="'+k+'"]');if(el)el.classList.toggle('sp',s/a.d.length>14&&!(k==='me'&&P.muted))}},250);
 /* vigia: tela cheia, botão flutuante, convite pendente, troca de filme */
@@ -2858,7 +2935,9 @@ setInterval(()=>{
   P.pend.ok=1;const p=P.pend;if(p.t&&T(p.t)){try{play(p.t,p.e||undefined)}catch(e){}}
   const t=p.t&&T(p.t);q('#pty-ivt').textContent='Você foi convidado para a sala '+p.code+(t?' — “'+t.name+'”':'')+'.';setSt();openP(1)}
  const fab=q('#pty-fab'),bad=document.body.classList.contains('hb')||S.oved||S.bled;
- fab.style.display=(P.ch||(P.pend&&P.pend.ok)||S.tab==='play')&&!bad?'grid':'none';
+ const nof=!P.ch&&!(P.pend&&P.pend.ok)&&S.cur&&S.cur.pk=='mr';/* sem sala: esconde o botão 👥 no player mail.ru */
+ fab.style.display=(P.ch||(P.pend&&P.pend.ok)||S.tab==='play')&&(!bad||(P.ch&&P.unread>0&&!S.oved&&!S.bled))&&!nof?'grid':'none';
+ lsUpd();
  if(P.ch){const c=S.cur,k=c&&c.t?c.t.id+'/'+(c.e?c.e.id:0):'0/0';if(k!==P.lt){P.lt=k;track();renderRoom()}}
 },500);
 })();
