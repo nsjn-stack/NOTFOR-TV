@@ -1250,7 +1250,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-17 (56) · Mail.ru aprende o comando · zoom centralizado no Rutube · botão de zoom/preencher no player · Rutube sem controles próprios · Rumble sem controles próprios · início/fim programável por vídeo · Rutube: toque por baixo + play automático · Rumble com controles do app · Mail.ru Vídeo · Rutube com controles do app · comentários não somem mais · olhinho p/ ocultar títulos · engrenagem VK/ok.ru avisa p/ usar o Player 2 · pausa 4s antes do fim · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
+const APP_V='2026-11-17 (57) · Mail.ru aprende o comando · zoom centralizado no Rutube · botão de zoom/preencher no player · Rutube sem controles próprios · Rumble sem controles próprios · início/fim programável por vídeo · Rutube: toque por baixo + play automático · Rumble com controles do app · Mail.ru Vídeo · Rutube com controles do app · comentários não somem mais · olhinho p/ ocultar títulos · engrenagem VK/ok.ru avisa p/ usar o Player 2 · pausa 4s antes do fim · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -2624,14 +2624,16 @@ const SH=[m=>'embed-'+m,m=>({method:m}),m=>({type:m}),m=>({action:m}),m=>({comma
  m=>({event:'command',func:m,args:[]}),m=>({func:m}),m=>({event:m}),m=>({message:m}),m=>({type:'player:'+m,data:{}}),m=>({context:'player.js',method:m}),m=>({name:'player',method:m}),m=>({event:'embed-'+m})];
 const CA=[];SH.forEach((_,i)=>{CA.push([i,0]);if(i>0)CA.push([i,1])});
 const NM=['seek','seekTo','setCurrentTime','currentTime','setTime'];
+const PN=['play','resume','start','unpause','playVideo','continue','togglePlay','togglePause','toggle'];
 const KX=t=>[{time:t},{value:t},{seconds:t},{currentTime:t},{position:t},{args:[t]},{data:{time:t}}];
 const SEEKC=[];NM.forEach(n=>[0,1,2,3,4,5,6].forEach(k=>SEEKC.push([n,k])));
 const raw=(f,i,enc,m,x)=>{let p=SH[i](m);if(x&&typeof p=='object')p=Object.assign(p,x);if(enc&&typeof p=='object')p=JSON.stringify(p);try{f.contentWindow.postMessage(p,'*')}catch(e){}};
 const get=()=>{try{return JSON.parse(localStorage.cn_mrfmt||'null')}catch(e){return null}};
 const put=o=>{try{localStorage.cn_mrfmt=JSON.stringify(o)}catch(e){}};
-window.mrCmd=(f,m,v)=>{const c=get()||{i:3,e:0};
- if(m=='seek'){const k=c.sk||['seek',0];return raw(f,c.i,c.e,k[0],KX(v)[k[1]])}
+window.mrCmd=(f,m,v)=>{const c=get()||{i:7,e:0};
+ if(m=='seek'){if(c.sk)return raw(f,c.i,c.e,c.sk[0],KX(v)[c.sk[1]]);const x={time:v,value:v,position:v,seconds:v,currentTime:v};['seek','seekTo','setCurrentTime'].forEach(n=>raw(f,c.i,c.e,n,x));return}
  if(m=='setVolume'){raw(f,c.i,c.e,'setVolume',{volume:v,value:v});return raw(f,c.i,c.e,v>0?'unmute':'mute')}
+ if(m=='play'){(c.pl?[c.pl]:['play','resume']).forEach(n=>raw(f,c.i,c.e,n));return}
  raw(f,c.i,c.e,m)};
 const fr=()=>{const w=document.getElementById('pw');return w&&w.querySelector('iframe[src*="mail.ru"]')};
 let box=null,sig='',off='',st=null,tst=null;
@@ -2649,21 +2651,26 @@ const T=()=>tst;
 const step=f=>{const q=T();if(!q)return;const now=Date.now(),playing=now-st.lastInc<1100;
  if(q.ph==1){
   if(q.pend){if(now-q.pend<1500)return;q.pend=0;
-   if(now-st.lastInc>1200||(st.pev&&/pause/.test(st.pev)&&+st.pev.split(':')[0]>q.sent)){q.found=CA[q.idx];put({i:q.found[0],e:q.found[1]});q.ph=2;q.msg='PAUSA funcionou. Testando tocar...';return}
+   if(now-st.lastInc>1200||(st.pev&&/pause/.test(st.pev)&&+st.pev.split(':')[0]>q.sent)){q.found=CA[q.idx];{const o=get();put(o&&o.i==q.found[0]&&o.e==q.found[1]?o:{i:q.found[0],e:q.found[1]})}q.ph=2;q.msg='PAUSA funcionou. Testando tocar...';return}
    if(q.only){q.only=0;q.idx=0}else q.idx++}
   if(q.idx>=CA.length){q.ph=9;q.msg='nenhum formato de pausa funcionou';return}
   if(!playing){q.msg='o vídeo precisa estar tocando (use "Usar controles do Mail.ru", dê play, e teste de novo)';q.wait=(q.wait||0)+1;if(q.wait>6){q.ph=9}return}
   raw(f,CA[q.idx][0],CA[q.idx][1],'pause');q.pend=q.sent=now;q.msg='testando pausa '+(q.idx+1)+'/'+CA.length;return}
- if(q.ph==2){
-  if(!q.pend){raw(f,q.found[0],q.found[1],'play');q.pend=now;return}
-  if(now-q.pend<1800)return;q.pend=0;
-  if(playing){q.play='ok';q.ph=3;q.msg='tocar funcionou. Testando pular...'}else{q.play='não voltou';q.ph=9;q.msg='pausa ok, tocar falhou'}return}
+ if(q.ph==2){const g=get();
+  if(!q.sub){if(playing){raw(f,g.i,g.e,'pause');q.pend=now;q.sub=1;q.msg='pausando para testar o play...';return}q.sub=2;q.pidx=0;q.pend=0}
+  if(q.sub==1){if(now-q.pend<1800)return;q.sub=2;q.pidx=0;q.pend=0}
+  if(q.pend){if(now-q.pend<1800)return;q.pend=0;
+   if(now-st.lastInc<1000){const c=get()||{};c.pl=PN[q.pidx];put(c);q.play='ok: '+PN[q.pidx];q.ph=3;q.msg='tocar funcionou ('+PN[q.pidx]+'). Testando pular...';return}
+   q.pidx++}
+  if(q.pidx>=PN.length){q.play='nenhum nome funcionou';q.ph=9;q.msg='pausa ok, tocar falhou';return}
+  raw(f,g.i,g.e,PN[q.pidx]);q.pend=now;q.msg='testando tocar '+(q.pidx+1)+'/'+PN.length;return}
  if(q.ph==3){
   if(q.pend){if(now-q.pend<1500)return;q.pend=0;
    if(st.cur>q.base+25){q.seek='ok '+JSON.stringify(SEEKC[q.sidx]);const c=get()||{};c.sk=SEEKC[q.sidx];put(c);q.ph=9;q.msg='PRONTO! Formato salvo. Feche e abra o vídeo de novo.';return}
    q.sidx++}
   if(q.sidx>=SEEKC.length){q.seek='nenhum funcionou';q.ph=9;q.msg='pausa/tocar ok, pular falhou';return}
-  if(!playing||st.dur&&st.cur>st.dur-90)return;
+  if(!playing){if(!q.kick){q.kick=1;window.mrCmd(f,'play')}return}
+  if(st.dur&&st.cur>st.dur-90)return;
   const c=SEEKC[q.sidx],t=Math.floor(st.cur)+40,g=get();q.base=st.cur;
   raw(f,g.i,g.e,c[0],KX(t)[c[1]]);q.pend=now;q.msg='testando pular '+(q.sidx+1)+'/'+SEEKC.length}
 };
@@ -2678,7 +2685,7 @@ setInterval(()=>{
  if(!box){box=document.createElement('div');box.style.cssText='position:fixed;left:4px;bottom:70px;max-width:94vw;z-index:99999;background:rgba(0,0,0,.88);color:#7f7;font:10px/1.35 monospace;padding:5px 7px;border-radius:6px;word-break:break-all';
   box.innerHTML='<div class="t" style="white-space:pre-wrap"></div><button type="button" class="r" style="margin:4px 4px 0 0;font:11px system-ui;padding:3px 8px"></button><button type="button" class="g" style="margin:4px 4px 0 0;font:11px system-ui;padding:3px 8px">Testar comandos</button><button type="button" class="z" style="margin:4px 4px 0 0;font:11px system-ui;padding:3px 8px">Apagar formato</button><button type="button" class="x" style="margin-top:4px;font:11px system-ui;padding:3px 8px">Fechar</button>';
   box.querySelector('.r').onclick=()=>{w.classList.toggle('mrraw')};
-  box.querySelector('.g').onclick=()=>{const g=get(),k=g?CA.findIndex(c=>c[0]==g.i&&c[1]==g.e):-1;tst={ph:1,idx:k>=0?k:0,only:k>=0?1:0,pend:0,found:null,play:'',seek:'',sidx:0,base:0,msg:'iniciando'}};
+  box.querySelector('.g').onclick=()=>{const g=get(),k=g?CA.findIndex(c=>c[0]==g.i&&c[1]==g.e):-1;let ph=1;if(k>=0)ph=!g.pl?2:(!g.sk?3:1);tst={ph,sub:0,idx:k>=0?k:0,only:k>=0?1:0,pend:0,found:null,play:'',seek:'',sidx:0,base:0,msg:'iniciando'}};
   box.querySelector('.z').onclick=()=>{try{delete localStorage.cn_mrfmt}catch(e){}tst=null};
   box.querySelector('.x').onclick=()=>{off=sig;box.remove();box=null};document.body.appendChild(box)}
  const rw=w.classList.contains('mrraw'),sv=(typeof VKP!='undefined'&&VKP.st)?VKP.st:null,sf=get(),q=tst;
