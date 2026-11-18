@@ -2747,7 +2747,16 @@ function onSync(){
   if(!p.pc&&P.id<id)call(id)});
  Object.keys(P.peers).forEach(id=>{if(!st[id])drop(id)});
  P.fs=2;renderRoom()}
-async function getMic(){return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false})}
+function micAsk(){return new Promise(async res=>{
+ try{if(navigator.permissions){const r=await navigator.permissions.query({name:'microphone'});if(r.state==='granted')return res(true)}}catch(e){}
+ let lg='logo.png';try{lg=(S&&S.set&&S.set.logo_app)||lg}catch(e){}
+ const d=document.createElement('div');
+ d.style.cssText='position:fixed;inset:0;z-index:2147483600;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:20px;font:15px/1.4 Roboto,-apple-system,Arial,sans-serif;color:#fff';
+ d.innerHTML='<div style="width:100%;max-width:360px;background:#080000;border:2px solid #ff2a1a;border-radius:18px;box-shadow:0 0 22px rgba(255,42,26,.5);padding:22px 18px;text-align:center"><img src="'+E(lg)+'" alt="NOTFOR" style="max-width:150px;max-height:70px;object-fit:contain;margin-bottom:10px"><div style="font-size:22px;font-weight:800;margin-bottom:8px">NOTFOR quer usar seu microfone</div><p style="margin:0 0 16px;color:#ccc">Para você falar com seus amigos enquanto assistem juntos. Na próxima tela, toque em <b>Permitir</b>.</p><button id="ma-ok" style="width:100%;background:#050000;color:#fff;border:1.5px solid #ff2a1a;border-radius:99em;padding:12px;font-size:15px;font-weight:700;box-shadow:0 0 8px rgba(255,42,26,.8)">Permitir microfone</button><button id="ma-no" style="width:100%;margin-top:10px;background:none;color:#aaa;border:1.5px solid #555;border-radius:99em;padding:10px;font-size:14px">Agora não</button></div>';
+ document.body.appendChild(d);
+ const fim=v=>{d.remove();res(v)};
+ d.querySelector('#ma-ok').onclick=()=>fim(true);d.querySelector('#ma-no').onclick=()=>fim(false)})}
+async function getMic(){if(!(await micAsk()))throw new Error('mic-cancelado');return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false})}
 async function mic(){
  if(!P.stream){try{P.stream=await getMic();P.muted=false;watch('me',P.stream);Object.keys(P.peers).forEach(k=>setTrack(P.peers[k]))}catch(e){sys('Não consegui usar o microfone. Libere a permissão do navegador para este site.')}}
  else{P.muted=!P.muted;P.stream.getAudioTracks().forEach(t=>t.enabled=!P.muted)}
