@@ -2673,7 +2673,7 @@ R.innerHTML=`<button class="fab" id="pty-fab" aria-label="Assistir junto">👥<b
   <button class="pb" id="pty-iv">🎤 Entrar com voz e chat</button><button class="pb d" id="pty-ic">Só chat (sem microfone)</button><button class="pb d" id="pty-in2">Agora não</button></div>
  <div data-v="room">
   <div id="pty-who"></div><div id="pty-sg"></div>
-  <div class="rw wr"><button class="pb" id="pty-mic"></button><button class="pb" id="pty-c3">⏱ 3-2-1</button><button class="pb" id="pty-inv">Convidar</button><button class="pb d" id="pty-lv">Sair</button></div>
+  <div class="rw wr"><button class="pb" id="pty-mic"></button><button class="pb" id="pty-sy">🔄 Sincronizar</button><button class="pb" id="pty-c3">⏱ 3-2-1</button><button class="pb" id="pty-inv">Convidar</button><button class="pb d" id="pty-lv">Sair</button></div>
   <div id="pty-msgs"></div>
   <div class="rw"><input id="pty-in" maxlength="300" placeholder="Mensagem..." autocomplete="off"><button class="pb" id="pty-snd">Enviar</button></div>
  </div>
@@ -2742,7 +2742,7 @@ function onSync(){
  ids.forEach(id=>{if(id===P.id)return;const m=(st[id]&&st[id][0])||{},nw=!P.peers[id],p=P.peers[id]||(P.peers[id]={});
   const chg=!nw&&m.t&&(String(p.t)!==String(m.t)||String(p.e)!==String(m.e));
   Object.assign(p,{name:m.name||'Alguém',mic:m.mic,t:m.t,e:m.e});
-  if(nw&&P.fs>1)sys(p.name+' entrou 👋');
+  if(nw&&P.fs>1)sys(p.name+' entrou 👋');if(nw&&P.fs>1)setTimeout(()=>{const c=ctl();if(c&&c.playing)sendVs(c,0)},1500);
   if(chg&&T(m.t))sys(p.name+' abriu “'+T(m.t).name+'”');
   if(!p.pc&&P.id<id)call(id)});
  Object.keys(P.peers).forEach(id=>{if(!st[id])drop(id)});
@@ -2770,7 +2770,7 @@ async function join(code,voice){
  if(voice){try{P.stream=await getMic();watch('me',P.stream)}catch(e){P.stream=null;P.msgs.push({sys:1,text:'Microfone não liberado: você ouve os outros e usa o chat. Toque em “Ativar mic” quando quiser falar.'})}}
  const ch=sb.channel('cnp-sala-'+code,{config:{broadcast:{self:false},presence:{key:P.id}}});
  ch.on('broadcast',{event:'sig'},({payload})=>onSig(payload)).on('broadcast',{event:'chat'},({payload})=>onChat(payload))
-  .on('broadcast',{event:'cd'},({payload})=>countdown(payload&&payload.name)).on('presence',{event:'sync'},onSync)
+  .on('broadcast',{event:'cd'},({payload})=>countdown(payload&&payload.name)).on('broadcast',{event:'vs'},({payload})=>onVs(payload)).on('broadcast',{event:'vq'},()=>{const c=ctl();if(c)sendVs(c,0)}).on('presence',{event:'sync'},onSync)
   .subscribe(s=>{if(s==='SUBSCRIBED'){track()}else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT')sys('Falha na conexão com a sala. Tentando de novo…')});
  P.ch=ch;P.lt=S.cur&&S.cur.t?S.cur.t.id+'/'+(S.cur.e?S.cur.e.id:0):'0/0';
  if(!P.msgs.length)sys('Sala criada. Toque em Convidar para mandar o link.');
@@ -2781,6 +2781,43 @@ async function leave(){
  delete AN.me;const ch=P.ch;P.ch=null;P.peers={};P.msgs=[];P.code='';P.unread=0;
  if(ch){try{await sb.removeChannel(ch)}catch(e){}}
  q('#pty-ttl').textContent='Assistir junto';setSt();badge()}
+
+/* ---- sincronia: play, pausa e avanço valem para todos da sala ---- */
+const VS={k:'',pl:null,t:0,at:0,sup:0,lead:0,hb:0};
+const vkey=()=>{const c=S.cur;return c&&c.t?c.t.id+'/'+(c.e?c.e.id:0)+'/'+(c.li||0):''};
+function ctl(){
+ try{
+  const w=document.getElementById('pw');if(!w)return null;
+  const v=w.querySelector('video');
+  if(v)return{playing:!v.paused&&!v.ended,t:v.currentTime||0,play:()=>{try{const r=v.play();r&&r.catch&&r.catch(()=>{})}catch(e){}},pause:()=>v.pause(),seek:x=>{try{v.currentTime=x}catch(e){}}};
+  const y=typeof YT!='undefined'&&YT.st;
+  if(y&&document.contains(y.f)){const pm=(func,args)=>{try{y.f.contentWindow.postMessage(JSON.stringify({event:'command',func,args:args||[]}),'*')}catch(e){}};return{playing:y.ps===1,t:y.cur||0,play:()=>pm('playVideo'),pause:()=>pm('pauseVideo'),seek:x=>pm('seekTo',[x,true])}}
+  for(const o of [typeof VKP!='undefined'&&VKP,typeof VM!='undefined'&&VM,typeof RT!='undefined'&&RT]){
+   const st=o&&o.st;
+   if(st&&st.f&&document.contains(st.f)&&st.cmd){const x=typeof sbExt=='function'?sbExt():null;return{playing:!!st.play,t:x==null?(st.cur||0):x,play:()=>st.cmd('play'),pause:()=>st.cmd('pause'),seek:t=>st.cmd('setCurrentTime',t)}}}
+ }catch(e){}
+ return null}
+function sendVs(c,h){if(!P.ch||!c)return;VS.hb=Date.now();P.ch.send({type:'broadcast',event:'vs',payload:{from:P.id,name:P.name,k:vkey(),p:c.playing?1:0,t:c.t,h:h?1:0}})}
+function onVs(m){
+ if(!m||m.from===P.id||!P.ch)return;
+ const c=ctl();if(!c||m.k!==vkey())return;
+ VS.sup=Date.now()+2500;VS.lead=0;
+ const tg=m.t+(m.p?0.3:0),df=Math.abs(c.t-tg);
+ if(df>(m.h?2.5:0.8))c.seek(tg);
+ if(m.p&&!c.playing){
+  c.play();
+  setTimeout(()=>{const d=ctl();if(d&&!d.playing&&P.ch){const tx='começou o vídeo. Toque no ▶ do player para acompanhar.';sys((m.name||'Alguém')+' '+tx);if(!R.classList.contains('op'))peek({name:m.name||'Alguém',text:tx})}},1800)
+ }else if(!m.p&&c.playing){c.pause()}
+ const n=(m.name||'Alguém');if(!m.h&&VS.lt!==m.p+':'+Math.round(m.t/5)){VS.lt=m.p+':'+Math.round(m.t/5);sys(n+(m.p?' deu play':' pausou'))}}
+setInterval(()=>{
+ if(!P.ch)return;const c=ctl();if(!c){VS.pl=null;return}
+ const k=vkey(),now=Date.now();
+ if(VS.k!==k||VS.pl===null){VS.k=k;VS.pl=c.playing;VS.t=c.t;VS.at=now;return}
+ const exp=VS.t+(VS.pl?(now-VS.at)/1000:0),jumped=Math.abs(c.t-exp)>2.5,tog=c.playing!==VS.pl;
+ VS.pl=c.playing;VS.t=c.t;VS.at=now;
+ if(now<VS.sup)return;
+ if(tog||jumped){VS.lead=1;sendVs(c,0)}
+ else if(VS.lead&&c.playing&&now-VS.hb>5000)sendVs(c,1)},400);
 
 /* ---- contagem 3-2-1 para todos apertarem play juntos ---- */
 function countdown(n){
@@ -2804,7 +2841,7 @@ q('#pty-new').onclick=()=>{let c='';for(let i=0;i<6;i++)c+=CH[Math.floor(Math.ra
 q('#pty-go').onclick=()=>{const c=q('#pty-cin').value.trim().toUpperCase();if(/^[A-Z0-9]{6}$/.test(c))join(c,true);else alert('O código tem 6 letras ou números.')};
 q('#pty-iv').onclick=()=>P.pend&&join(P.pend.code,true);q('#pty-ic').onclick=()=>P.pend&&join(P.pend.code,false);
 q('#pty-in2').onclick=()=>{P.pend=null;setSt();openP(0)};
-q('#pty-mic').onclick=mic;q('#pty-c3').onclick=()=>{if(!P.ch)return;P.ch.send({type:'broadcast',event:'cd',payload:{name:P.name}});countdown('Você')};
+q('#pty-mic').onclick=mic;q('#pty-sy').onclick=()=>{if(!P.ch)return;P.ch.send({type:'broadcast',event:'vq',payload:{}});sys('Pedi o ponto do vídeo para os outros…')};q('#pty-c3').onclick=()=>{if(!P.ch)return;P.ch.send({type:'broadcast',event:'cd',payload:{name:P.name}});countdown('Você')};
 q('#pty-inv').onclick=invite;q('#pty-lv').onclick=async()=>{await leave();openP(0)};
 q('#pty-snd').onclick=send;q('#pty-in').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}};
 document.addEventListener('click',()=>Object.keys(P.peers).forEach(k=>{const a=P.peers[k].a;if(a&&a.paused)a.play().catch(()=>{})}),true);
