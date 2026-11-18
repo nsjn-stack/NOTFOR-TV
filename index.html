@@ -2693,6 +2693,19 @@ setInterval(tick,400);
 #pty .fab.nw{animation:ptyp 1.4s ease-in-out infinite}
 @keyframes ptyp{50%{transform:scale(1.12)}}
 #pty.lsc #pty-peek{top:auto;bottom:84px;right:62px;max-width:min(260px,46%);background:rgba(8,0,0,.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);font-size:12px;border-width:1px}
+#pty.lsc #pty-pn .hd{touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none}
+#pty.lsc #pty-ttl::before{content:'⠿ ';opacity:.65}
+#pty-kb{position:fixed;left:10px;right:10px;bottom:6px;margin:0 auto;max-width:720px;display:none;flex-direction:column;gap:5px;padding:6px;border-radius:14px;background:rgba(0,0,0,calc(var(--pa) + .2));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(var(--nr,255,42,26),.5);touch-action:manipulation;-webkit-user-select:none;user-select:none}
+#pty.kbo #pty-kb{display:flex}
+#pty-kb .kr{display:flex;gap:5px}
+#pty-kb button{flex:1;min-width:0;height:34px;border-radius:8px;border:0;background:rgba(255,255,255,.17);color:#fff;font-size:17px;padding:0;text-shadow:0 1px 2px #000;touch-action:manipulation}
+#pty-kb button:active{background:rgba(255,255,255,.42)}
+#pty-kb button.f{background:rgba(255,255,255,.08);font-size:13px;flex:1.5}
+#pty-kb button.sp{flex:5;font-size:12px}
+#pty-kb button.en{background:rgba(var(--nr,255,42,26),.6);flex:1.8;font-size:13px}
+#pty-kb button.on{background:rgba(255,255,255,.5)}
+#pty.lsc.kbo #pty-pn{left:auto!important;right:10px!important;top:8px!important;bottom:calc(var(--kbh,165px) + 8px)!important;height:auto!important;width:min(340px,62%)!important}
+#pty.lsc.kbo .fab,#pty.lsc.kbo #pty-peek{display:none!important}
 </style>
 <script id="party-js">
 (()=>{
@@ -2709,7 +2722,7 @@ const peerGain=p=>(p.mm?0:1)*(p.vol==null?1:p.vol)*(P.mv==null?1:P.mv);
 function applyVol(p){if(!p)return;const g=peerGain(p);if(p.gn){try{p.gn.gain.value=g}catch(e){}}else if(p.a){p.a.volume=Math.min(1,g);p.a.muted=g===0}}
 const R=document.createElement('div');R.id='pty';R.dataset.st='lobby';
 R.innerHTML=`<button class="fab" id="pty-fab" aria-label="Assistir junto">👥<b id="pty-bd"></b><i id="pty-dot"></i></button>
-<div id="pty-peek"></div><div id="pty-cd"></div>
+<div id="pty-peek"></div><div id="pty-cd"></div><div id="pty-kb"></div>
 <div id="pty-pn">
  <div class="hd"><b id="pty-ttl">Assistir junto</b><span class="hb2"><button id="pty-ap" aria-label="Transparência">◐</button><button id="pty-mo" aria-label="Opções">⚙</button><button id="pty-x" aria-label="Minimizar">—</button></span></div>
  <div data-v="lobby"><p>Crie uma sala e mande o link: quem abrir já cai neste filme, com voz e chat ao mesmo tempo.</p>
@@ -2895,7 +2908,7 @@ async function invite(){
  try{window.open('https://wa.me/?text='+encodeURIComponent(t+' '+url),'_blank')}catch(e){}}
 
 /* ---- eventos ---- */
-const openP=v=>{R.classList.toggle('op',v);if(v){P.unread=0;badge();renderRoom();renderMsgs()}};
+const openP=v=>{R.classList.toggle('op',v);if(v){P.unread=0;badge();renderRoom();renderMsgs();vvf()}else closeKb(1)};
 q('#pty-fab').onclick=()=>openP(1);q('#pty-x').onclick=()=>openP(0);
 const PAS=[.12,.32,.55,.85];let pai=-1;
 const paSet=i=>{pai=i;R.style.setProperty('--pa',PAS[i]);try{localStorage.setItem('cnp_pa',i)}catch(e){}};
@@ -2912,18 +2925,74 @@ q('#pty-inv').onclick=invite;q('#pty-lv').onclick=async()=>{await leave();openP(
 q('#pty-snd').onclick=send;q('#pty-in').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}};
 document.addEventListener('click',()=>{try{if(AC&&AC.state==='suspended')AC.resume()}catch(e){}Object.keys(P.peers).forEach(k=>{const a=P.peers[k].a;if(a&&a.paused)a.play().catch(()=>{})})},true);
 /* teclado do celular: o painel sobe junto */
+const POS={};try{Object.assign(POS,JSON.parse(localStorage.getItem('cnp_pos')||'{}'))}catch(e){}
+const pmode=()=>R.dataset.rot||'n',psave=()=>{try{localStorage.setItem('cnp_pos',JSON.stringify(POS))}catch(e){}};
+function applyPos(){const p=POS[pmode()];
+ if(!p){pn.style.left='';pn.style.top='';return false}
+ const rw=R.clientWidth,rh=R.clientHeight,w=pn.offsetWidth,h=pn.offsetHeight;
+ pn.style.left=Math.max(0,p.x*(rw-w))+'px';pn.style.top=Math.max(0,p.y*(rh-h))+'px';pn.style.right='auto';pn.style.bottom='auto';return true}
 const vvf=()=>{const v=window.visualViewport,kb=v?Math.max(0,innerHeight-v.height-v.offsetTop):0;
- if(R.classList.contains('lsc')){pn.style.maxHeight='';pn.style.top='';if(R.dataset.rot){pn.style.bottom='';pn.style.right=(10+(R.dataset.rot==='1'?kb:0))+'px'}else{pn.style.right='';pn.style.bottom=(kb>0?kb+4:84)+'px'}}
- else{pn.style.right='';pn.style.top='';pn.style.bottom=kb+'px';pn.style.maxHeight=(v?v.height:innerHeight)+'px'}};
+ if(R.classList.contains('lsc')){pn.style.maxHeight='';
+  if(!applyPos()){if(R.dataset.rot){pn.style.bottom='';pn.style.right=(10+(R.dataset.rot==='1'?kb:0))+'px'}else{pn.style.right='';pn.style.bottom=(kb>0?kb+4:84)+'px'}}}
+ else{pn.style.right='';pn.style.left='';pn.style.top='';pn.style.bottom=kb+'px';pn.style.maxHeight=(v?v.height:innerHeight)+'px'}};
 if(window.visualViewport){visualViewport.addEventListener('resize',vvf);visualViewport.addEventListener('scroll',vvf)}
 function lsUpd(){
  const w=document.getElementById('pw');let r='',ch=0;
  if(w&&w.classList.contains('ff')&&w.classList.contains('rot')&&innerHeight>innerWidth)r=w.classList.contains('rotn')?'-1':'1';
  const lsc=!!r||(innerWidth>innerHeight&&innerHeight<=520);
- if((R.dataset.rot||'')!==r){if(r)R.dataset.rot=r;else delete R.dataset.rot;ch=1}
+ if((R.dataset.rot||'')!==r){if(r)R.dataset.rot=r;else delete R.dataset.rot;ch=1;R.querySelectorAll('input:not([type=range])').forEach(i=>i.setAttribute('inputmode',r?'none':'text'));if(!r)closeKb(0)}
  if(R.classList.contains('lsc')!==lsc){R.classList.toggle('lsc',lsc);ch=1}
  if(ch)vvf()}
 addEventListener('resize',lsUpd);addEventListener('orientationchange',lsUpd);document.addEventListener('click',()=>{setTimeout(lsUpd,80);setTimeout(lsUpd,400)},true);
+/* arrastar a gaveta (segure o título e mova; toque duplo no título volta ao canto) */
+{const hd=q('#pty-pn .hd');let d=null,lt=0;
+ hd.addEventListener('pointerdown',e=>{if(!R.classList.contains('lsc')||R.classList.contains('kbo')||e.target.closest('button'))return;
+  const cs=getComputedStyle(pn),rw=R.clientWidth,rh=R.clientHeight,w=pn.offsetWidth,h=pn.offsetHeight;
+  let l=parseFloat(cs.left),t=parseFloat(cs.top);if(isNaN(l))l=rw-w-10;if(isNaN(t))t=rh-h-84;
+  d={x:e.clientX,y:e.clientY,l,t,rw,rh,w,h,mv:0,id:e.pointerId};try{hd.setPointerCapture(e.pointerId)}catch(x){}});
+ hd.addEventListener('pointermove',e=>{if(!d||e.pointerId!==d.id)return;
+  const sx=e.clientX-d.x,sy=e.clientY-d.y,m=R.dataset.rot||'';if(Math.abs(sx)+Math.abs(sy)>4)d.mv=1;if(!d.mv)return;
+  const dx=m==='1'?sy:m==='-1'?-sy:sx,dy=m==='1'?-sx:m==='-1'?sx:sy,mx=Math.max(0,d.rw-d.w),my=Math.max(0,d.rh-d.h);
+  const l=Math.min(Math.max(0,d.l+dx),mx),t=Math.min(Math.max(0,d.t+dy),my);
+  pn.style.left=l+'px';pn.style.top=t+'px';pn.style.right='auto';pn.style.bottom='auto';
+  d.fx=mx?l/mx:0;d.fy=my?t/my:0;e.preventDefault()});
+ const end=()=>{if(!d)return;const o=d;d=null;
+  if(o.mv&&o.fx!=null){POS[pmode()]={x:o.fx,y:o.fy};psave()}
+  else if(!o.mv){const n=Date.now();if(n-lt<350){delete POS[pmode()];psave();pn.style.left='';pn.style.top='';vvf();lt=0}else lt=n}};
+ hd.addEventListener('pointerup',end);hd.addEventListener('pointercancel',end)}
+/* teclado virtual deitado: só quando a tela está deitada pelo app (o do celular não gira) */
+const KB=q('#pty-kb');let KT=null,KL='a',KS=0,KR=0,KRt=0,KLast=0;
+const KLAY={
+ a:[['q','w','e','r','t','y','u','i','o','p'],['a','s','d','f','g','h','j','k','l','ç'],['⇧','z','x','c','v','b','n','m','⌫'],['?123','áã','⌄',',',' ','.','↵']],
+ n:[['1','2','3','4','5','6','7','8','9','0'],['@','#','$','%','&','*','-','+','(',')'],['!','?',':',';','\"',"'",'/','⌫'],['ABC','😂','❤️','🔥',' ','⌄','↵']],
+ c:[['á','à','â','ã','é','ê','í','ó','ô','õ'],['ú','ü','ñ','!','?',':',';','\"',"'",'-'],['⇧',',','.','(',')','@','#','⌫'],['ABC','?123',' ','⌄','↵']]};
+function rKb(){KB.innerHTML=KLAY[KL].map(r=>'<div class="kr">'+r.map(k=>{let c='',l=k;
+ if(k===' '){c='sp';l='espaço'}else if(['⌫','⇧','?123','ABC','áã','⌄'].indexOf(k)>=0)c='f';
+ if(k==='↵'){c='en';l='Enviar'}
+ if(k==='⇧'&&KS)c+=' on';
+ if(KS&&KL!=='n'&&k.length===1)l=k.toUpperCase();
+ return '<button type="button" class="'+c+'" data-k="'+E(k)+'">'+E(l)+'</button>'}).join('')+'</div>').join('')}
+function kIns(t){const i=KT;if(!i)return;const ml=i.maxLength>0?i.maxLength:1e9;let a=i.selectionStart,b=i.selectionEnd;if(a==null){a=b=i.value.length}
+ if(i.value.length-(b-a)+t.length>ml)return;i.value=i.value.slice(0,a)+t+i.value.slice(b);try{i.setSelectionRange(a+t.length,a+t.length)}catch(e){}i.dispatchEvent(new Event('input',{bubbles:true}))}
+function kBs(){const i=KT;if(!i)return;let a=i.selectionStart,b=i.selectionEnd;if(a==null){a=b=i.value.length}
+ if(a===b){if(a<=0)return;const pre=i.value.slice(0,a),m=pre.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|.)(?:\uFE0F)?$/);a-=m?m[0].length:1}
+ i.value=i.value.slice(0,a)+i.value.slice(b);try{i.setSelectionRange(a,a)}catch(e){}i.dispatchEvent(new Event('input',{bubbles:true}))}
+function kStop(){clearTimeout(KRt);clearInterval(KR)}
+function openKb(t){if(!R.dataset.rot)return;KT=t;if(!R.classList.contains('kbo')){KL='a';KS=0;rKb();R.classList.add('kbo');requestAnimationFrame(()=>{R.style.setProperty('--kbh',KB.offsetHeight+'px');const m=q('#pty-msgs');m.scrollTop=m.scrollHeight})}}
+function closeKb(blur){kStop();R.classList.remove('kbo');if(blur&&KT){try{KT.blur()}catch(e){}}}
+function kKey(k){
+ if(k==='⇧'){const n=Date.now();KS=KS===0?1:KS===1?(n-KLast<450?2:0):0;KLast=n;rKb();return}
+ if(k==='?123'){KL='n';KS=0;rKb();return}if(k==='ABC'){KL='a';KS=0;rKb();return}if(k==='áã'){KL='c';KS=0;rKb();return}
+ if(k==='⌄'){closeKb(1);return}
+ if(k==='⌫'){kBs();return}
+ if(k==='↵'){if(!KT)return;if(KT.id==='pty-in')send();else if(KT.id==='pty-cin')q('#pty-go').click();return}
+ kIns(KS&&KL!=='n'?k.toUpperCase():k);if(KS===1){KS=0;rKb()}}
+KB.addEventListener('pointerdown',e=>{const b=e.target.closest('button');if(!b)return;e.preventDefault();const k=b.dataset.k;kKey(k);
+ if(k==='⌫'){kStop();KRt=setTimeout(()=>{KR=setInterval(kBs,60)},420)}});
+['pointerup','pointercancel','pointerleave'].forEach(n=>KB.addEventListener(n,kStop));
+KB.addEventListener('mousedown',e=>e.preventDefault());KB.addEventListener('touchstart',e=>{if(e.target.closest('button'))e.preventDefault()},{passive:false});
+R.addEventListener('pointerdown',e=>{const t=e.target;if(R.dataset.rot&&t.matches&&t.matches('input:not([type=range])'))openKb(t)},true);
+R.addEventListener('focusin',e=>{const t=e.target;if(R.dataset.rot&&t.matches&&t.matches('input:not([type=range])'))openKb(t)});
 /* quem está falando acende verde */
 setInterval(()=>{for(const k in AN){const a=AN[k];a.an.getByteFrequencyData(a.d);let s=0;for(let i=0;i<a.d.length;i++)s+=a.d[i];const el=R.querySelector('.pp[data-id="'+k+'"]');if(el)el.classList.toggle('sp',s/a.d.length>14&&!(k==='me'&&P.muted))}},250);
 /* vigia: tela cheia, botão flutuante, convite pendente, troca de filme */
@@ -2936,7 +3005,10 @@ setInterval(()=>{
   const t=p.t&&T(p.t);q('#pty-ivt').textContent='Você foi convidado para a sala '+p.code+(t?' — “'+t.name+'”':'')+'.';setSt();openP(1)}
  const fab=q('#pty-fab'),bad=document.body.classList.contains('hb')||S.oved||S.bled;
  const nof=!P.ch&&!(P.pend&&P.pend.ok)&&S.cur&&S.cur.pk=='mr';/* sem sala: esconde o botão 👥 no player mail.ru */
- fab.style.display=(P.ch||(P.pend&&P.pend.ok)||S.tab==='play')&&(!bad||(P.ch&&P.unread>0&&!S.oved&&!S.bled))&&!nof?'grid':'none';
+ const lsr=R.classList.contains('lsc'),pwE=document.getElementById('pw'),ctl=!!(pwE&&pwE.querySelector('.ov.cnp')&&!pwE.classList.contains('ovh'));
+ fab.style.display=lsr
+  ?((P.ch||(P.pend&&P.pend.ok))&&(ctl||P.unread>0)&&(!bad||(P.ch&&P.unread>0&&!S.oved&&!S.bled))?'grid':'none')
+  :((P.ch||(P.pend&&P.pend.ok)||S.tab==='play')&&(!bad||(P.ch&&P.unread>0&&!S.oved&&!S.bled))&&!nof?'grid':'none');
  lsUpd();
  if(P.ch){const c=S.cur,k=c&&c.t?c.t.id+'/'+(c.e?c.e.id:0):'0/0';if(k!==P.lt){P.lt=k;track();renderRoom()}}
 },500);
