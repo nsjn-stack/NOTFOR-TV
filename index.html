@@ -2614,4 +2614,208 @@ setInterval(tick,400);
 })();
 </script>
 
+<style id="party-css">
+#pty{position:fixed;inset:0;z-index:2147483000;pointer-events:none;font:14px/1.35 Roboto,-apple-system,"Segoe UI",Arial,sans-serif;color:#fff}
+#pty *{box-sizing:border-box}
+#pty>*{pointer-events:auto}
+#pty .fab{position:fixed;right:12px;bottom:calc(104px + env(safe-area-inset-bottom,0px));width:52px;height:52px;border-radius:50%;background:#050000;border:2px solid var(--nc,#ff2a1a);box-shadow:0 0 10px rgba(var(--nr,255,42,26),.8),inset 0 0 8px rgba(var(--nr,255,42,26),.4);display:none;place-items:center;font-size:22px;color:#fff}
+#pty .fab b{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;border-radius:10px;background:#ff2a1a;font-size:11px;display:none;place-items:center;padding:0 5px}
+#pty .fab i{position:absolute;bottom:2px;right:2px;width:12px;height:12px;border-radius:50%;background:#3dff7a;box-shadow:0 0 6px #3dff7a;display:none}
+#pty.op .fab,#pty.op #pty-peek{display:none!important}
+#pty-peek{position:fixed;right:72px;bottom:calc(110px + env(safe-area-inset-bottom,0px));max-width:62vw;display:none;background:rgba(8,0,0,.94);border:1.5px solid var(--nc,#ff2a1a);border-radius:14px;padding:6px 10px;font-size:13px;word-break:break-word}
+#pty-pn{position:fixed;left:0;right:0;bottom:0;height:min(52vh,430px);background:rgba(8,0,0,.97);border-top:2px solid var(--nc,#ff2a1a);border-radius:18px 18px 0 0;box-shadow:0 -4px 22px rgba(var(--nr,255,42,26),.45);display:none;flex-direction:column;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px))}
+#pty.op #pty-pn{display:flex}
+#pty-pn .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+#pty-pn .hd b{font-size:15px}
+#pty-pn .hd button{color:#fff;font-size:20px;padding:2px 8px}
+#pty-pn [data-v]{display:none;flex-direction:column;flex:1;min-height:0;gap:8px}
+#pty[data-st=lobby] [data-v=lobby],#pty[data-st=invite] [data-v=invite],#pty[data-st=room] [data-v=room]{display:flex}
+#pty p{margin:0;opacity:.8}
+#pty .rw{display:flex;gap:8px;align-items:center}
+#pty .rw.wr{flex-wrap:wrap}
+#pty .pb{background:#050000;color:#fff;border:1.5px solid var(--nc,#ff2a1a);border-radius:99em;padding:8px 14px;font-size:13px;box-shadow:0 0 6px rgba(var(--nr,255,42,26),.8);white-space:nowrap}
+#pty .pb.d{border-color:#555;box-shadow:none}
+#pty input{background:#141414;border:1px solid #2b2b2b;border-radius:99em;padding:9px 14px;color:#fff;font-size:16px;margin:0;width:100%;min-width:0}
+#pty-who{display:flex;flex-wrap:wrap;gap:6px}
+#pty .pp{display:inline-flex;gap:4px;align-items:center;padding:3px 10px;border-radius:99em;border:1.5px solid #333;font-size:12px}
+#pty .pp.sp{border-color:#3dff7a;box-shadow:0 0 8px #3dff7a}
+#pty .pp small{opacity:.6}
+#pty-sg{display:none;background:#1a0a00;border:1px dashed var(--nc,#ff2a1a);border-radius:12px;padding:6px 10px;font-size:13px}
+#pty-sg u{color:var(--nc,#ff2a1a)}
+#pty-msgs{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding:2px 0}
+#pty .m{align-self:flex-start;max-width:82%;background:#1a1a1a;border-radius:14px 14px 14px 4px;padding:6px 10px;word-break:break-word}
+#pty .m.me{align-self:flex-end;background:#3a0b07;border-radius:14px 14px 4px 14px}
+#pty .m small{display:block;opacity:.6;font-size:11px}
+#pty .sy{align-self:center;opacity:.6;font-size:12px;text-align:center}
+#pty-cd{position:fixed;inset:0;display:none;place-items:center;font-size:30vmin;font-weight:900;text-shadow:0 0 24px var(--nc,#ff2a1a);background:rgba(0,0,0,.45)}
+#pty>#pty-cd{pointer-events:none}
+@media (orientation:landscape) and (max-height:520px){#pty-pn{left:auto;top:0;height:100%;width:min(380px,55vw);border-radius:18px 0 0 18px;border-top:0;border-left:2px solid var(--nc,#ff2a1a)}}
+</style>
+<script id="party-js">
+(()=>{
+/* ===== Assistir junto: voz (WebRTC) + chat. Sinalização e chat passam pelo Supabase Realtime (sem tabelas). =====
+   Se alguém não conseguir ouvir (4G de operadoras diferentes), defina antes deste script um servidor TURN:
+   window.CN_TURN=[{urls:'turn:SEU_SERVIDOR:3478',username:'...',credential:'...'}] */
+const ICE=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}],MAX=6,CH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+const rid=()=>Math.random().toString(36).slice(2,10);
+const P={code:'',id:'',name:'',ch:null,peers:{},msgs:[],unread:0,stream:null,muted:false,pend:null,lt:'',fs:0};
+const AN={};let AC=null,gname='',cdT=0,pkT=0;
+const R=document.createElement('div');R.id='pty';R.dataset.st='lobby';
+R.innerHTML=`<button class="fab" id="pty-fab" aria-label="Assistir junto">👥<b id="pty-bd"></b><i id="pty-dot"></i></button>
+<div id="pty-peek"></div><div id="pty-cd"></div>
+<div id="pty-pn">
+ <div class="hd"><b id="pty-ttl">Assistir junto</b><button id="pty-x" aria-label="Fechar">✕</button></div>
+ <div data-v="lobby"><p>Crie uma sala e mande o link: quem abrir já cai neste filme, com voz e chat ao mesmo tempo.</p>
+  <button class="pb" id="pty-new">Criar sala</button>
+  <div class="rw"><input id="pty-cin" placeholder="Ou digite o código da sala" maxlength="6" autocapitalize="characters" autocomplete="off"><button class="pb" id="pty-go">Entrar</button></div></div>
+ <div data-v="invite"><p id="pty-ivt"></p>
+  <button class="pb" id="pty-iv">🎤 Entrar com voz e chat</button><button class="pb d" id="pty-ic">Só chat (sem microfone)</button><button class="pb d" id="pty-in2">Agora não</button></div>
+ <div data-v="room">
+  <div id="pty-who"></div><div id="pty-sg"></div>
+  <div class="rw wr"><button class="pb" id="pty-mic"></button><button class="pb" id="pty-c3">⏱ 3-2-1</button><button class="pb" id="pty-inv">Convidar</button><button class="pb d" id="pty-lv">Sair</button></div>
+  <div id="pty-msgs"></div>
+  <div class="rw"><input id="pty-in" maxlength="300" placeholder="Mensagem..." autocomplete="off"><button class="pb" id="pty-snd">Enviar</button></div>
+ </div>
+</div>`;
+document.body.appendChild(R);
+const q=s=>R.querySelector(s),pn=q('#pty-pn');
+const setSt=()=>{R.dataset.st=P.ch?'room':P.pend&&P.pend.ok?'invite':'lobby'};
+const myName=()=>{const n=((S.p&&S.p.name)||'').trim()||(S.me&&S.me.email?S.me.email.split('@')[0]:'');return n||gname||(gname='Visitante '+(10+Math.floor(Math.random()*90)))};
+const ac=()=>{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume().catch(()=>{});return AC};
+const link=()=>{const c=S.cur,u=new URL(location.href);u.search='';u.hash='';u.searchParams.set('sala',P.code);if(c&&c.t){u.searchParams.set('t',c.t.id);if(c.e)u.searchParams.set('e',c.e.id)}return u.toString()};
+const badge=()=>{const b=q('#pty-bd');b.textContent=P.unread>9?'9+':P.unread;b.style.display=P.unread?'grid':'none';q('#pty-dot').style.display=P.ch?'block':'none'};
+/* convite pelo link */
+try{const u=new URLSearchParams(location.search),c=(u.get('sala')||'').toUpperCase();if(/^[A-Z0-9]{6}$/.test(c))P.pend={code:c,t:Number(u.get('t'))||0,e:Number(u.get('e'))||0}}catch(e){}
+
+/* ---- chat / mensagens ---- */
+function renderMsgs(){const b=q('#pty-msgs');b.innerHTML=P.msgs.map(m=>m.sys?`<div class="sy">${E(m.text)}</div>`:`<div class="m${m.from===P.id?' me':''}"><small>${E(m.from===P.id?'Você':m.name)}</small>${E(m.text)}</div>`).join('');b.scrollTop=b.scrollHeight}
+function addMsg(m){P.msgs.push(m);if(P.msgs.length>120)P.msgs.shift();renderMsgs()}
+const sys=t=>addMsg({sys:1,text:t});
+function peek(m){const p=q('#pty-peek');p.innerHTML='<b>'+E(m.name)+'</b> '+E(m.text);p.style.display='block';clearTimeout(pkT);pkT=setTimeout(()=>p.style.display='none',4500)}
+function onChat(m){if(!m||m.from===P.id)return;addMsg(m);if(!R.classList.contains('op')){P.unread++;badge();peek(m)}}
+function send(){const i=q('#pty-in'),t=i.value.trim().slice(0,300);if(!t||!P.ch)return;i.value='';const m={from:P.id,name:P.name,text:t};P.ch.send({type:'broadcast',event:'chat',payload:m});addMsg(m);i.focus()}
+
+/* ---- sala (tela) ---- */
+function renderRoom(){
+ if(!P.ch)return;
+ const ps=[{id:'me',name:'Você',mic:!!P.stream&&!P.muted,no:!P.stream}].concat(Object.keys(P.peers).map(id=>({id,name:P.peers[id].name||'Alguém',mic:P.peers[id].mic,st:P.peers[id].st})));
+ q('#pty-who').innerHTML=ps.map(p=>`<span class="pp" data-id="${p.id}"><i>${p.no?'🚫':p.mic?'🎤':'🔇'}</i>${E(p.name)}${p.st&&p.st!=='connected'?' <small>conectando…</small>':''}</span>`).join('');
+ q('#pty-ttl').textContent='Sala '+P.code+' · '+ps.length+(ps.length>1?' pessoas':' pessoa');
+ q('#pty-mic').textContent=P.stream?(P.muted?'🔇 Mudo':'🎤 Mic ligado'):'🎤 Ativar mic';
+ const c=S.cur,o=Object.keys(P.peers).map(k=>P.peers[k]).find(p=>Number(p.t)&&T(p.t)&&(!c||!c.t||c.t.id!=p.t||(p.e&&(!c.e||c.e.id!=p.e)))),sg=q('#pty-sg');
+ if(o){sg.style.display='block';sg.innerHTML='🎬 '+E(o.name)+' está em “'+E(T(o.t).name)+'” — <u>ir para lá</u>';sg.onclick=()=>play(Number(o.t),o.e?Number(o.e):undefined)}else sg.style.display='none'}
+const track=()=>P.ch&&P.ch.track({name:P.name,mic:!!P.stream&&!P.muted,t:S.cur&&S.cur.t?S.cur.t.id:0,e:S.cur&&S.cur.e?S.cur.e.id:0});
+
+/* ---- voz (WebRTC, malha: cada pessoa liga com cada uma) ---- */
+function watch(id,st){try{const a=ac().createAnalyser();a.fftSize=256;ac().createMediaStreamSource(st).connect(a);AN[id]={an:a,d:new Uint8Array(a.frequencyBinCount)}}catch(e){}}
+const sigTo=(id,o)=>P.ch&&P.ch.send({type:'broadcast',event:'sig',payload:Object.assign({to:id,from:P.id},o)});
+function setTrack(p){if(p&&p.snd&&P.stream){const t=P.stream.getAudioTracks()[0];if(t)p.snd.replaceTrack(t).catch(()=>{})}}
+function mk(id,init){
+ const p=P.peers[id]||(P.peers[id]={});p.q=p.q||[];
+ const pc=new RTCPeerConnection({iceServers:ICE.concat(window.CN_TURN||[])});p.pc=pc;
+ if(init){p.snd=pc.addTransceiver('audio',{direction:'sendrecv'}).sender;setTrack(p)}
+ pc.onicecandidate=e=>{if(e.candidate)sigTo(id,{c:e.candidate.toJSON()})};
+ pc.ontrack=e=>{const a=p.a||(p.a=document.createElement('audio'));a.autoplay=true;a.playsInline=true;a.srcObject=e.streams[0]||new MediaStream([e.track]);R.appendChild(a);a.play().catch(()=>{});watch(id,a.srcObject)};
+ pc.onconnectionstatechange=()=>{p.st=pc.connectionState;if(pc.connectionState==='failed'&&P.id<id)call(id);renderRoom()};
+ return pc}
+async function call(id){
+ const p=P.peers[id]||(P.peers[id]={});if(p.pc){try{p.pc.close()}catch(e){}}
+ try{const pc=mk(id,1),o=await pc.createOffer();await pc.setLocalDescription(o);sigTo(id,{d:pc.localDescription.toJSON()})}catch(e){console.warn('call',e)}}
+async function onSig(m){
+ if(!m||m.to!==P.id)return;const id=m.from,p=P.peers[id]||(P.peers[id]={});
+ const flush=()=>{const pc=p.pc;(p.q||[]).splice(0).forEach(c=>pc.addIceCandidate(c).catch(()=>{}))};
+ try{
+  if(m.d&&m.d.type==='offer'){
+   if(p.pc){try{p.pc.close()}catch(e){}}
+   const pc=mk(id,0);await pc.setRemoteDescription(m.d);flush();
+   const tr=pc.getTransceivers().find(t=>t.receiver.track.kind==='audio');if(tr){tr.direction='sendrecv';p.snd=tr.sender;setTrack(p)}
+   const a=await pc.createAnswer();await pc.setLocalDescription(a);sigTo(id,{d:pc.localDescription.toJSON()})
+  }else if(m.d&&p.pc){await p.pc.setRemoteDescription(m.d);flush()}
+  else if(m.c){if(p.pc&&p.pc.remoteDescription)await p.pc.addIceCandidate(m.c).catch(()=>{});else p.q.push(m.c)}
+ }catch(e){console.warn('sig',e)}}
+function drop(id,quiet){const p=P.peers[id];if(!p)return;try{p.pc&&p.pc.close()}catch(e){}if(p.a){p.a.srcObject=null;p.a.remove()}delete AN[id];delete P.peers[id];if(!quiet)sys((p.name||'Alguém')+' saiu')}
+function onSync(){
+ if(!P.ch)return;
+ const st=P.ch.presenceState(),ids=Object.keys(st);
+ if(!P.fs){P.fs=1;if(ids.length>MAX){sys('Sala cheia (máximo '+MAX+' pessoas).');leave();return}}
+ ids.forEach(id=>{if(id===P.id)return;const m=(st[id]&&st[id][0])||{},nw=!P.peers[id],p=P.peers[id]||(P.peers[id]={});
+  const chg=!nw&&m.t&&(String(p.t)!==String(m.t)||String(p.e)!==String(m.e));
+  Object.assign(p,{name:m.name||'Alguém',mic:m.mic,t:m.t,e:m.e});
+  if(nw&&P.fs>1)sys(p.name+' entrou 👋');
+  if(chg&&T(m.t))sys(p.name+' abriu “'+T(m.t).name+'”');
+  if(!p.pc&&P.id<id)call(id)});
+ Object.keys(P.peers).forEach(id=>{if(!st[id])drop(id)});
+ P.fs=2;renderRoom()}
+async function getMic(){return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false})}
+async function mic(){
+ if(!P.stream){try{P.stream=await getMic();P.muted=false;watch('me',P.stream);Object.keys(P.peers).forEach(k=>setTrack(P.peers[k]))}catch(e){sys('Não consegui usar o microfone. Libere a permissão do navegador para este site.')}}
+ else{P.muted=!P.muted;P.stream.getAudioTracks().forEach(t=>t.enabled=!P.muted)}
+ track();renderRoom()}
+async function join(code,voice){
+ if(P.ch)await leave();
+ if(!window.RTCPeerConnection||!sb.channel){alert('Este navegador não suporta chamada de voz.');return}
+ try{ac()}catch(e){}
+ P.code=code;P.id=rid();P.name=myName();P.muted=false;P.fs=0;P.msgs=[];P.peers={};P.unread=0;P.lt='';
+ P.pend=null;try{history.replaceState(null,'',location.pathname)}catch(e){}
+ if(voice){try{P.stream=await getMic();watch('me',P.stream)}catch(e){P.stream=null;P.msgs.push({sys:1,text:'Microfone não liberado: você ouve os outros e usa o chat. Toque em “Ativar mic” quando quiser falar.'})}}
+ const ch=sb.channel('cnp-sala-'+code,{config:{broadcast:{self:false},presence:{key:P.id}}});
+ ch.on('broadcast',{event:'sig'},({payload})=>onSig(payload)).on('broadcast',{event:'chat'},({payload})=>onChat(payload))
+  .on('broadcast',{event:'cd'},({payload})=>countdown(payload&&payload.name)).on('presence',{event:'sync'},onSync)
+  .subscribe(s=>{if(s==='SUBSCRIBED'){track()}else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT')sys('Falha na conexão com a sala. Tentando de novo…')});
+ P.ch=ch;P.lt=S.cur&&S.cur.t?S.cur.t.id+'/'+(S.cur.e?S.cur.e.id:0):'0/0';
+ if(!P.msgs.length)sys('Sala criada. Toque em Convidar para mandar o link.');
+ setSt();badge();renderRoom();renderMsgs()}
+async function leave(){
+ Object.keys(P.peers).forEach(id=>drop(id,1));
+ if(P.stream){P.stream.getTracks().forEach(t=>t.stop());P.stream=null}
+ delete AN.me;const ch=P.ch;P.ch=null;P.peers={};P.msgs=[];P.code='';P.unread=0;
+ if(ch){try{await sb.removeChannel(ch)}catch(e){}}
+ q('#pty-ttl').textContent='Assistir junto';setSt();badge()}
+
+/* ---- contagem 3-2-1 para todos apertarem play juntos ---- */
+function countdown(n){
+ clearInterval(cdT);const el=q('#pty-cd');let i=3;
+ sys((n||'Alguém')+' chamou a contagem: aperte play no zero!');
+ const bp=f=>{try{const c=ac(),o=c.createOscillator(),g=c.createGain();o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.15)}catch(e){}};
+ const step=()=>{el.style.display='grid';
+  if(i>0){el.textContent=i--;bp(660);try{navigator.vibrate&&navigator.vibrate(60)}catch(e){}}
+  else{el.textContent='▶ PLAY!';bp(990);try{navigator.vibrate&&navigator.vibrate(150)}catch(e){}clearInterval(cdT);setTimeout(()=>el.style.display='none',900)}};
+ step();cdT=setInterval(step,1000)}
+async function invite(){
+ const url=link(),t='Vem assistir comigo no CINE NOTFOR!';
+ try{if(navigator.share){await navigator.share({title:'Assistir junto',text:t,url});return}}catch(e){if(e&&e.name==='AbortError')return}
+ try{navigator.clipboard&&navigator.clipboard.writeText(url);sys('Link copiado.')}catch(e){}
+ try{window.open('https://wa.me/?text='+encodeURIComponent(t+' '+url),'_blank')}catch(e){}}
+
+/* ---- eventos ---- */
+const openP=v=>{R.classList.toggle('op',v);if(v){P.unread=0;badge();renderRoom();renderMsgs()}};
+q('#pty-fab').onclick=()=>openP(1);q('#pty-x').onclick=()=>openP(0);q('#pty-peek').onclick=()=>openP(1);
+q('#pty-new').onclick=()=>{let c='';for(let i=0;i<6;i++)c+=CH[Math.floor(Math.random()*CH.length)];join(c,true)};
+q('#pty-go').onclick=()=>{const c=q('#pty-cin').value.trim().toUpperCase();if(/^[A-Z0-9]{6}$/.test(c))join(c,true);else alert('O código tem 6 letras ou números.')};
+q('#pty-iv').onclick=()=>P.pend&&join(P.pend.code,true);q('#pty-ic').onclick=()=>P.pend&&join(P.pend.code,false);
+q('#pty-in2').onclick=()=>{P.pend=null;setSt();openP(0)};
+q('#pty-mic').onclick=mic;q('#pty-c3').onclick=()=>{if(!P.ch)return;P.ch.send({type:'broadcast',event:'cd',payload:{name:P.name}});countdown('Você')};
+q('#pty-inv').onclick=invite;q('#pty-lv').onclick=async()=>{await leave();openP(0)};
+q('#pty-snd').onclick=send;q('#pty-in').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}};
+document.addEventListener('click',()=>Object.keys(P.peers).forEach(k=>{const a=P.peers[k].a;if(a&&a.paused)a.play().catch(()=>{})}),true);
+/* teclado do celular: o painel sobe junto */
+if(window.visualViewport){const f=()=>{const v=visualViewport;pn.style.bottom=Math.max(0,innerHeight-v.height-v.offsetTop)+'px';pn.style.maxHeight=v.height+'px'};visualViewport.addEventListener('resize',f);visualViewport.addEventListener('scroll',f)}
+/* quem está falando acende verde */
+setInterval(()=>{for(const k in AN){const a=AN[k];a.an.getByteFrequencyData(a.d);let s=0;for(let i=0;i<a.d.length;i++)s+=a.d[i];const el=R.querySelector('.pp[data-id="'+k+'"]');if(el)el.classList.toggle('sp',s/a.d.length>14&&!(k==='me'&&P.muted))}},250);
+/* vigia: tela cheia, botão flutuante, convite pendente, troca de filme */
+setInterval(()=>{
+ const fs=document.fullscreenElement||document.webkitFullscreenElement,h=fs||document.body;
+ if(R.parentNode!==h){try{h.appendChild(R)}catch(e){}}
+ const sp=document.getElementById('sp');
+ if(P.pend&&!P.pend.ok&&S.T&&S.T.length&&(S.me||S.guest)&&sp&&sp.classList.contains('off')){
+  P.pend.ok=1;const p=P.pend;if(p.t&&T(p.t)){try{play(p.t,p.e||undefined)}catch(e){}}
+  const t=p.t&&T(p.t);q('#pty-ivt').textContent='Você foi convidado para a sala '+p.code+(t?' — “'+t.name+'”':'')+'.';setSt();openP(1)}
+ const fab=q('#pty-fab'),bad=document.body.classList.contains('hb')||S.oved||S.bled;
+ fab.style.display=(P.ch||(P.pend&&P.pend.ok)||S.tab==='play')&&!bad?'grid':'none';
+ if(P.ch){const c=S.cur,k=c&&c.t?c.t.id+'/'+(c.e?c.e.id:0):'0/0';if(k!==P.lt){P.lt=k;track();renderRoom()}}
+},500);
+})();
+</script>
+
 </body></html>
