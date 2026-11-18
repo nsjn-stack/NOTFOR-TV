@@ -928,6 +928,30 @@ document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#bp
 window.addEventListener('message',e=>{if(!document.getElementById('vcap'))return;const w=document.getElementById('pw'),f=w&&w.querySelector('iframe');if(!f||e.source!==f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
  if((d.event=='onStateChange'&&d.info==1)||(d.event=='infoDelivery'&&d.info&&d.info.playerState==1)||(d.event=='timeupdate'&&d.data&&d.data.seconds>0.05))vcHide()});
 async function svVC(k,i){const v=gd($('#'+i).value.trim());if(ok(await sb.from('settings').upsert({key:k,value:v}))){S.set[k]=v;alert(v?'Capa salva.':'Capa removida.')}}
+/* ===== corte programado: começa em / termina em (por link ou episódio) ===== */
+const trP=v=>{v=String(v||'').trim().replace(',','.');if(!v)return 0;if(/^\d+(\.\d+)?$/.test(v))return Math.floor(+v);const p=v.split(':').map(Number);if(p.length>3||p.some(x=>isNaN(x)||x<0))return 0;return Math.floor(p.reduce((a,b)=>a*60+b,0))};
+const trF=n=>{n=Math.floor(n||0);if(n<=0)return'';const h=Math.floor(n/3600),m=Math.floor(n%3600/60),q=n%60;return(h?h+':'+String(m).padStart(2,'0'):m)+':'+String(q).padStart(2,'0')};
+const trGet=k=>{const p=String((S.set||{})[k]||'').split('|');return[+p[0]||0,+p[1]||0]};
+const trCur=()=>{const c=S.cur;if(!c)return[0,0];return trGet(c.e?'trim_e'+c.e.id:'trim_l'+((vids(c.t)[c.li]||{}).id||''))};
+const strt=()=>Math.max(pf('rs')&&getPos(ckey())>10?getPos(ckey()):0,trCur()[0]);
+const trBox=(k,i)=>{const[a,b]=trGet(k);return `<div class="box vbx"><div class="mu" style="padding:0 0 6px">✂️ Começar e parar em (opcional). Ex.: 1:30 e 45:00. Deixe vazio para o vídeo inteiro.</div><div class="row" style="flex-wrap:nowrap"><input id="${i}a" placeholder="Começa em" value="${trF(a)}" style="margin:0"><input id="${i}b" placeholder="Termina em" value="${trF(b)}" style="margin:0"><button class="btn o s" onclick="svTrim('${k}','${i}')">Salvar corte</button></div></div>`};
+async function svTrim(k,i){const a=trP($('#'+i+'a').value),b=trP($('#'+i+'b').value);if(b&&b<=a)return alert('O "Termina em" precisa ser maior que o "Começa em".');const v=(a||b)?a+'|'+b:'';if(ok(await sb.from('settings').upsert({key:k,value:v}))){S.set[k]=v;$('#'+i+'a').value=trF(a);$('#'+i+'b').value=trF(b);alert(v?'Corte salvo.':'Corte removido.')}}
+/* ===== Rumble: player do Rumble dentro de uma ponte que fala a mesma "língua" do Rutube (player:*) ===== */
+const rbId=u=>(String(u).match(/rumble\.com\/embed\/([a-z0-9.]+)/i)||[])[1]||'';
+const rbDoc=(u,t0)=>{const m=String(u).match(/rumble\.com\/embed\/([a-z0-9]+)(?:\.([a-z0-9]+))?/i)||[],pub=m[2]?m[1]:'u4',vid=m[2]||m[1]||'';
+return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;height:100%;background:#000;overflow:hidden}#rp{width:100%;height:100%}</style></head><body><div id="rp"></div><script>'
++'var P=parent,V='+JSON.stringify(vid)+',T0='+(+t0||0)+',A=null,pl=0,sd=0,lt=-1;'
++'function tx(t,d){try{P.postMessage(JSON.stringify({type:t,data:d||{}}),"*")}catch(e){}}'
++'!function(r,u,m,b,l,e){r._Rumble=b,r[b]||(r[b]=function(){(r[b]._=r[b]._||[]).push(arguments);if(r[b]._.length==1){l=u.createElement(m),e=u.getElementsByTagName(m)[0],l.async=1,l.src="https://rumble.com/embedJS/'+pub+'"+(arguments[1].video?"."+arguments[1].video:"")+"/?url="+encodeURIComponent("https://rumble.com/")+"&args="+encodeURIComponent(JSON.stringify([].slice.apply(arguments))),e.parentNode.insertBefore(l,e)}})}(window,document,"script","Rumble");'
++'Rumble("play",{video:V,div:"rp",rel:0,api:function(a){A=a;tx("player:ready");'
++'a.on("play",function(){pl=1;tx("player:changeState",{state:"playing"});if(T0&&!sd){sd=1;try{a.setCurrentTime(T0)}catch(e){}}});'
++'a.on("pause",function(){pl=0;tx("player:changeState",{state:"paused"})});'
++'a.on("videoEnd",function(){pl=0;tx("player:playComplete")});'
++'a.on("volumeChange",function(v){tx("player:volumeChange",{volume:+v||0})});'
++'setInterval(function(){try{var d=a.getDuration();if(d>0&&d!=lt){lt=d;tx("player:durationChange",{duration:d})}if(pl)tx("player:currentTime",{time:a.getCurrentTime()})}catch(e){}},300)}});'
++'addEventListener("message",function(e){if(e.source!==P||!A)return;var d=e.data;try{if(typeof d=="string")d=JSON.parse(d)}catch(x){return}if(!d||!d.type)return;var t=d.type,x=d.data||{};try{'
++'if(t=="player:play")A.play(true);else if(t=="player:pause")A.pause();else if(t=="player:setCurrentTime")A.setCurrentTime(+x.time||0);else if(t=="player:mute")A.mute();else if(t=="player:unMute")A.unmute();else if(t=="player:setVolume")A.setVolume(+x.volume)}catch(er){}});'
++'<\/script></body></html>'};
 /* Drive/Archive com o player do app (vídeo nativo, sem faixa preta). Se não carregar, volta ao player original. O YouTube não é afetado. */
 function natSrc(m){
  if(!m||m.t!='if'||(m.k!='dr'&&m.k!='ar'))return null;
@@ -954,8 +978,8 @@ function ndWire(v){
 function pPlay(){
  const{t,e,es,li}=S.cur,u=cu(),vs=vids(t);let p='';S.cur.v=false;S.cur.nd=false;S.cur.pk='ot';S.cur.p2=false;
  if(!u)p='<p class="mu">Nenhum vídeo cadastrado.</p>';
- else{let m=embed(u);{const nt=natSrc(m);if(nt)m={t:'v',s:nt.s,k:m.k,nd:1,o:m.s,aid:nt.aid,alt:nt.alt}}S.cur.nd=!!m.nd;S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';S.cur.p2=(m.k=='vk'||m.k=='ok')&&m.t=='if'&&pm2();const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0,vmc=m.k=='vm'&&m.t=='if'&&ovn('vm_cn',1)!=0,rtc=m.k=='rt'&&m.t=='if'&&ovn('rt_cn',1)!=0,vkc=!S.cur.p2&&((m.k=='vk'&&m.t=='if'&&ovn('vk_cn',1)!=0)||(m.k=='ok'&&m.t=='if'&&ovn('ok_cn',1)!=0));
-  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} src="${esc(m.s+(yc?'&controls=0'+(/^https?:$/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):''):'')+(vmc?'&controls=0&playsinline=1':'')+(m.k=='rt'&&pf('rs')&&getPos(ckey())>10?'&t='+getPos(ckey())+'&bmstart='+getPos(ckey()):'')+(m.k=='vk'&&pf('rs')&&getPos(ckey())>10?(g=>'&t='+String(Math.floor(g/3600)).padStart(2,'0')+'h'+String(Math.floor(g%3600/60)).padStart(2,'0')+'m'+String(Math.floor(g%60)).padStart(2,'0')+'s')(getPos(ckey())):'')+(pf('rs')&&/youtube\.com\/embed/.test(m.s)&&getPos(ckey())>10?'&start='+getPos(ckey()):''))}" allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>${yc?'<div class="ytsh"></div>'+cnpH(t,e):vmc?'<div class="vmsh"></div>'+cnpH(t,e):rtc?'<div class="vmsh"></div>'+cnpH(t,e):vkc?'<div class="vksh"></div>'+cnpH(t,e):''}`
+ else{let m=embed(u);{const nt=natSrc(m);if(nt)m={t:'v',s:nt.s,k:m.k,nd:1,o:m.s,aid:nt.aid,alt:nt.alt}}S.cur.nd=!!m.nd;S.cur.v=m.t=='v';S.cur.pk=m.k||'ot';S.cur.p2=(m.k=='vk'||m.k=='ok')&&m.t=='if'&&pm2();const yc=m.k=='yt'&&m.t=='if'&&ovn('yt_cn',1)!=0,vmc=m.k=='vm'&&m.t=='if'&&ovn('vm_cn',1)!=0,rtc=m.k=='rt'&&m.t=='if'&&ovn('rt_cn',1)!=0,rbc=m.k=='rb'&&m.t=='if'&&ovn('rb_cn',1)!=0,vkc=!S.cur.p2&&((m.k=='vk'&&m.t=='if'&&ovn('vk_cn',1)!=0)||(m.k=='ok'&&m.t=='if'&&ovn('ok_cn',1)!=0));
+  S.tgh=0;p=m.t=='if'?`<iframe${m.k=='tg'?' data-tg="1"':''}${dzv(m.k)>1?dzs(dzv(m.k)):''} ${rbc?`data-rb="1" data-rbid="${esc(rbId(m.s))}" srcdoc="${esc(rbDoc(m.s,strt()))}"`:`src="${esc(m.s+(yc?'&controls=0'+(/^https?:$/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):''):'')+(vmc?'&controls=0&playsinline=1':'')+(m.k=='rt'&&strt()>0?'&t='+strt()+'&bmstart='+strt():'')+(m.k=='vk'&&strt()>0?(g=>'&t='+String(Math.floor(g/3600)).padStart(2,'0')+'h'+String(Math.floor(g%3600/60)).padStart(2,'0')+'m'+String(Math.floor(g%60)).padStart(2,'0')+'s')(strt()):'')+(/youtube\.com\/embed/.test(m.s)&&strt()>0?'&start='+strt():'')+(m.k=='vm'&&strt()>0?'#t='+strt()+'s':''))}"`} allow="autoplay;encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"></iframe>${yc?'<div class="ytsh"></div>'+cnpH(t,e):vmc?'<div class="vmsh"></div>'+cnpH(t,e):(rtc||rbc)?'<div class="vmsh"></div>'+cnpH(t,e):vkc?'<div class="vksh"></div>'+cnpH(t,e):''}`
   :m.t=='v'?`<video id="vd"${m.k=='dr'?' referrerpolicy="no-referrer"':''}${m.s?` src="${esc(m.s)}"`:''}${m.nd?` data-nd="1" data-o="${esc(m.o)}"${m.alt&&m.alt.length?` data-alt="${esc(JSON.stringify(m.alt))}"`:''}${m.aid?` data-aid="${esc(m.aid)}"`:''}`:''} playsinline preload="metadata"></video>${cnpH(t,e)}`
   :`<p class="mu" style="padding:30px">Este link não toca dentro do app.</p>`}
  const n=e?es[es.indexOf(e)+1]:null;
@@ -1220,7 +1244,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-11 (46) · Rumble · Mail.ru Vídeo · Rutube com controles do app · comentários não somem mais · olhinho p/ ocultar títulos · engrenagem VK/ok.ru avisa p/ usar o Player 2 · pausa 4s antes do fim · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
+const APP_V='2026-11-17 (47) · início/fim programável por vídeo · Rutube: toque por baixo + play automático · Rumble com controles do app · Mail.ru Vídeo · Rutube com controles do app · comentários não somem mais · olhinho p/ ocultar títulos · engrenagem VK/ok.ru avisa p/ usar o Player 2 · pausa 4s antes do fim · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -1252,7 +1276,7 @@ async function ad(f){
 <div class="box mf"><label class="k"><input type="checkbox" ${S.set.vcap_auto=='1'?'checked':''} onchange="cf('vcap_auto',this.checked?1:0)"> Se o vídeo não tiver capa própria, usar o banner/capa do título</label><div class="mu" style="padding:2px 0">A capa aparece na tela inicial do vídeo e some quando ele começa. Para cada vídeo, cole o link da imagem no campo "Link da capa" abaixo do episódio/link.</div></div>
 <details class="box mf dt" ${mv?'':'open'}><summary>＋ Episódio</summary><div class="mfg2"><input id="e_s" type="number" placeholder="Temporada" value="1"><input id="e_n" type="number" placeholder="Episódio"></div><input id="e_m" placeholder="Nome (opcional)"><input id="e_u" placeholder="Link do vídeo"><button class="btn" style="width:100%;margin-top:4px" onclick="svE()">Adicionar episódio</button></details>
 <details class="box mf dt" ${mv?'open':''}><summary>＋ Link do filme</summary><input id="l_l" placeholder="Nome do link (ex.: Link 1)"><input id="l_u" placeholder="Link do vídeo"><button class="btn" style="width:100%;margin-top:4px" onclick="svL()">Adicionar link</button></details>
-<details class="box mf dt"><summary>＋ Vários episódios de uma vez</summary><div class="mu" style="padding:2px 0 4px">Um link por linha, em ordem.</div><div class="mfg2"><input id="m_s" type="number" placeholder="Temporada" value="1"><input id="m_n" type="number" placeholder="1º episódio" value="1"></div><textarea id="m_u" rows="5" placeholder="https://...&#10;https://..."></textarea><button class="btn" style="width:100%;margin-top:4px" onclick="svM()">Adicionar todos</button></details>`+S.E.filter(x=>x.title_id==et2&&(qm||(`t${x.season} e${x.num} ${x.name||''}`).toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>T${x.season} • E${x.num}</b><small class="mu">${esc(x.name||'')}</small></div><button class="btn o s" onclick="dE(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_e${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_e${x.id}','vc_e${x.id}')">Salvar capa</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="db_e${x.id}" placeholder="🎧 Link da dublagem (Drive ou .mp3/.m4a)" value="${esc(S.set['dub_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svDub('dub_e${x.id}','db_e${x.id}')">Salvar dublagem</button></div></div>`).join('')+S.L.filter(x=>x.title_id==et2&&(qm||(x.label||x.url||'').toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>Link</b><small class="mu">${esc(x.label||x.url)}</small></div>${((T(x.title_id)||{}).section=='movies')?`<button class="btn o s" onclick="lMov(${x.id},-1)" aria-label="Subir">▲</button><button class="btn o s" onclick="lMov(${x.id},1)" aria-label="Descer">▼</button>`:''}<button class="btn o s" onclick="dL(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="ln_${x.id}" placeholder="Nome do player (ex.: vk.video, Player 2)" value="${esc(x.label||'')}" style="margin:0"><button class="btn o s" onclick="lRen(${x.id})">Salvar nome</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_l${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_l${x.id}','vc_l${x.id}')">Salvar capa</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="db_l${x.id}" placeholder="🎧 Link da dublagem (Drive ou .mp3/.m4a)" value="${esc(S.set['dub_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svDub('dub_l${x.id}','db_l${x.id}')">Salvar dublagem</button></div></div>`).join(''):'<p class="mu">Cadastre um título primeiro.</p>';
+<details class="box mf dt"><summary>＋ Vários episódios de uma vez</summary><div class="mu" style="padding:2px 0 4px">Um link por linha, em ordem.</div><div class="mfg2"><input id="m_s" type="number" placeholder="Temporada" value="1"><input id="m_n" type="number" placeholder="1º episódio" value="1"></div><textarea id="m_u" rows="5" placeholder="https://...&#10;https://..."></textarea><button class="btn" style="width:100%;margin-top:4px" onclick="svM()">Adicionar todos</button></details>`+S.E.filter(x=>x.title_id==et2&&(qm||(`t${x.season} e${x.num} ${x.name||''}`).toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>T${x.season} • E${x.num}</b><small class="mu">${esc(x.name||'')}</small></div><button class="btn o s" onclick="dE(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_e${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_e${x.id}','vc_e${x.id}')">Salvar capa</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="db_e${x.id}" placeholder="🎧 Link da dublagem (Drive ou .mp3/.m4a)" value="${esc(S.set['dub_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svDub('dub_e${x.id}','db_e${x.id}')">Salvar dublagem</button></div></div>${trBox('trim_e'+x.id,'tr_e'+x.id)}`).join('')+S.L.filter(x=>x.title_id==et2&&(qm||(x.label||x.url||'').toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>Link</b><small class="mu">${esc(x.label||x.url)}</small></div>${((T(x.title_id)||{}).section=='movies')?`<button class="btn o s" onclick="lMov(${x.id},-1)" aria-label="Subir">▲</button><button class="btn o s" onclick="lMov(${x.id},1)" aria-label="Descer">▼</button>`:''}<button class="btn o s" onclick="dL(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="ln_${x.id}" placeholder="Nome do player (ex.: vk.video, Player 2)" value="${esc(x.label||'')}" style="margin:0"><button class="btn o s" onclick="lRen(${x.id})">Salvar nome</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_l${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_l${x.id}','vc_l${x.id}')">Salvar capa</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="db_l${x.id}" placeholder="🎧 Link da dublagem (Drive ou .mp3/.m4a)" value="${esc(S.set['dub_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svDub('dub_l${x.id}','db_l${x.id}')">Salvar dublagem</button></div></div>${trBox('trim_l'+x.id,'tr_l'+x.id)}`).join(''):'<p class="mu">Cadastre um título primeiro.</p>';
   if(S.T.length)subAdm();
  }
  if(a=='l'){d.innerHTML=lyAdm();return}
@@ -1681,7 +1705,7 @@ const PPI=[[1,'Circular brilhante',70],[2,'Pílula',128],[3,'Pílula com círcul
 const ppiN=k=>{const n=ppo('pb_pi',k,1);return PPI.find(a=>a[0]==n)||PPI[0]};
 const ppiW=k=>ppiN(k)[2],ppiF=k=>'botao-play-'+ppiN(k)[0]+'.png';
 function pbGo(){const w=$('#pw'),f=w&&w.querySelector('iframe'),v=w&&w.querySelector('video'),pk=S.cur&&S.cur.pk;
- try{if(v)v.play();else if(f&&f.contentWindow){const m={yt:{event:'command',func:'playVideo',args:[]},vm:{method:'play'}}[pk];if(m)f.contentWindow.postMessage(JSON.stringify(m),'*')}}catch(x){}
+ try{if(v)v.play();else if(f&&f.contentWindow){const m={yt:{event:'command',func:'playVideo',args:[]},vm:{method:'play'},rt:{type:'player:play',data:{}},rb:{type:'player:play',data:{}}}[pk];if(m)f.contentWindow.postMessage(JSON.stringify(m),'*')}}catch(x){}
  if(ppo('pb_pa',pk,1)==1){const c=S.cur;S.pbd=c.t.id+':'+(c.e?c.e.id:'')+':'+c.li;w&&w.querySelectorAll('.ob.ppb').forEach(b=>b.style.display='none')}}
 const OEC={r:{n:'Botão girar',sel:'.ob.ls',K:[['ov_lx','Horizontal',0,100,97,'%'],['ov_ly','Vertical',0,100,6,'%'],['ov_sl','Tamanho',.7,2.5,1,'x'],['ov_lo','Visibilidade',10,100,100,'%'],['ov_bd','Borda (0% = sem borda)',0,100,100,'%'],['ov_bf','Fundo (0% = sem fundo)',0,100,100,'%']]},f:{n:'Botão Minha lista',sel:'.ob.pml',K:[['ov_fx','Horizontal',0,100,12,'%'],['ov_fy','Vertical',0,100,50,'%'],['ov_sf','Tamanho',.7,2.5,1,'x'],['ov_fo','Visibilidade (0% = invisível)',0,100,100,'%'],['ov_fd','Borda e brilho (0% = sem)',0,100,100,'%'],['ov_ff','Fundo (0% = sem fundo)',0,100,100,'%']]},c:{n:'Botão Recomendado',sel:'.ob.prc',K:[['ov_rx','Horizontal',0,100,88,'%'],['ov_ry','Vertical',0,100,50,'%'],['ov_sr','Tamanho',.7,2.5,1,'x'],['ov_ro','Visibilidade (0% = invisível)',0,100,100,'%'],['ov_rd','Borda e brilho (0% = sem)',0,100,100,'%'],['ov_rf','Fundo (0% = sem fundo)',0,100,100,'%']]},p:{n:'Botão play',sel:'.ob.ppb',K:[['ov_px','Horizontal',0,100,50,'%'],['ov_py','Vertical',0,100,50,'%'],['ov_sp','Tamanho',.3,3,1,'x'],['ov_po','Visibilidade (0% = invisível)',0,100,100,'%']]},x:{n:'Botão voltar (✕)',sel:'.ob.ex',K:[['ov_xx','Horizontal',0,100,4,'%'],['ov_xy','Vertical',0,100,6,'%'],['ov_sx','Tamanho',.7,2.5,1,'x'],['ov_xo','Visibilidade',10,100,100,'%'],['ov_xd','Borda (0% = sem borda)',0,100,100,'%'],['ov_xf','Fundo (0% = sem fundo)',0,100,100,'%']]}};
 OEC.n={n:'Botão CINE NOTFOR (visual)',sel:'.ob.nbn',K:[['nb_nx','Horizontal',0,100,50,'%'],['nb_ny','Vertical',0,100,12,'%'],['nb_ns','Tamanho',.3,3,1,'x'],['nb_no','Visibilidade (0% = invisível)',0,100,100,'%']]};
@@ -2088,7 +2112,7 @@ function vmWire(){
 /* ===== Rutube com os controles do app (API oficial do player: postMessage "player:*") ===== */
 const RT={st:null,h:0};
 function rtWire(){
- const w=$('#pw'),f=w&&w.querySelector('iframe[src*="rutube.ru/play/embed"]'),bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),mu=$('#mu'),sp=$('#spd'),cb=$('#cb');
+ const w=$('#pw'),f=w&&w.querySelector('iframe[src*="rutube.ru/play/embed"],iframe[data-rb]'),bp=$('#bp'),sk=$('#sk'),tm=$('#tm'),tt=$('#tt'),mu=$('#mu'),sp=$('#spd'),cb=$('#cb');
  if(!f||!bp||!sk||!w.querySelector('.cnp')||!w.querySelector('.vmsh'))return;
  const fm=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
  const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>';
@@ -2104,7 +2128,8 @@ function rtWire(){
  st.ui=()=>{bp.innerHTML=st.play?PAI:PLI;if(!st.drag){if(st.dur>0){sk.value=Math.min(1000,st.cur/st.dur*1000);sk.style.setProperty('--p',(sk.value/10)+'%')}tm.textContent=fm(st.cur)}if(tt)tt.textContent=fm(st.dur);if(mu)mu.style.opacity=st.muted?.4:1};
  if(!RT.h){RT.h=1;window.addEventListener('message',e=>{const s=RT.st;if(!s||!document.contains(s.f)||e.source!==s.f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d||typeof d.type!='string')return;
   const t=d.type,x=d.data||{},pw=document.getElementById('pw');
-  if(t=='player:changeState'){s._cs=1;const v=x.state;if(v=='playing'){s.play=1;s.show();s.ui()}else if(v=='paused'||v=='pause'||v=='stopped'){s.play=0;s.show();s.ui()}}
+  if(t=='player:changeState'){s._cs=1;const v=x.state;if(v=='playing'){s.play=1;if(!s._st){s._st=1;clearTimeout(s._g);if(!s._ao&&pw)pw.classList.remove('rtad')}s.show();s.ui()}else if(v=='paused'||v=='pause'||v=='stopped'){s.play=0;s.show();s.ui()}}
+  else if(t=='player:ready'){s._rd=1}
   else if(t=='player:durationChange'){if(x.duration>0){s.dur=x.duration;s.ui()}}
   else if(t=='player:currentTime'){const c=+x.time||0;if(!s._cs&&c>(s._pc||0)+.15&&!s.play){s.play=1;s.show()}s._pc=c;s.cur=c;s._ref={t:c,at:Date.now()};
    if(c>5&&Date.now()-(s._sp||0)>3000){s._sp=Date.now();try{setPos(ckey(),c);if(s.dur&&c/s.dur>.9&&pf('sn')&&!lj('cn_seen')[ckey()])setSeen(ckey(),1)}catch(er){}}
@@ -2113,12 +2138,22 @@ function rtWire(){
   else if(t=='player:playComplete'){s.play=0;s.show();s.ui();if(typeof onEnd=='function')onEnd()}
   else if(t=='player:volumeChange'){const v=+x.volume;if(v>=0){s.vol=v||s.vol;s.muted=v==0;s.ui()}}
   else if(t=='player:rollState'){/* anúncio do Rutube: libera o toque para dar para pular; volta a proteger quando ele termina */
-   if(pw&&/(pre|mid|post)roll/i.test(String(x.rollState||''))){if(x.state=='play'){pw.classList.add('rtad');clearTimeout(s._ad);s._ad=setTimeout(()=>pw.classList.remove('rtad'),120000)}else{pw.classList.remove('rtad');clearTimeout(s._ad)}}}})}
+   if(pw&&/(pre|mid|post)roll/i.test(String(x.rollState||''))){if(x.state=='play'){s._ao=1;pw.classList.add('rtad');clearTimeout(s._ad);s._ad=setTimeout(()=>pw.classList.remove('rtad'),120000)}else{s._ao=0;pw.classList.remove('rtad');clearTimeout(s._ad)}}}})}
  w.addEventListener('pointerdown',show);w.addEventListener('touchstart',show,{passive:true});
  bp.onclick=()=>{if(st.play){st.play=0;cmd('pause')}else{st.play=1;cmd('play')}st.ui();show()};
  sk.oninput=()=>{st.drag=1;sk.style.setProperty('--p',(sk.value/10)+'%');tm.textContent=fm(sk.value/1000*st.dur);show()};
  sk.onchange=()=>{if(st.dur>0){st.cur=sk.value/1000*st.dur;cmd('setCurrentTime',st.cur)}setTimeout(()=>{st.drag=0},400)};
  if(sp)sp.style.display='none'; /* o Rutube não tem comando de velocidade */
+ /* "toque por baixo": enquanto o vídeo não começa, o escudo do app fica transparente ao toque (o toque cai direto no play do Rutube/Rumble);
+    o app também manda o play pela API ao carregar e de novo 4 s depois, se ainda não estiver tocando */
+ {const isRb=f.hasAttribute('data-rb'),auto=()=>{if(!document.contains(f)||st.play||document.getElementById('vcap'))return;send('player:play')};
+  w.classList.add('rtad');st._g=setTimeout(()=>{if(!st._ao)w.classList.remove('rtad')},12000);
+  f.addEventListener('load',()=>{setTimeout(auto,600);setTimeout(auto,4600)});
+  if(isRb)setTimeout(()=>{if(st._rd||st._cs||st.dur>0||!document.contains(f))return;
+   /* a ponte do Rumble não respondeu: volta o player normal do Rumble (com os controles dele) */
+   try{f.removeAttribute('srcdoc');f.src='https://rumble.com/embed/'+(f.dataset.rbid||'')+'/?rel=0'}catch(e){}
+   const sh=w.querySelector('.vmsh'),cn=w.querySelector('.cnp');if(sh)sh.remove();if(cn)cn.style.display='none';
+   w.classList.remove('rtad');w.classList.remove('ovh');if(RT.st===st)RT.st=null},15000)}
  if(mu)mu.onclick=()=>{st.muted=!st.muted;cmd('setVolume',st.muted?0:st.vol);st.ui()};
  if(cb)cb.onclick=()=>{if(S.ff||document.fullscreenElement||document.webkitFullscreenElement)fsExit();else go(S.prev||'home')};
  st.ui();show();
@@ -2524,5 +2559,27 @@ window.cnVkSet=()=>{const w=document.getElementById('pw');if(!w||w.classList.con
  let b=document.getElementById('vkmsg');if(b)b.remove();
  b=document.createElement('div');b.id='vkmsg';b.textContent='Indisponível. Use as resoluções do segundo Player e volte pra cá.';
  b.onclick=ev=>{ev.stopPropagation();b.remove()};w.appendChild(b);setTimeout(()=>{try{b.remove()}catch(e){}},5000);return true};
+</script>
+<script id="trim-js">
+(()=>{
+let last=null,st={};
+const msg=(f,o)=>{try{f.contentWindow.postMessage(JSON.stringify(o),'*')}catch(e){}};
+const src=()=>{
+ const w=document.getElementById('pw');if(!w)return null;
+ const v=w.querySelector('video');
+ if(v)return{cur:v.currentTime||0,play:!v.paused,seek:t=>{try{v.currentTime=t}catch(e){}},pause:()=>{try{v.pause()}catch(e){}}};
+ try{const y=typeof YT!='undefined'&&YT.st;if(y&&document.contains(y.f)&&y.rdy)return{cur:y.cur||0,play:y.ps===1,seek:t=>msg(y.f,{event:'command',func:'seekTo',args:[t,true]}),pause:()=>msg(y.f,{event:'command',func:'pauseVideo',args:[]})}}catch(e){}
+ const c=[typeof VM!='undefined'?VM.st:null,typeof VKP!='undefined'?VKP.st:null,typeof RT!='undefined'?RT.st:null];
+ for(const q of c){if(q&&q.f&&document.contains(q.f)&&typeof q.cmd=='function')return{cur:q.cur||0,play:!!q.play,seek:t=>q.cmd('setCurrentTime',t),pause:()=>{q.play=0;q.cmd('pause')}}}
+ return null};
+setInterval(()=>{
+ if(typeof S=='undefined'||!S.cur||!document.getElementById('pw')){last=null;return}
+ if(S.cur!==last){last=S.cur;st={a:0,b:0}}
+ const t=trCur(),a=t[0],b=t[1];if(!a&&!b)return;
+ const s=src();if(!s)return;
+ if(a>0&&!st.a&&(s.play||s.cur>0)){st.a=1;if(s.cur<a-2)s.seek(a)}
+ if(b>0&&!st.b&&s.cur>=b&&(s.play||s.cur>=b)){st.b=1;s.pause();try{onEnd()}catch(e){}}
+},400);
+})();
 </script>
 </body></html>
