@@ -670,7 +670,9 @@ html body,html body button,html body input,html body select,html body textarea{f
 html body #pw,html body #pw *{font-family:Roboto,-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif}
 </style>
 <style>.pw .vkpc{display:none;position:absolute;inset:0;z-index:1;background:#000;pointer-events:none}</style>
-<style>.pw.rtad .vmsh,.pw.rtad .cnp{display:none!important}</style><style>#vkmsg{position:absolute;z-index:99999;left:50%;top:50%;transform:translate(-50%,-50%);width:max-content;max-width:84%;padding:12px 18px;border-radius:16px;border:2px solid #e10600;background:rgba(0,0,0,.88);color:#fff;font:700 14px/1.35 system-ui,sans-serif;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.7)}</style><style>.pw.vkset .vksh,.pw.vkset .cnp,.pw.vkset .ppb,.pw.vkset .vkpc{display:none!important}#vkok{position:absolute;z-index:99999;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);padding:8px 18px;border-radius:20px;border:2px solid #e10600;background:rgba(0,0,0,.75);color:#fff;font:700 14px system-ui}</style>
+<style>.pw.rtad .vmsh,.pw.rtad .cnp{display:none!important}
+/* Rutube sem os controles dele: o player fica mais alto que a caixa (cortado em cima e embaixo); o vídeo continua do mesmo tamanho */
+.pw:has(iframe[src*="rutube.ru/play/embed"]):not(.rtad) iframe[src*="rutube.ru/play/embed"]:not(.dz){position:absolute;top:-30%;left:50%;height:160%;width:auto;aspect-ratio:16/14.4;transform:translateX(-50%)}</style><style>#vkmsg{position:absolute;z-index:99999;left:50%;top:50%;transform:translate(-50%,-50%);width:max-content;max-width:84%;padding:12px 18px;border-radius:16px;border:2px solid #e10600;background:rgba(0,0,0,.88);color:#fff;font:700 14px/1.35 system-ui,sans-serif;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.7)}</style><style>.pw.vkset .vksh,.pw.vkset .cnp,.pw.vkset .ppb,.pw.vkset .vkpc{display:none!important}#vkok{position:absolute;z-index:99999;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);padding:8px 18px;border-radius:20px;border:2px solid #e10600;background:rgba(0,0,0,.75);color:#fff;font:700 14px system-ui}</style>
 </head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -943,7 +945,7 @@ return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" c
 +'var P=parent,V='+JSON.stringify(vid)+',T0='+(+t0||0)+',A=null,pl=0,sd=0,lt=-1;'
 +'function tx(t,d){try{P.postMessage(JSON.stringify({type:t,data:d||{}}),"*")}catch(e){}}'
 +'!function(r,u,m,b,l,e){r._Rumble=b,r[b]||(r[b]=function(){(r[b]._=r[b]._||[]).push(arguments);if(r[b]._.length==1){l=u.createElement(m),e=u.getElementsByTagName(m)[0],l.async=1,l.src="https://rumble.com/embedJS/'+pub+'"+(arguments[1].video?"."+arguments[1].video:"")+"/?url="+encodeURIComponent("https://rumble.com/")+"&args="+encodeURIComponent(JSON.stringify([].slice.apply(arguments))),e.parentNode.insertBefore(l,e)}})}(window,document,"script","Rumble");'
-+'Rumble("play",{video:V,div:"rp",rel:0,api:function(a){A=a;tx("player:ready");'
++'Rumble("play",{video:V,div:"rp",rel:0,ui:{play:{hidden:1},scrubber:{hidden:1},settings:{hidden:1},sound:{hidden:1},time:{hidden:1},fullscreen:{hidden:1},logo:{hidden:1}},api:function(a){A=a;tx("player:ready");'
 +'a.on("play",function(){pl=1;tx("player:changeState",{state:"playing"});if(T0&&!sd){sd=1;try{a.setCurrentTime(T0)}catch(e){}}});'
 +'a.on("pause",function(){pl=0;tx("player:changeState",{state:"paused"})});'
 +'a.on("videoEnd",function(){pl=0;tx("player:playComplete")});'
@@ -1244,7 +1246,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-17 (47) · início/fim programável por vídeo · Rutube: toque por baixo + play automático · Rumble com controles do app · Mail.ru Vídeo · Rutube com controles do app · comentários não somem mais · olhinho p/ ocultar títulos · engrenagem VK/ok.ru avisa p/ usar o Player 2 · pausa 4s antes do fim · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
+const APP_V='2026-11-17 (49) · Rutube sem controles próprios · Rumble sem controles próprios · início/fim programável por vídeo · Rutube: toque por baixo + play automático · Rumble com controles do app · Mail.ru Vídeo · Rutube com controles do app · comentários não somem mais · olhinho p/ ocultar títulos · engrenagem VK/ok.ru avisa p/ usar o Player 2 · pausa 4s antes do fim · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
