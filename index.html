@@ -1250,7 +1250,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-17 (54) · Mail.ru com controles do app · zoom centralizado no Rutube · botão de zoom/preencher no player · Rutube sem controles próprios · Rumble sem controles próprios · início/fim programável por vídeo · Rutube: toque por baixo + play automático · Rumble com controles do app · Mail.ru Vídeo · Rutube com controles do app · comentários não somem mais · olhinho p/ ocultar títulos · engrenagem VK/ok.ru avisa p/ usar o Player 2 · pausa 4s antes do fim · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
+const APP_V='2026-11-17 (55) · Mail.ru aprende o comando · zoom centralizado no Rutube · botão de zoom/preencher no player · Rutube sem controles próprios · Rumble sem controles próprios · início/fim programável por vídeo · Rutube: toque por baixo + play automático · Rumble com controles do app · Mail.ru Vídeo · Rutube com controles do app · comentários não somem mais · olhinho p/ ocultar títulos · engrenagem VK/ok.ru avisa p/ usar o Player 2 · pausa 4s antes do fim · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -2242,7 +2242,8 @@ const okSend=(f,fi,m,v)=>{try{f.contentWindow.postMessage(okMsg(fi,m,v),'*')}cat
 const okFmt=()=>{try{const n=parseInt(localStorage.cn_okfmt);return n>=0&&n<OKF.length?n:4}catch(e){return 4}};
 const okPlayer=f=>{const fi=okFmt();if(isNaN(fi))throw new Error('sem comando salvo: use o botão 🧪');const H={};
  OKP.hook=(ev,d)=>{(H[ev]||[]).forEach(fn=>{try{fn(d)}catch(e){}})};
- return{on:(e,fn)=>{(H[e]=H[e]||[]).push(fn)},play:()=>okSend(f,fi,'play'),pause:()=>okSend(f,fi,'pause'),seek:t=>okSend(f,fi,'seek',t),setVolume:v=>{okSend(f,fi,'setVolume',v);okSend(f,fi,v>0?'unmute':'mute')}}};
+ const mr=/mail\.ru/.test(f.src)&&window.mrCmd;
+ return{on:(e,fn)=>{(H[e]=H[e]||[]).push(fn)},play:()=>mr?mrCmd(f,'play'):okSend(f,fi,'play'),pause:()=>mr?mrCmd(f,'pause'):okSend(f,fi,'pause'),seek:t=>mr?mrCmd(f,'seek',t):okSend(f,fi,'seek',t),setVolume:v=>{if(mr)return mrCmd(f,'setVolume',v);okSend(f,fi,'setVolume',v);okSend(f,fi,v>0?'unmute':'mute')}}};
 /* descobre qual formato de comando o ok.ru obedece: manda "pause" em cada formato e vê se o vídeo parou */
 window.cnOkProbe=async()=>{const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[src*="ok.ru/videoembed"]'),st=OKP.st;
  if(!f||!st||st.f!==f||!st.play){OKP.res='dê play no vídeo do ok.ru e toque de novo';return}
@@ -2617,22 +2618,72 @@ setInterval(tick,400);
 </script>
 <script id="mr-probe">
 (()=>{
-/* Mail.ru: quadrinho de status (só lê, não manda comandos) + botão para voltar aos controles do próprio Mail.ru */
-let box=null,sig='',off='',n=0,last=[];
+/* Mail.ru: o app aprende no seu aparelho qual comando o player aceita (botão "Testar comandos") e guarda. Até aprender, usa os controles do próprio Mail.ru. */
+const SH=[m=>'embed-'+m,m=>({method:m}),m=>({type:m}),m=>({action:m}),m=>({command:m}),m=>({cmd:m}),m=>({name:m}),
+ m=>({name:'method',method:m}),m=>({name:'command',message:m}),m=>({name:'data',message:m}),m=>({name:'action',message:m}),m=>({name:'method',message:m}),
+ m=>({event:'command',func:m,args:[]}),m=>({func:m}),m=>({event:m}),m=>({message:m}),m=>({type:'player:'+m,data:{}}),m=>({context:'player.js',method:m}),m=>({name:'player',method:m}),m=>({event:'embed-'+m})];
+const CA=[];SH.forEach((_,i)=>{CA.push([i,0]);if(i>0)CA.push([i,1])});
+const NM=['seek','seekTo','setCurrentTime','currentTime','setTime'];
+const KX=t=>[{time:t},{value:t},{seconds:t},{currentTime:t},{position:t},{args:[t]},{data:{time:t}}];
+const SEEKC=[];NM.forEach(n=>[0,1,2,3,4,5,6].forEach(k=>SEEKC.push([n,k])));
+const raw=(f,i,enc,m,x)=>{let p=SH[i](m);if(x&&typeof p=='object')p=Object.assign(p,x);if(enc&&typeof p=='object')p=JSON.stringify(p);try{f.contentWindow.postMessage(p,'*')}catch(e){}};
+const get=()=>{try{return JSON.parse(localStorage.cn_mrfmt||'null')}catch(e){return null}};
+const put=o=>{try{localStorage.cn_mrfmt=JSON.stringify(o)}catch(e){}};
+window.mrCmd=(f,m,v)=>{const c=get()||{i:3,e:0};
+ if(m=='seek'){const k=c.sk||['seek',0];return raw(f,c.i,c.e,k[0],KX(v)[k[1]])}
+ if(m=='setVolume'){raw(f,c.i,c.e,'setVolume',{volume:v,value:v});return raw(f,c.i,c.e,v>0?'unmute':'mute')}
+ raw(f,c.i,c.e,m)};
 const fr=()=>{const w=document.getElementById('pw');return w&&w.querySelector('iframe[src*="mail.ru"]')};
-addEventListener('message',e=>{const f=fr();if(!f||e.source!==f.contentWindow)return;n++;let t;try{t=typeof e.data=='string'?e.data:JSON.stringify(e.data)}catch(x){t='?'}if(!/timeChanged|timeupdate/.test(t)){last.push(t.slice(0,70));if(last.length>3)last.shift()}});
+let box=null,sig='',off='',st=null,tst=null;
+const mk=()=>({n:0,last:[],cur:0,dur:0,lastInc:0,pev:0});
+addEventListener('message',e=>{const f=fr();if(!f||e.source!==f.contentWindow||!st)return;
+ let d=e.data,t;try{t=typeof d=='string'?d:JSON.stringify(d)}catch(x){t='?'}
+ if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){}}
+ st.n++;if(!/timeChanged|timeupdate/.test(t)){st.last.push(t.slice(0,80));if(st.last.length>4)st.last.shift()}
+ const o=d&&typeof d=='object'?d:{};const c=typeof o.currentTime=='number'?o.currentTime:(typeof o.time=='number'?o.time:null);
+ if(c!==null){if(c>st.cur+0.05)st.lastInc=Date.now();st.cur=c}
+ if(o.duration>0)st.dur=o.duration;
+ if(o.event=='paused'||o.eventName=='pause'||o.event=='started'||o.event=='resumed'||o.eventName=='playing')st.pev=Date.now()+':'+(o.event||o.eventName);
+});
+const T=()=>tst;
+const step=f=>{const q=T();if(!q)return;const now=Date.now(),playing=now-st.lastInc<1100;
+ if(q.ph==1){
+  if(q.pend){if(now-q.pend<1500)return;q.pend=0;
+   if(now-st.lastInc>1200||(st.pev&&/pause/.test(st.pev)&&+st.pev.split(':')[0]>q.sent)){q.found=CA[q.idx];put({i:q.found[0],e:q.found[1]});q.ph=2;q.msg='PAUSA funcionou. Testando tocar...';return}
+   q.idx++}
+  if(q.idx>=CA.length){q.ph=9;q.msg='nenhum formato de pausa funcionou';return}
+  if(!playing){q.msg='o vídeo precisa estar tocando (use "Usar controles do Mail.ru", dê play, e teste de novo)';q.wait=(q.wait||0)+1;if(q.wait>6){q.ph=9}return}
+  raw(f,CA[q.idx][0],CA[q.idx][1],'pause');q.pend=q.sent=now;q.msg='testando pausa '+(q.idx+1)+'/'+CA.length;return}
+ if(q.ph==2){
+  if(!q.pend){raw(f,q.found[0],q.found[1],'play');q.pend=now;return}
+  if(now-q.pend<1800)return;q.pend=0;
+  if(playing){q.play='ok';q.ph=3;q.msg='tocar funcionou. Testando pular...'}else{q.play='não voltou';q.ph=9;q.msg='pausa ok, tocar falhou'}return}
+ if(q.ph==3){
+  if(q.pend){if(now-q.pend<1500)return;q.pend=0;
+   if(st.cur>q.base+25){q.seek='ok '+JSON.stringify(SEEKC[q.sidx]);const c=get()||{};c.sk=SEEKC[q.sidx];put(c);q.ph=9;q.msg='PRONTO! Formato salvo. Feche e abra o vídeo de novo.';return}
+   q.sidx++}
+  if(q.sidx>=SEEKC.length){q.seek='nenhum funcionou';q.ph=9;q.msg='pausa/tocar ok, pular falhou';return}
+  if(!playing||st.dur&&st.cur>st.dur-90)return;
+  const c=SEEKC[q.sidx],t=Math.floor(st.cur)+40,g=get();q.base=st.cur;
+  raw(f,g.i,g.e,c[0],KX(t)[c[1]]);q.pend=now;q.msg='testando pular '+(q.sidx+1)+'/'+SEEKC.length}
+};
 setInterval(()=>{
  const f=fr(),w=document.getElementById('pw');
- if(!f){if(box){box.remove();box=null}sig='';return}
- if(f.src!==sig){sig=f.src;n=0;last=[]}
+ if(!f){if(box){box.remove();box=null}sig='';st=null;tst=null;return}
+ if(f.src!==sig){sig=f.src;st=mk();tst=null}
+ /* sem formato salvo: deixa os controles do próprio Mail.ru ligados */
+ if(!get()&&!w.dataset.mrinit){w.dataset.mrinit='1';w.classList.add('mrraw')}
+ try{step(f)}catch(e){}
  if(off===sig)return;
- if(!box){box=document.createElement('div');box.style.cssText='position:fixed;left:4px;bottom:70px;max-width:94vw;z-index:99999;background:rgba(0,0,0,.85);color:#7f7;font:10px/1.35 monospace;padding:5px 7px;border-radius:6px;word-break:break-all';
-  box.innerHTML='<div class="t"></div><button type="button" class="r" style="margin:4px 4px 0 0;font:11px system-ui;padding:3px 8px"></button><button type="button" class="x" style="margin-top:4px;font:11px system-ui;padding:3px 8px">Fechar</button>';
-  box.querySelector('.r').onclick=()=>{w.classList.toggle('mrraw')};box.querySelector('.x').onclick=()=>{off=sig;box.remove();box=null};document.body.appendChild(box)}
- const raw=w.classList.contains('mrraw'),sv=(typeof VKP!='undefined'&&VKP.st)?VKP.st:null;
- box.querySelector('.t').textContent='MAIL.RU | msgs: '+n+' | controles do app: '+(raw?'desligados':(sv?'ligados (tempo '+Math.floor(sv.cur||0)+'s'+(sv.play?', tocando':', pausado')+')':'sem resposta'))+(last.length?'\n'+last.join('\n'):'');
- box.querySelector('.t').style.whiteSpace='pre-wrap';
- box.querySelector('.r').textContent=raw?'Voltar aos controles do app':'Usar controles do Mail.ru';
+ if(!box){box=document.createElement('div');box.style.cssText='position:fixed;left:4px;bottom:70px;max-width:94vw;z-index:99999;background:rgba(0,0,0,.88);color:#7f7;font:10px/1.35 monospace;padding:5px 7px;border-radius:6px;word-break:break-all';
+  box.innerHTML='<div class="t" style="white-space:pre-wrap"></div><button type="button" class="r" style="margin:4px 4px 0 0;font:11px system-ui;padding:3px 8px"></button><button type="button" class="g" style="margin:4px 4px 0 0;font:11px system-ui;padding:3px 8px">Testar comandos</button><button type="button" class="z" style="margin:4px 4px 0 0;font:11px system-ui;padding:3px 8px">Apagar formato</button><button type="button" class="x" style="margin-top:4px;font:11px system-ui;padding:3px 8px">Fechar</button>';
+  box.querySelector('.r').onclick=()=>{w.classList.toggle('mrraw')};
+  box.querySelector('.g').onclick=()=>{tst={ph:1,idx:0,pend:0,found:null,play:'',seek:'',sidx:0,base:0,msg:'iniciando'}};
+  box.querySelector('.z').onclick=()=>{try{delete localStorage.cn_mrfmt}catch(e){}tst=null};
+  box.querySelector('.x').onclick=()=>{off=sig;box.remove();box=null};document.body.appendChild(box)}
+ const rw=w.classList.contains('mrraw'),sv=(typeof VKP!='undefined'&&VKP.st)?VKP.st:null,sf=get(),q=tst;
+ box.querySelector('.t').textContent='MAIL.RU | msgs: '+st.n+' | tempo: '+Math.floor(st.cur)+'s | controles: '+(rw?'do Mail.ru':'do app')+' | formato: '+(sf?JSON.stringify(sf):'não aprendido')+(q?'\n'+q.msg+(q.found?'\nPAUSA: '+JSON.stringify(SH[q.found[0]]('pause'))+' enc='+q.found[1]:'')+(q.play?'\nTOCAR: '+q.play:'')+(q.seek?'\nPULAR: '+q.seek:''):'')+(st.last.length?'\n'+st.last.join('\n'):'');
+ box.querySelector('.r').textContent=rw?'Usar controles do app':'Usar controles do Mail.ru';
 },800);
 })();
 </script>
