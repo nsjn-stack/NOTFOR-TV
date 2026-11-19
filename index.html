@@ -3100,6 +3100,12 @@ const castH=t=>{const l=castGet(t.id);return l.length?`<h2>Elenco</h2><div class
 document.addEventListener('pointerdown',e=>{const h=e.target.closest&&e.target.closest('.pt h1');if(!h)return;st();t=setTimeout(()=>{let on=false;try{on=localStorage.cn_okdbg=='1';localStorage.cn_okdbg=on?'0':'1'}catch(x){}try{navigator.vibrate&&navigator.vibrate(40)}catch(x){}alert(on?'Opção do ok.ru ocultada.':'Opção do ok.ru liberada (aparece abaixo do player de VK/OK).')},2000)},true);
 ['pointerup','pointercancel','pointermove'].forEach(k=>document.addEventListener(k,st,true));
 })();
+
+/* Botão voltar: reforço. Ao voltar de outro app/aba (ou se algum recurso apagar o marcador do histórico), recria a proteção para o botão do celular não sair do app */
+(()=>{const arm=()=>{try{if(S.ff)return;const st=history.state;if(st&&(st.cnb!=null||st.ff))return;history.replaceState({cnb:0},'');history.pushState({cnb:1},'')}catch(e){}};
+addEventListener('pageshow',arm);document.addEventListener('visibilitychange',()=>{if(!document.hidden)arm()});
+document.addEventListener('pointerdown',()=>{try{const st=history.state;if(S.tab&&S.tab!='home'&&st&&st.cnb===0)history.pushState({cnb:1},'')}catch(e){}},true);
+})();
 </script>
 
 </body></html>
