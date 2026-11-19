@@ -1282,7 +1282,7 @@ async function ad(f){
 <div class="mfg2"><select id="f_section">${secOrd().map(s=>`<option value="${s.key}" ${e.section==s.key?'selected':''}>${esc(s.label)}</option>`).join('')}</select><select id="f_rating">${['Livre','10+','12+','14+','16+','18+'].map(x=>`<option ${e.rating==x?'selected':''}>${x}</option>`).join('')}</select></div>
 <select id="f_audio"><option value="">Áudio</option>${['dublado','legendado'].map(x=>`<option ${(e.audio||(S.ed?'':'dublado'))==x?'selected':''}>${x}</option>`).join('')}</select>
 <div class="mfk"><label class="k"><input type="checkbox" id="f_featured" ${e.featured?'checked':''}> Destaque</label><label class="k"><input type="checkbox" id="f_coff" ${e.comments_off?'checked':''}> Sem comentários</label></div>
-<div class="row" style="margin-top:6px;flex-wrap:nowrap"><button class="btn" style="flex:1" onclick="svT()">${S.ed?'Salvar alterações':'Adicionar título'}</button><button class="btn o" onclick="tmG()" title="Google Imagens">🖼</button><button class="btn o" onclick="tmKey()" title="Chave do TMDB">🔑</button></div></div>`+`<div class="box sbx"><span>🔎</span><input id="t_q" placeholder="Pesquisar títulos…" oninput="tF()"></div><div class="tmw"><button type="button" class="btn o s" id="t_more" onclick="S.tAll=!S.tAll;tF()"></button></div>`+S.T.map(t=>`<div class="box tbx trw${isHid(t)?' hid':''}"><div class="trn"><b>${esc(t.name)}</b><small class="mu">${esc(lab(t.section))}${isHid(t)?' • oculto':''}</small></div>${eyeBtn(t)}<button class="btn o s" onclick="S.ed=T(${t.id});ad();scrollTo(0,0)">Editar</button><button class="btn o s" onclick="dT(${t.id})">Apagar</button></div>`).join('');tF();
+<div class="row" style="margin-top:6px;flex-wrap:nowrap"><button class="btn" style="flex:1" onclick="svT()">${S.ed?'Salvar alterações':'Adicionar título'}</button><button class="btn o" onclick="tmG()" title="Google Imagens">🖼</button><button class="btn o" onclick="tmKey()" title="Chave do TMDB">🔑</button></div></div>`+`<div class="box sbx"><span>🔎</span><input id="t_q" placeholder="Pesquisar títulos…" oninput="tF()"></div><div class="tmw"><button type="button" class="btn o s" id="t_more" onclick="S.tAll=!S.tAll;tF()"></button></div>`+S.T.map(t=>`<div class="box tbx trw${isHid(t)?' hid':''}"><div class="trn"><b>${esc(t.name)}</b><small class="mu">${esc(lab(t.section))}${isHid(t)?' • oculto':''}</small></div>${eyeBtn(t)}<button class="btn o s" title="Travar capa e banner: o TMDB nunca troca a capa e o banner deste título" onclick="tbLock(${t.id},this)">${tbLocked(t.id)?'🔒':'🔓'}</button><button class="btn o s" onclick="S.ed=T(${t.id});ad();scrollTo(0,0)">Editar</button><button class="btn o s" onclick="dT(${t.id})">Apagar</button></div>`).join('');tF();
  }
  if(a=='v'){const et=S.et&&T(S.et)?S.et:S.T[0]?.id;S.et=et;
   const vq0=(S.vq||'').toLowerCase(),tl=vq0?S.T.filter(t=>t.name.toLowerCase().includes(vq0)):S.T;if(tl.length&&!tl.some(t=>t.id==S.et)){S.et=tl[0].id}const et2=S.et,qm=!vq0||(T(et2)&&T(et2).name.toLowerCase().includes(vq0));
@@ -1420,10 +1420,11 @@ async function tmPick(t,id){
   const se=$('#f_section');if([...se.options].some(x=>x.value==sec))se.value=sec;
   const ps=[...new Set([d.poster_path,...(d.images?.posters||[]).map(x=>x.file_path)].filter(Boolean))].slice(0,15);
   const bs=[...new Set([d.backdrop_path,...(d.images?.backdrops||[]).map(x=>x.file_path)].filter(Boolean))].slice(0,10);
-  if(ps[0])set('cover',TMI+'w500'+ps[0]);
-  if(bs[0])set('banner',TMI+'w780'+bs[0]);
+  const lk=!!(S.ed&&tbLocked(S.ed.id));
+  if(!lk&&ps[0])set('cover',TMI+'w500'+ps[0]);
+  if(!lk&&bs[0])set('banner',TMI+'w780'+bs[0]);
   pvC();castFrom(d);
-  o.innerHTML=`<div class="mu" style="padding:0;color:#7CFC9A">✓ Preenchido: ${esc(d.title||d.name)}. Revise os campos abaixo.</div>`+
+  o.innerHTML=`<div class="mu" style="padding:0;color:#7CFC9A">✓ Preenchido: ${esc(d.title||d.name)}. Revise os campos abaixo.${lk?' 🔒 Capa e banner estão travados e não foram trocados (você ainda pode escolher uma imagem abaixo, na mão).':''}</div>`+
    (ps.length?`<div class="mu" style="padding:6px 0 0">Escolha a capa:</div><div class="tmg">${ps.map((p,i)=>`<img src="${TMI}w185${p}" data-u="${TMI}w500${p}" class="${i?'':'on'}" onclick="tmSet('cover',this)">`).join('')}</div>`:'')+
    (bs.length?`<div class="mu" style="padding:0">Escolha o banner:</div><div class="tmg b">${bs.map((p,i)=>`<img src="${TMI}w300${p}" data-u="${TMI}w780${p}" class="${i?'':'on'}" onclick="tmSet('banner',this)">`).join('')}</div>`:'');
  }catch(e){o.innerHTML='<p class="mu" style="padding:0">'+esc(e.message)+'</p>'}
@@ -3108,6 +3109,63 @@ document.addEventListener('pointerdown',e=>{const h=e.target.closest&&e.target.c
 addEventListener('pageshow',arm);document.addEventListener('visibilitychange',()=>{if(!document.hidden)arm()});
 document.addEventListener('pointerdown',()=>{try{const st=history.state;if(S.tab&&S.tab!='home'&&st&&st.cnb===0)history.pushState({cnb:1},'')}catch(e){}},true);
 })();
+
+/* ===== Preencher TUDO pelo TMDB (todos os títulos de uma vez) ===== */
+const TB={run:0,stop:0};
+const tbLockList=()=>{try{const a=JSON.parse((S.set||{}).tm_lock||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}};
+const tbLocked=id=>tbLockList().includes(+id);
+async function tbLock(id,b){id=+id;let a=tbLockList();const on=!a.includes(id);a=on?[...a,id]:a.filter(x=>x!=id);const v=JSON.stringify(a);
+ const{error}=await sb.from('settings').upsert({key:'tm_lock',value:v});if(error)return alert('Não consegui salvar: '+error.message);
+ S.set.tm_lock=v;if(b)b.textContent=on?'🔒':'🔓';const c=$('#tb_lk');if(c)c.textContent=a.length}
+const tbNorm=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+const tbSleep=ms=>new Promise(r=>setTimeout(r,ms));
+function tbBox(){const d=$('#ad');if(!d||$('#tmbulk'))return;
+ d.insertAdjacentHTML('afterbegin',`<div class="box" id="tmbulk"><b>🪄 Preencher tudo pelo TMDB</b><div class="mu" style="padding:4px 0">Busca sinopse, gêneros, classificação, ano, país, capa, banner e elenco (com fotos) de todos os títulos, um por um. Por padrão só preenche o que está vazio. Mantenha o app aberto e a tela ligada; se parar, é só tocar em Começar de novo que ele continua de onde faltava.</div><label class="k"><input type="checkbox" id="tb_ow"> Sobrescrever também o que já está preenchido</label><div class="mu" style="padding:4px 0">🔒 Com capa e banner travados (o TMDB nunca troca): <b id="tb_lk">${tbLockList().length}</b>. Toque no cadeado 🔓 ao lado de cada título, na lista abaixo, para travar ou destravar. O resto (sinopse, gêneros, elenco…) continua sendo preenchido normalmente.</div><div class="row" style="margin-top:6px"><button class="btn s" id="tb_go" onclick="tbStart()">Começar</button><button class="btn o s" id="tb_st" onclick="TB.stop=1" style="display:none">Parar</button></div><div id="tb_p" class="mu" style="padding:6px 0"></div></div>`)}
+(()=>{const _a=ad;ad=async function(){await _a.apply(this,arguments);if(S.at=='t')tbBox()}})();
+async function tbStart(){
+ if(TB.run)return;if(!TMK()){tmKey();if(!TMK())return}
+ const ow=!!($('#tb_ow')||{}).checked,L=(S.T||[]).slice();
+ if(!confirm('Preencher '+L.length+' título(s) pelo TMDB'+(ow?', SOBRESCREVENDO o que já existe':' (só o que estiver vazio)')+'? Pode demorar vários minutos.'))return;
+ TB.run=1;TB.stop=0;$('#tb_go').style.display='none';$('#tb_st').style.display='';
+ const P=$('#tb_p'),rm={L:'Livre',10:'10+',12:'12+',14:'14+',16:'16+',18:'18+'};
+ let done=0,upd=0,skip=0,nf=[],err=0,i=0;
+ const show=m=>{if(P)P.textContent=m};
+ for(const t of L){
+  if(TB.stop)break;i++;
+  const lk=tbLocked(t.id);
+  const miss=!t.synopsis||!t.genres||!t.year||!t.country||(!lk&&(!t.cover||!t.banner))||!castGet(t.id).length;
+  if(!ow&&!miss){skip++;continue}
+  show(`${i}/${L.length} · ${t.name}  (preenchidos ${upd} · já completos ${skip} · não achados ${nf.length})`);
+  try{
+   const pref=(t.section=='movies')?'movie':'tv';
+   const d0=await tmF('/search/multi','&include_adult=false&query='+encodeURIComponent(t.name));
+   let l=(d0.results||[]).filter(x=>x.media_type=='movie'||x.media_type=='tv');
+   const nt=tbNorm(t.name),ok1=x=>{const a=tbNorm(x.title||x.name),b=tbNorm(x.original_title||x.original_name);return a==nt||b==nt||(nt.length>3&&(a.includes(nt)||nt.includes(a)||b.includes(nt)))};
+   l=l.filter(ok1);
+   const yr=x=>+(x.release_date||x.first_air_date||'').slice(0,4);
+   const r=l.find(x=>x.media_type==pref&&t.year&&yr(x)==+t.year)||l.find(x=>t.year&&yr(x)==+t.year)||l.find(x=>x.media_type==pref)||l[0];
+   if(!r){nf.push(t.name);continue}
+   const ty=r.media_type,d=await tmF('/'+ty+'/'+r.id,'&append_to_response='+(ty=='tv'?'content_ratings':'release_dates')+',images,credits&include_image_language=pt,en,null');
+   const o={},put=(k,v)=>{if(v!==undefined&&v!==null&&v!==''&&(ow||!t[k]))o[k]=v};
+   put('synopsis',d.overview);put('year',+(d.release_date||d.first_air_date||'').slice(0,4)||null);
+   put('genres',(d.genres||[]).map(g=>g.name.toLowerCase()).join(', '));
+   let cc=(d.production_countries||[])[0]?.iso_3166_1||(d.origin_country||[])[0],cn='';
+   try{cn=cc?new Intl.DisplayNames(['pt-BR'],{type:'region'}).of(cc):''}catch(_){cn=cc||''}
+   put('country',cn);
+   if(!lk&&d.poster_path)put('cover',TMI+'w500'+d.poster_path);
+   const bd=d.backdrop_path||((d.images?.backdrops||[])[0]||{}).file_path;if(!lk&&bd)put('banner',TMI+'w780'+bd);
+   let c='';if(ty=='movie')c=((d.release_dates?.results||[]).find(x=>x.iso_3166_1=='BR')?.release_dates||[]).map(x=>x.certification).find(Boolean)||'';else c=(d.content_ratings?.results||[]).find(x=>x.iso_3166_1=='BR')?.rating||'';
+   if(rm[c]&&(ow||!t.rating||t.rating=='Livre'))o.rating=rm[c];
+   if(Object.keys(o).length){const{error}=await sb.from('titles').update(o).eq('id',t.id);if(error){err++}else{Object.assign(t,o);upd++}}
+   if(ow||!castGet(t.id).length){const cast=((d.credits&&d.credits.cast)||[]).filter(x=>x.name).slice(0,12).map(x=>({n:x.name,r:x.character||'',p:x.profile_path?TMI+'w185'+x.profile_path:''}));
+    if(cast.length){const v=JSON.stringify(cast),{error}=await sb.from('settings').upsert({key:'cast_'+t.id,value:v});if(!error)S.set['cast_'+t.id]=v}}
+   done++;
+  }catch(e){if(/inválida/i.test(e.message)){alert(e.message);break}err++}
+  await tbSleep(250)}
+ TB.run=0;
+ const msg=`${TB.stop?'Parado.':'Terminou!'} Preenchidos: ${upd} · já completos: ${skip} · não achados: ${nf.length} · erros: ${err}`+(nf.length?'\n\nNão achei com certeza (preencha na mão):\n'+nf.slice(0,40).join('\n')+(nf.length>40?'\n…':''):'');
+ try{await load()}catch(e){}
+ alert(msg);ad()}
 </script>
 
 </body></html>
