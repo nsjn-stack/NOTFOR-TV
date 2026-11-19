@@ -674,7 +674,15 @@ html body #pw,html body #pw *{font-family:Roboto,-apple-system,"Segoe UI","Helve
 <style>.pw.rtad .vmsh,.pw.rtad .cnp{display:none!important}
 /* Rutube sem os controles dele: o player fica mais alto que a caixa (cortado em cima e embaixo); o vídeo continua do mesmo tamanho */
 .pw:has(iframe[src*="rutube.ru/play/embed"]):not(.rtad) iframe[src*="rutube.ru/play/embed"]:not(.dz){position:absolute;top:-30%;left:0;right:0;margin:0 auto;height:160%;width:auto;aspect-ratio:16/14.4}</style><style>#vkmsg{position:absolute;z-index:99999;left:50%;top:50%;transform:translate(-50%,-50%);width:max-content;max-width:84%;padding:12px 18px;border-radius:16px;border:2px solid #e10600;background:rgba(0,0,0,.88);color:#fff;font:700 14px/1.35 system-ui,sans-serif;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.7)}</style><style>.pw.vkset .vksh,.pw.vkset .cnp,.pw.vkset .ppb,.pw.vkset .vkpc{display:none!important}#vkok{position:absolute;z-index:99999;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);padding:8px 18px;border-radius:20px;border:2px solid #e10600;background:rgba(0,0,0,.75);color:#fff;font:700 14px system-ui}</style>
-</head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
+<style>
+.cst{display:flex;gap:14px;overflow-x:auto;padding:4px 14px 8px;scrollbar-width:none}.cst::-webkit-scrollbar{display:none}
+.cst>div{flex:none;width:78px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px}
+.cst b{font-size:12px;line-height:1.15;color:#fff}.cst small{font-size:10.5px;color:#bbb;line-height:1.15}
+.cph{position:relative;width:68px;height:68px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,42,26,.9);box-shadow:0 0 8px rgba(255,26,15,.5);background:#1a1a1a;display:grid;place-items:center;flex:none}
+.cph i{font:800 24px system-ui;color:#888;font-style:normal}.cph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cst.ed{padding:6px 0}.cst.ed>div{width:96px}.cst.ed input{width:96px;font-size:12px;padding:5px 6px;margin:0;text-align:center}
+#cast_ed .nmw{margin:4px 0}
+</style></head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
@@ -1011,7 +1019,7 @@ function pPlay(){
  <div class="chips pchips" style="margin:10px 14px"><span class="chip">HD</span><span class="chip r">${esc(t.rating||'Livre')}</span>${t.genres?`<span class="chip">${esc(t.genres)}</span>`:''}</div>
  ${pf('rs')&&getPos(ckey())>10?`<div class="row prow" style="margin:0 14px 8px"><button class="btn pcont" style="flex:1" onclick="play(${t.id},${e?e.id:0},${li})"><svg viewBox="0 0 24 24"><path d="M7 5l11 7-11 7z"/></svg><span>Continuar de onde parou <b>${Math.floor(getPos(ckey())/60)}:${String(getPos(ckey())%60).padStart(2,'0')}</b></span></button></div>`:''}<div class="row prow" style="margin:0 14px"><button class="btn" style="flex:1" onclick="pn(${t.id}${e?','+(n||e).id:''},${n?1:0})">${n?'<svg viewBox="0 0 24 24"><path d="M7 5l11 7-11 7z"/></svg>':'<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 11-2.6-5.9"/><path d="M20 4v5h-5"/></svg>'}<span>${n?'Próximo episódio':'Recomeçar'}</span>${!n&&(prog()[t.id+'_'+(e?e.id:0)]||0)>0?`<i class="pbr"><u style="width:${Math.round(prog()[t.id+'_'+(e?e.id:0)]*100)}%"></u></i>`:''}</button>${pf('sn')?`<button class="btn o" id="mkb" style="flex:1" onclick="mk()"><svg viewBox="0 0 24 24"><path d="${SP}"/></svg><span>${isSeen(t.id,e?e.id:0)?'Assistido (desmarcar)':'Marcar como assistido'}</span></button>`:''}</div>
  ${t.synopsis?`<p class="mu">${esc(t.synopsis)}</p>`:''}
- ${es.length?`<h2>Em seguida</h2><div class="sc">${es.map(x=>`<button class="ep ${e&&x.id==e.id?'on':''}" onclick="play(${t.id},${x.id})"><b>T${x.season} • E${x.num}${pf('sn')&&isSeen(t.id,x.id)?' ✓':''}</b><br>${esc(x.name||'')}</button>`).join('')}</div>`:''}
+ ${castH(t)}${es.length?`<h2>Em seguida</h2><div class="sc">${es.map(x=>`<button class="ep ${e&&x.id==e.id?'on':''}" onclick="play(${t.id},${x.id})"><b>T${x.season} • E${x.num}${pf('sn')&&isSeen(t.id,x.id)?' ✓':''}</b><br>${esc(x.name||'')}</button>`).join('')}</div>`:''}
  <h2>Comentários</h2><div class="box"><div id="cf"></div><div id="cmt"></div></div>`;
 }
 function tgFit(){const w=document.getElementById('pw'),f=w&&w.querySelector('iframe[data-tg]');if(!f||!S.tgh)return;const FS=w.classList.contains('ff')||document.fullscreenElement===w||document.webkitFullscreenElement===w,FW=Math.max(260,Math.min(document.documentElement.clientWidth,720)-26);f.style.width=FS?FW+'px':'';const W=w.clientWidth,H=w.clientHeight,h=S.tgh,T=ovn('tg_t',44),B=ovn('tg_b',46),hv=Math.max(40,h-T-B),cw=hv*16/9,k=Math.min(W/cw,H/hv)*.99;const VZ=vzV('tg','vz',1),VX=vzV('tg','vx',0)/100*W,VY=vzV('tg','vy',0)/100*H;f.style.height=h+'px';const ET=ovn('tg_et',6),EB=ovn('tg_eb',10);f.style.clipPath='inset('+(T+ET)+'px 0 '+(B+EB)+'px 0)';f.style.transform='translate('+(-8*k+VX).toFixed(1)+'px,'+((B-T)/2*k+VY).toFixed(1)+'px) scale('+(k*VZ).toFixed(4)+')';w.classList.add('tgm')}
@@ -1265,6 +1273,7 @@ async function ad(f){
 <div class="mfr">${ip('cover','Link da capa','oninput="pvC()"')}<div class="nmw"><input id="f_name" placeholder="Nome (🔍 busca tudo sozinho)" value="${esc(e.name)}" onkeydown="if(event.key=='Enter')tmAuto()"><button type="button" id="tm_lupa" onclick="tmAuto()" aria-label="Buscar informações automaticamente">🔍</button></div>${ip('banner','Link do banner (opcional)','oninput="pvC()"')}</div></div>
 <img id="pv_banner" src="${esc(gd(e.banner))}" style="${e.banner?'':'display:none'}" class="mfb" onerror="this.style.display='none'">
 <div id="tm_r"></div>
+<div id="cast_ed"></div>
 <textarea id="f_synopsis" placeholder="Sinopse">${esc(e.synopsis)}</textarea>
 <div class="mfg2">${ip('year','Ano')}${ip('country','País')}</div>${ip('genres','Gêneros (ação, drama)')}
 <div class="mfg2"><select id="f_section">${secOrd().map(s=>`<option value="${s.key}" ${e.section==s.key?'selected':''}>${esc(s.label)}</option>`).join('')}</select><select id="f_rating">${['Livre','10+','12+','14+','16+','18+'].map(x=>`<option ${e.rating==x?'selected':''}>${x}</option>`).join('')}</select></div>
@@ -1391,7 +1400,7 @@ async function tmSearch(auto){
 async function tmPick(t,id){
  const o=$('#tm_r');o.innerHTML='<p class="mu" style="padding:0">Carregando…</p>';
  try{
-  const d=await tmF('/'+t+'/'+id,'&append_to_response='+(t=='tv'?'content_ratings':'release_dates')+',images&include_image_language=pt,en,null');
+  const d=await tmF('/'+t+'/'+id,'&append_to_response='+(t=='tv'?'content_ratings':'release_dates')+',images,credits&include_image_language=pt,en,null');
   const set=(k,v)=>{const e=$('#f_'+k);if(e&&v!==undefined&&v!==null&&v!=='')e.value=v};
   set('name',d.title||d.name);set('synopsis',d.overview);
   set('year',(d.release_date||d.first_air_date||'').slice(0,4));
@@ -1410,7 +1419,7 @@ async function tmPick(t,id){
   const bs=[...new Set([d.backdrop_path,...(d.images?.backdrops||[]).map(x=>x.file_path)].filter(Boolean))].slice(0,10);
   if(ps[0])set('cover',TMI+'w500'+ps[0]);
   if(bs[0])set('banner',TMI+'w780'+bs[0]);
-  pvC();
+  pvC();castFrom(d);
   o.innerHTML=`<div class="mu" style="padding:0;color:#7CFC9A">✓ Preenchido: ${esc(d.title||d.name)}. Revise os campos abaixo.</div>`+
    (ps.length?`<div class="mu" style="padding:6px 0 0">Escolha a capa:</div><div class="tmg">${ps.map((p,i)=>`<img src="${TMI}w185${p}" data-u="${TMI}w500${p}" class="${i?'':'on'}" onclick="tmSet('cover',this)">`).join('')}</div>`:'')+
    (bs.length?`<div class="mu" style="padding:0">Escolha o banner:</div><div class="tmg b">${bs.map((p,i)=>`<img src="${TMI}w300${p}" data-u="${TMI}w780${p}" class="${i?'':'on'}" onclick="tmSet('banner',this)">`).join('')}</div>`:'');
@@ -1601,7 +1610,8 @@ const blCss=b=>`left:${b.x}%;top:${b.y}%;width:${b.w}%;${b.s=='r'?`height:${b.h}
 const blM=()=>{const w=document.getElementById('pw');if(!w||!(S.ff||document.fullscreenElement||document.webkitFullscreenElement))return 'n';return(w.classList.contains('rot')||innerWidth>innerHeight)?'h':'v'};
 const blMN={n:'Normal (na tela do app)',v:'Tela cheia em pé (retrato)',h:'Tela cheia deitada (horizontal)'};
 const blKey=(k,m)=>'ov_bl_'+k+(m=='n'?'':'_'+m);
-const blRaw=(k,m)=>{const a=S.set[blKey(k,m)];return a!=null&&a!==''?a:(S.set['ov_bl_'+k]||'[]')};
+const BLDEF={vk:'[{"s":"r","x":0,"y":0,"w":100,"h":13,"o":100}]'};
+const blRaw=(k,m)=>{const a=S.set[blKey(k,m)];return a!=null&&a!==''?a:(S.set['ov_bl_'+k]||(k=='vk'&&S.cur&&S.cur.p2?BLDEF.vk:'[]'))};
 const blh=k=>{let L=[];try{L=JSON.parse(blRaw(k,blM()))}catch(e){}return L.map(b=>`<div class="bl${b.t?' tp':''}" style="${blCss(b)}"></div>`).join('')};
 function blGet(k,m){m=m||blM();S.bl=S.bl||{};const c=k+':'+m;if(!S.bl[c]){try{S.bl[c]=JSON.parse(blRaw(k,m))}catch(e){S.bl[c]=[]}}return S.bl[c]}
 const blK=()=>S.bled||($('#bls')||{}).value||PK[0][0];
@@ -2075,6 +2085,7 @@ async function svDub(k,i){const v=$('#'+i).value.trim();if(!ok(await sb.from('se
 
 /* ===== Vimeo com os controles do app (mesmo estilo do YouTube, sem faixa preta) ===== */
 const VM={st:null,h:0};
+const VMR=new WeakSet();window.addEventListener('message',e=>{if(/vimeo\.com$/.test(e.origin||''))VMR.add(e.source)});
 /* Desligar legenda do Vimeo: algumas faixas (a amarela) só saem se antes ligarmos outra faixa (a automática) e então desligarmos */
 window.cnVmOff=(s,force)=>{try{if(!s||!document.contains(s.f))return;const n=Date.now();if(force){s._offN=0;s._offAt=0}
  if((s._offN||0)>=6||n-(s._offAt||0)<1200)return;s._offN=(s._offN||0)+1;s._offAt=n;
@@ -2087,13 +2098,17 @@ function vmWire(){
  const fm=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
  const PLI='<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>',PAI='<svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.5" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></svg>';
  const st={f,play:0,cur:0,dur:0,muted:false,rate:1,vol:1,drag:0};VM.st=st;
- const cmd=(m,v)=>{try{f.contentWindow.postMessage(JSON.stringify(v===undefined?{method:m}:{method:m,value:v}),'*')}catch(e){}};
+ const raw=(m,v)=>{try{f.contentWindow.postMessage(JSON.stringify(v===undefined?{method:m}:{method:m,value:v}),'*')}catch(e){}};
+ st.ready=VMR.has(f.contentWindow);st.q=[];
+ const cmd=(m,v)=>{if(st.ready)return raw(m,v);if(m=='addEventListener'){raw(m,v);return}
+  if(m=='play'||m=='pause')st.q=st.q.filter(x=>x[0]!='play'&&x[0]!='pause');else st.q=st.q.filter(x=>x[0]!=m);st.q.push([m,v])};
+ st.onReady=()=>{if(st.ready)return;st.ready=true;listen();const q=st.q;st.q=[];q.forEach(x=>raw(x[0],x[1]))};
  st.cmd=cmd;
  let ht;const show=()=>{w.classList.remove('ovh');clearTimeout(ht);if(st.play)ht=setTimeout(()=>w.classList.add('ovh'),4000)};
  st.show=show;
  st.ui=()=>{bp.innerHTML=st.play?PAI:PLI;if(!st.drag){if(st.dur>0){sk.value=Math.min(1000,st.cur/st.dur*1000);sk.style.setProperty('--p',(sk.value/10)+'%')}tm.textContent=fm(st.cur)}if(tt)tt.textContent=fm(st.dur);if(mu)mu.style.opacity=st.muted?.4:1;if(sp)sp.textContent=st.rate+'x'};
  const listen=()=>{['play','pause','ended','timeupdate','loaded','texttrackchange'].forEach(x=>cmd('addEventListener',x));cmd('getTextTracks')};
- if(!VM.h){VM.h=1;window.addEventListener('message',e=>{const s=VM.st;if(!s||!document.contains(s.f)||e.source!==s.f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
+ if(!VM.h){VM.h=1;window.addEventListener('message',e=>{const s=VM.st;if(!s||!document.contains(s.f)||e.source!==s.f.contentWindow)return;if(!s.ready)s.onReady();let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
   if(d.event=='ready')listen();
   else if(d.method=='getTextTracks'&&Array.isArray(d.value)){s.tt=d.value;if(!s.ttDone){s.ttDone=1;const ap=()=>{if(!document.contains(s.f))return;let q='off';try{q=localStorage.cn_vmt||'off'}catch(e){}if(q=='off'){window.cnVmOff(s)}else{const a=q.split('|');s.cmd('enableTextTrack',{language:a[0],kind:a[1]||'subtitles'})}};ap();setTimeout(ap,2500)}}
   else if(d.event=='texttrackchange'){s.ttc=d.data&&d.data.language?d.data.language+'|'+(d.data.kind||'subtitles'):'off';let q='off';try{q=localStorage.cn_vmt||'off'}catch(e){}if(q=='off'&&s.ttc!='off'){window.cnVmOff(s)}else if(q!='off'&&s.ttc!=q&&(s._fx||0)<3){s._fx=(s._fx||0)+1;const a=q.split('|');setTimeout(()=>s.cmd('enableTextTrack',{language:a[0],kind:a[1]||'subtitles'}),400)}}
@@ -2101,7 +2116,9 @@ function vmWire(){
   else if(d.event=='pause'||d.event=='ended'){s.play=0;s.show();s.ui();if(d.event=='ended'&&typeof onEnd=='function')onEnd()}
   else if(d.event=='timeupdate'&&d.data){s.cur=d.data.seconds||0;if(d.data.duration)s.dur=d.data.duration;if(!s.play){s.play=1}if(s.dur>120&&s.cur>=s.dur-4&&s.play){s.play=0;s.cmd('pause')}s.ui()}
   else if(d.event=='loaded'||d.event=='playProgress'){if(d.data&&d.data.duration){s.dur=d.data.duration;s.ui()}}})}
- f.addEventListener('load',listen);listen();let n=0;const iv=setInterval(()=>{if(!document.contains(f)||++n>12||st.dur>0){clearInterval(iv);return}listen()},700);
+ f.addEventListener('load',()=>listen());
+ const pr=setInterval(()=>{if(!document.contains(f)||st.ready){clearInterval(pr);return}raw('getPaused')},150);
+ if(st.ready){st.ready=false;st.onReady()}
  w.addEventListener('pointerdown',show);w.addEventListener('touchstart',show,{passive:true});
  bp.onclick=()=>{if(st.play){st.play=0;cmd('pause')}else{st.play=1;cmd('play')}st.ui();show()};
  sk.oninput=()=>{st.drag=1;sk.style.setProperty('--p',(sk.value/10)+'%');tm.textContent=fm(sk.value/1000*st.dur);show()};
@@ -2270,6 +2287,7 @@ window.addEventListener('message',e=>{try{const w=document.getElementById('pw'),
 setInterval(()=>{try{const c=document.getElementById('sbc'),w=document.getElementById('pw'),f=w&&w.querySelector('iframe[src*="ok.ru/videoembed"]');let n=document.getElementById('okdbg');
  const bb=document.getElementById('okprb');if(bb)bb.remove();
  if(!c||!f||S.tab!='play'){if(n)n.remove();return}
+ let shw='0';try{shw=localStorage.cn_okdbg||'0'}catch(e){}if(shw!='1'){if(n)n.remove();return}
  if(!n){n=document.createElement('a');n.id='okdbg';n.className='mu';n.href='#';n.style.cssText='display:block;margin:0 14px 8px;font-size:11px;opacity:.6;text-decoration:underline';n.onclick=ev=>{ev.preventDefault();const r=w.classList.toggle('okraw');n.textContent=r?'✔️ Pronto, voltar aos controles do app':'⚙️ Desligar a ficha de informações do ok.ru'};n.textContent='⚙️ Desligar a ficha de informações do ok.ru';c.appendChild(n)}
  if(!w.classList.contains('okraw'))n.textContent='⚙️ Desligar a ficha de informações do ok.ru'}catch(e){}},1000);
 
@@ -3048,6 +3066,39 @@ setInterval(()=>{
  lsUpd();
  if(P.ch){const c=S.cur,k=c&&c.t?c.t.id+'/'+(c.e?c.e.id:0):'0/0';if(k!==P.lt){P.lt=k;track();renderRoom()}}
 },500);
+})();
+
+/* ===== Elenco: busca de atores pelo nome (TMDB), foto editável, salvo em settings ===== */
+S.cast=S.cast||[];
+const castGet=id=>{try{const a=JSON.parse((S.set||{})['cast_'+id]||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}};
+const castImg=(p,w)=>p?(String(p).startsWith('/')?TMI+(w||'w185')+p:gd(p)):'';
+function castFrom(d){S.cast=((d.credits&&d.credits.cast)||[]).filter(x=>x.name).slice(0,12).map(x=>({n:x.name,r:x.character||'',p:x.profile_path?TMI+'w185'+x.profile_path:''}));castRender()}
+function castRender(){const o=$('#cast_ed');if(!o)return;
+ o.innerHTML=`<div class="mu" style="padding:8px 0 4px"><b style="color:#fff">🎭 Elenco</b> — preenchido sozinho ao buscar o título. Toque na foto para trocar.</div>
+<div class="nmw"><input id="ca_q" placeholder="Buscar ator pelo nome" onkeydown="if(event.key=='Enter')castSearch()"><button type="button" onclick="castSearch()" aria-label="Buscar ator">🔍</button></div>
+<div id="ca_r"></div>
+<div class="cst ed">${S.cast.map((a,i)=>`<div><span class="cph" onclick="castPhoto(${i})">${a.p?`<img src="${esc(castImg(a.p))}" onerror="this.remove()">`:''}<i>${esc((a.n||'?')[0])}</i></span><input value="${esc(a.n)}" onchange="S.cast[${i}].n=this.value.trim()" placeholder="Nome"><input value="${esc(a.r||'')}" onchange="S.cast[${i}].r=this.value.trim()" placeholder="Papel"><button type="button" class="btn o s" onclick="S.cast.splice(${i},1);castRender()">✕</button></div>`).join('')}</div>
+<button type="button" class="btn o s" onclick="castAdd()">+ Adicionar ator manualmente</button>`}
+function castPhoto(i){const v=prompt('Link da foto do ator (pode ser link do Google Drive). Deixe vazio para remover:',S.cast[i].p||'');if(v===null)return;S.cast[i].p=v.trim();castRender()}
+function castAdd(){const n=prompt('Nome do ator:');if(!n||!n.trim())return;const p=prompt('Link da foto (opcional, aceita Google Drive):','')||'';S.cast.push({n:n.trim(),r:'',p:p.trim()});castRender()}
+async function castSearch(){const q=($('#ca_q').value||'').trim(),o=$('#ca_r');if(!q)return;o.innerHTML='<p class="mu" style="padding:0">Buscando…</p>';
+ try{const d=await tmF('/search/person','&include_adult=false&query='+encodeURIComponent(q));const l=(d.results||[]).slice(0,10);
+  o.innerHTML=l.length?`<div class="cst">${l.map(x=>`<div style="cursor:pointer" onclick="castPick(${x.id})"><span class="cph">${x.profile_path?`<img src="${TMI}w185${x.profile_path}">`:''}<i>${esc((x.name||'?')[0])}</i></span><b>${esc(x.name)}</b><small>${esc((x.known_for||[]).map(k=>k.title||k.name).filter(Boolean).slice(0,1).join(''))}</small></div>`).join('')}</div>`:'<p class="mu" style="padding:0">Nenhum ator encontrado.</p>'}
+ catch(e){o.innerHTML='<p class="mu" style="padding:0">'+esc(e.message)+'</p>'}}
+async function castPick(id){try{const d=await tmF('/person/'+id,'');if(!S.cast.some(a=>a.n==d.name))S.cast.push({n:d.name,r:'',p:d.profile_path?TMI+'w185'+d.profile_path:''});castRender()}catch(e){alert(e.message)}}
+const castH=t=>{const l=castGet(t.id);return l.length?`<h2>Elenco</h2><div class="cst">${l.map(a=>`<div><span class="cph">${a.p?`<img src="${esc(castImg(a.p))}" loading="lazy" onerror="this.remove()">`:''}<i>${esc((a.n||'?')[0])}</i></span><b>${esc(a.n)}</b>${a.r?`<small>${esc(a.r)}</small>`:''}</div>`).join('')}</div>`:''};
+/* abrir o formulário: carrega o elenco do título em edição */
+(()=>{const _a=ad;ad=async function(){await _a.apply(this,arguments);if(S.at=='t'&&$('#cast_ed')){if(S.castFor!==(S.ed?S.ed.id:0)||!S.castKeep){S.cast=S.ed?castGet(S.ed.id):[]}S.castFor=S.ed?S.ed.id:0;S.castKeep=1;castRender()}}})();
+/* salvar o elenco junto com o título */
+(()=>{const _s=svT;svT=async function(){const ed=S.ed,nm=($('#f_name')||{value:''}).value.trim(),cast=JSON.stringify((S.cast||[]).filter(a=>a.n)),had=!!$('#cast_ed');
+ await _s.apply(this,arguments);
+ if(!had)return;let id=ed?ed.id:0;if(!id){const l=(S.T||[]).filter(t=>t.name==nm).sort((a,b)=>b.id-a.id)[0];id=l&&l.id}
+ if(id&&!S.ed){await sb.from('settings').upsert({key:'cast_'+id,value:cast});S.set['cast_'+id]=cast;S.cast=[];S.castKeep=0}}})();
+
+/* Opção "desligar ficha do ok.ru": oculta por padrão. Para liberar/ocultar: segure o dedo ~2s no título do vídeo (na página do player) */
+(()=>{let t=0;const st=()=>clearTimeout(t);
+document.addEventListener('pointerdown',e=>{const h=e.target.closest&&e.target.closest('.pt h1');if(!h)return;st();t=setTimeout(()=>{let on=false;try{on=localStorage.cn_okdbg=='1';localStorage.cn_okdbg=on?'0':'1'}catch(x){}try{navigator.vibrate&&navigator.vibrate(40)}catch(x){}alert(on?'Opção do ok.ru ocultada.':'Opção do ok.ru liberada (aparece abaixo do player de VK/OK).')},2000)},true);
+['pointerup','pointercancel','pointermove'].forEach(k=>document.addEventListener(k,st,true));
 })();
 </script>
 
