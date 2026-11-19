@@ -682,7 +682,7 @@ html body #pw,html body #pw *{font-family:Roboto,-apple-system,"Segoe UI","Helve
 .cph i{font:800 24px system-ui;color:#888;font-style:normal}.cph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .cst.ed{padding:6px 0}.cst.ed>div{width:96px}.cst.ed input{width:96px;font-size:12px;padding:5px 6px;margin:0;text-align:center}
 #cast_ed .nmw{margin:4px 0}
-</style></head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
+</style><style>.pw .vcap.ld i{display:none}.pw .vcap.ld::after{content:"";width:46px;height:46px;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:vcsp .8s linear infinite}@keyframes vcsp{to{transform:rotate(360deg)}}</style></head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
@@ -932,12 +932,15 @@ const cnpH=(t,e)=>`<div class="ov cnp"><div class="cnp-top"><button class="cnp-b
 const vcKey=(t,e,li)=>e?'vcap_e'+e.id:((vids(t)[li||0]||{}).id?'vcap_l'+vids(t)[li||0].id:'');
 const vcUrl=(t,e,li)=>{const k=vcKey(t,e,li);return (k&&S.set[k])||(S.set.vcap_auto!='0'?(t.banner||''):'')};
 const vcId=()=>S.cur?S.cur.t.id+':'+(S.cur.e?S.cur.e.id:'')+':'+S.cur.li:'';
-function vcHide(){S.vcd=vcId();const c=document.getElementById('vcap');if(c)c.remove()}
-function vcTap(){vcHide();pbGo();try{const w=document.getElementById('pw');if(w&&w._cnplay&&S.cur&&(S.cur.pk=='ok'||S.cur.pk=='vk'))w._cnplay()}catch(e){}}
-document.addEventListener('play',e=>{if(e.target&&e.target.id=='vd')vcHide()},true);
-document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#bp,.ob.ppb'))vcHide()},true);
+function vcHide(){clearTimeout(S.vcT);S.vcd=vcId();const c=document.getElementById('vcap');if(c)c.remove()}
+/* a capa fica até o vídeo realmente abrir; enquanto carrega mostra uma rodinha. Se o player não avisar, sai sozinha depois de um tempo */
+function vcLoad(){const c=document.getElementById('vcap');if(!c)return;c.classList.add('ld');clearTimeout(S.vcT);const nat=!!document.querySelector('#pw video');S.vcT=setTimeout(vcHide,nat?25000:9000)}
+function vcTap(){vcLoad();pbGo();try{const w=document.getElementById('pw');if(w&&w._cnplay&&S.cur&&(S.cur.pk=='ok'||S.cur.pk=='vk'))w._cnplay()}catch(e){}}
+document.addEventListener('playing',e=>{if(e.target&&e.target.id=='vd')vcHide()},true);
+document.addEventListener('timeupdate',e=>{const v=e.target;if(v&&v.id=='vd'&&!v.paused&&v.currentTime>.05)vcHide()},true);
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#bp,.ob.ppb'))vcLoad()},true);
 window.addEventListener('message',e=>{if(!document.getElementById('vcap'))return;const w=document.getElementById('pw'),f=w&&w.querySelector('iframe');if(!f||e.source!==f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
- if((d.event=='onStateChange'&&d.info==1)||(d.event=='infoDelivery'&&d.info&&d.info.playerState==1)||(d.event=='timeupdate'&&d.data&&d.data.seconds>0.05))vcHide()});
+ if((d.event=='onStateChange'&&d.info==1)||(d.event=='infoDelivery'&&d.info&&d.info.playerState==1)||(d.event=='timeupdate'&&d.data&&d.data.seconds>0.05)||(typeof d.event=='string'&&/^(started|resumed|playing)$/.test(d.event))||(d.type=='player:changeState'&&d.data&&d.data.state=='playing'))vcHide()});
 async function svVC(k,i){const v=gd($('#'+i).value.trim());if(ok(await sb.from('settings').upsert({key:k,value:v}))){S.set[k]=v;alert(v?'Capa salva.':'Capa removida.')}}
 /* ===== corte programado: começa em / termina em (por link ou episódio) ===== */
 const trP=v=>{v=String(v||'').trim().replace(',','.');if(!v)return 0;if(/^\d+(\.\d+)?$/.test(v))return Math.floor(+v);const p=v.split(':').map(Number);if(p.length>3||p.some(x=>isNaN(x)||x<0))return 0;return Math.floor(p.reduce((a,b)=>a*60+b,0))};
