@@ -941,6 +941,10 @@ document.addEventListener('timeupdate',e=>{const v=e.target;if(v&&v.id=='vd'&&!v
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#bp,.ob.ppb'))vcLoad()},true);
 window.addEventListener('message',e=>{if(!document.getElementById('vcap'))return;const w=document.getElementById('pw'),f=w&&w.querySelector('iframe');if(!f||e.source!==f.contentWindow)return;let d=e.data;if(typeof d=='string'){try{d=JSON.parse(d)}catch(x){return}}if(!d)return;
  if((d.event=='onStateChange'&&d.info==1)||(d.event=='infoDelivery'&&d.info&&d.info.playerState==1)||(d.event=='timeupdate'&&d.data&&d.data.seconds>0.05)||(typeof d.event=='string'&&/^(started|resumed|playing)$/.test(d.event))||(d.type=='player:changeState'&&d.data&&d.data.state=='playing'))vcHide()});
+/* Reforço: se o player do app (Vimeo/Rutube) já está tocando há mais de 1,5 s e a capa continua na tela, tira a capa (o aviso do player pode não chegar) */
+setInterval(()=>{try{const c=document.getElementById('vcap');if(!c){S.vcP=0;return}const w=document.getElementById('pw'),f=w&&w.querySelector('iframe');if(!f)return;
+ const st=[typeof VM!='undefined'?VM.st:null,typeof RT!='undefined'?RT.st:null].find(x=>x&&x.f===f);
+ if(st&&st.play){if(!S.vcP)S.vcP=Date.now();if(st.cur>0.05||Date.now()-S.vcP>1500)vcHide()}else S.vcP=0}catch(e){}},400);
 async function svVC(k,i){const v=gd($('#'+i).value.trim());if(ok(await sb.from('settings').upsert({key:k,value:v}))){S.set[k]=v;alert(v?'Capa salva.':'Capa removida.')}}
 /* ===== corte programado: começa em / termina em (por link ou episódio) ===== */
 const trP=v=>{v=String(v||'').trim().replace(',','.');if(!v)return 0;if(/^\d+(\.\d+)?$/.test(v))return Math.floor(+v);const p=v.split(':').map(Number);if(p.length>3||p.some(x=>isNaN(x)||x<0))return 0;return Math.floor(p.reduce((a,b)=>a*60+b,0))};
