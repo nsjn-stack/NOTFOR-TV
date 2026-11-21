@@ -2121,16 +2121,21 @@ function vmWire(){
   if(d.event=='ready')listen();
   else if(d.method=='getTextTracks'&&Array.isArray(d.value)){s.tt=d.value;if(!s.ttDone){s.ttDone=1;const ap=()=>{if(!document.contains(s.f))return;let q='off';try{q=localStorage.cn_vmt||'off'}catch(e){}if(q=='off'){window.cnVmOff(s)}else{const a=q.split('|');s.cmd('enableTextTrack',{language:a[0],kind:a[1]||'subtitles'})}};ap();setTimeout(ap,2500)}}
   else if(d.event=='texttrackchange'){s.ttc=d.data&&d.data.language?d.data.language+'|'+(d.data.kind||'subtitles'):'off';let q='off';try{q=localStorage.cn_vmt||'off'}catch(e){}if(q=='off'&&s.ttc!='off'){window.cnVmOff(s)}else if(q!='off'&&s.ttc!=q&&(s._fx||0)<3){s._fx=(s._fx||0)+1;const a=q.split('|');setTimeout(()=>s.cmd('enableTextTrack',{language:a[0],kind:a[1]||'subtitles'}),400)}}
+  else if(d.method=='getCurrentTime'&&typeof d.value=='number'){s.cur=d.value;s.ui()}
+  else if(d.method=='getDuration'&&d.value>0){s.dur=d.value;s.ui()}
   else if(d.event=='play'){s.play=1;s.show();s.ui()}
   else if(d.event=='pause'||d.event=='ended'){s.play=0;s.show();s.ui();if(d.event=='ended'&&typeof onEnd=='function')onEnd()}
   else if(d.event=='timeupdate'&&d.data){s.cur=d.data.seconds||0;if(d.data.duration)s.dur=d.data.duration;if(!s.play){s.play=1}if(s.dur>120&&s.cur>=s.dur-4&&s.play){s.play=0;s.cmd('pause')}s.ui()}
   else if(d.event=='loaded'||d.event=='playProgress'){if(d.data&&d.data.duration){s.dur=d.data.duration;s.ui()}}})}
  f.addEventListener('load',()=>listen());
+ const pl=setInterval(()=>{if(!document.contains(f)){clearInterval(pl);return}if(!st.ready)return;if(st.play&&!st.drag)raw('getCurrentTime');if(!st.dur)raw('getDuration')},700);
  const pr=setInterval(()=>{if(!document.contains(f)||st.ready){clearInterval(pr);return}raw('getPaused')},150);
  if(st.ready){st.ready=false;st.onReady()}
  w.addEventListener('pointerdown',show);w.addEventListener('touchstart',show,{passive:true});
  bp.onclick=()=>{if(st.play){st.play=0;cmd('pause')}else{st.play=1;cmd('play')}st.ui();show()};
- sk.oninput=()=>{st.drag=1;sk.style.setProperty('--p',(sk.value/10)+'%');tm.textContent=fm(sk.value/1000*st.dur);show()};
+ const dragEnd=()=>setTimeout(()=>{st.drag=0;st.ui()},500);
+ ['pointerup','pointercancel','touchend','touchcancel','blur'].forEach(ev=>sk.addEventListener(ev,dragEnd));
+ sk.oninput=()=>{st.drag=1;clearTimeout(st._dt);st._dt=setTimeout(()=>{st.drag=0;st.ui()},3500);sk.style.setProperty('--p',(sk.value/10)+'%');tm.textContent=fm(sk.value/1000*st.dur);show()};
  sk.onchange=()=>{if(st.dur>0){st.cur=sk.value/1000*st.dur;cmd('setCurrentTime',st.cur)}setTimeout(()=>{st.drag=0},400)};
  if(sp)sp.onclick=()=>{const r=[1,1.25,1.5,2,.75],k=r[(r.indexOf(st.rate)+1)%r.length];st.rate=k;cmd('setPlaybackRate',k);st.ui()};
  if(mu)mu.onclick=()=>{st.muted=!st.muted;cmd('setVolume',st.muted?0:st.vol);st.ui()};
