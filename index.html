@@ -1444,7 +1444,7 @@ const _ad=ad;ad=async function(){await _ad.apply(this,arguments);if(S.at=='s')tg
 async function tmPickW(t,id){
  const o=$('#fw_r');o.innerHTML='<p class="mu" style="padding:0">Carregando…</p>';
  try{
-  const d=await tmF('/'+t+'/'+id,'&append_to_response='+(t=='tv'?'content_ratings':'release_dates')+',images&include_image_language=pt,en,null');
+  const d=await tmF('/'+t+'/'+id,'&append_to_response='+(t=='tv'?'content_ratings':'release_dates')+',images,credits&include_image_language=pt,en,null');
   const set=(k,v)=>{const e=$('#fw_'+k);if(e&&v!==undefined&&v!==null&&v!=='')e.value=v};
   set('name',d.title||d.name);set('synopsis',d.overview);
   set('year',(d.release_date||d.first_air_date||'').slice(0,4));
@@ -1464,6 +1464,7 @@ async function tmPickW(t,id){
   if(ps[0])set('cover',TMI+'w500'+ps[0]);
   if(bs[0])set('banner',TMI+'w780'+bs[0]);
   pvW();
+  fwSet({cast:((d.credits&&d.credits.cast)||[]).filter(x=>x.name).slice(0,12).map(x=>({n:x.name,r:x.character||'',p:x.profile_path?TMI+'w185'+x.profile_path:''})),castName:d.title||d.name||''});
   o.innerHTML=`<div class="mu" style="padding:0;color:#7CFC9A">✓ Preenchido: ${esc(d.title||d.name)}. Revise os campos abaixo.</div>`+
    (ps.length?`<div class="mu" style="padding:6px 0 0">Escolha a capa:</div><div class="tmg">${ps.map((p,i)=>`<img src="${TMI}w185${p}" data-u="${TMI}w500${p}" class="${i?'':'on'}" onclick="tmSetW('cover',this)">`).join('')}</div>`:'')+
    (bs.length?`<div class="mu" style="padding:0">Escolha o banner:</div><div class="tmg b">${bs.map((p,i)=>`<img src="${TMI}w300${p}" data-u="${TMI}w780${p}" class="${i?'':'on'}" onclick="tmSetW('banner',this)">`).join('')}</div>`:'');
@@ -1538,6 +1539,7 @@ async function svW(){
    const o={section:g('section'),rating:g('rating'),audio:g('audio')||null,featured:false};
    FL.forEach(k=>o[k]=g(k)||null);o.year=+o.year||null;o.cover=gd(o.cover);o.banner=gd(o.banner);
    const r=await sb.from('titles').insert(o).select().single();if(r.error){m.textContent=r.error.message;return}tid=r.data.id;fwSet({tid})}
+  try{const dd=S.fwd||{};if(tid&&Array.isArray(dd.cast)&&dd.cast.length&&!castGet(tid).length&&tbNorm(dd.castName)==tbNorm(g('name'))){const v=JSON.stringify(dd.cast),{error:ce}=await sb.from('settings').upsert({key:'cast_'+tid,value:v});if(!ce)S.set['cast_'+tid]=v}}catch(e){}
   if(url){
    if(ty=='f'){const r=await sb.from('links').insert({title_id:tid,label:g('label')||null,url});if(r.error){m.textContent=r.error.message;return}}
    else{const sn=+g('season')||1,en=+g('ep')||1,{data:se,error}=await sb.from('seasons').upsert({title_id:tid,number:sn},{onConflict:'title_id,number'}).select().single();if(error){m.textContent=error.message;return}
@@ -3127,13 +3129,13 @@ async function tbLock(id,b){id=+id;let a=tbLockList();const on=!a.includes(id);a
 const tbNorm=x=>String(x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
 const tbSleep=ms=>new Promise(r=>setTimeout(r,ms));
 function tbBox(){const d=$('#ad');if(!d||$('#tmbulk'))return;
- d.insertAdjacentHTML('afterbegin',`<div class="box" id="tmbulk"><b>🪄 Preencher tudo pelo TMDB</b><div class="mu" style="padding:4px 0">Busca sinopse, gêneros, classificação, ano, país, capa, banner e elenco (com fotos) de todos os títulos, um por um. Por padrão só preenche o que está vazio. Mantenha o app aberto e a tela ligada; se parar, é só tocar em Começar de novo que ele continua de onde faltava.</div><label class="k"><input type="checkbox" id="tb_ow"> Sobrescrever também o que já está preenchido</label><div class="mu" style="padding:4px 0">🔒 Com capa e banner travados (o TMDB nunca troca): <b id="tb_lk">${tbLockList().length}</b>. Toque no cadeado ao lado de cada título, na lista abaixo, para travar ou destravar. O resto (sinopse, gêneros, elenco…) continua sendo preenchido normalmente.</div><div class="row" style="margin-top:6px"><button class="btn s" id="tb_go" onclick="tbStart()">Começar</button><button class="btn o s" id="tb_st" onclick="TB.stop=1" style="display:none">Parar</button></div><div id="tb_p" class="mu" style="padding:6px 0"></div></div>`)}
+ d.insertAdjacentHTML('afterbegin',`<div class="box" id="tmbulk"><b>🪄 Preencher tudo pelo TMDB</b><div class="mu" style="padding:4px 0">Busca sinopse, gêneros, classificação, ano, país, capa, banner e elenco (com fotos) de todos os títulos, um por um. Por padrão só preenche o que está vazio. O botão 🎭 <b>Só elenco que falta</b> preenche apenas o elenco dos títulos que estão sem, sem tocar em capa, banner ou qualquer outro campo. Mantenha o app aberto e a tela ligada; se parar, é só tocar em Começar de novo que ele continua de onde faltava.</div><label class="k"><input type="checkbox" id="tb_ow"> Sobrescrever também o que já está preenchido</label><div class="mu" style="padding:4px 0">🔒 Com capa e banner travados (o TMDB nunca troca): <b id="tb_lk">${tbLockList().length}</b>. Toque no cadeado ao lado de cada título, na lista abaixo, para travar ou destravar. O resto (sinopse, gêneros, elenco…) continua sendo preenchido normalmente.</div><div class="row" style="margin-top:6px"><button class="btn s" id="tb_go" onclick="tbStart()">Começar</button><button class="btn o s" id="tb_cast" onclick="tbCast()" title="Preenche só o elenco dos títulos que estão sem elenco. Não mexe em capa, banner nem nada mais.">🎭 Só elenco que falta</button><button class="btn o s" id="tb_st" onclick="TB.stop=1" style="display:none">Parar</button></div><div id="tb_p" class="mu" style="padding:6px 0"></div></div>`)}
 (()=>{const _a=ad;ad=async function(){await _a.apply(this,arguments);if(S.at=='t')tbBox()}})();
 async function tbStart(){
  if(TB.run)return;if(!TMK()){tmKey();if(!TMK())return}
  const ow=!!($('#tb_ow')||{}).checked,L=(S.T||[]).slice();
  if(!confirm('Preencher '+L.length+' título(s) pelo TMDB'+(ow?', SOBRESCREVENDO o que já existe':' (só o que estiver vazio)')+'? Pode demorar vários minutos.'))return;
- TB.run=1;TB.stop=0;$('#tb_go').style.display='none';$('#tb_st').style.display='';
+ TB.run=1;TB.stop=0;$('#tb_go').style.display='none';$('#tb_st').style.display='';{const c=$('#tb_cast');if(c)c.style.display='none'}
  const P=$('#tb_p'),rm={L:'Livre',10:'10+',12:'12+',14:'14+',16:'16+',18:'18+'};
  let done=0,upd=0,skip=0,nf=[],err=0,i=0;
  const show=m=>{if(P)P.textContent=m};
@@ -3171,6 +3173,40 @@ async function tbStart(){
   await tbSleep(250)}
  TB.run=0;
  const msg=`${TB.stop?'Parado.':'Terminou!'} Preenchidos: ${upd} · já completos: ${skip} · não achados: ${nf.length} · erros: ${err}`+(nf.length?'\n\nNão achei com certeza (preencha na mão):\n'+nf.slice(0,40).join('\n')+(nf.length>40?'\n…':''):'');
+ try{await load()}catch(e){}
+ alert(msg);ad()}
+
+/* ===== Preencher SÓ o elenco que falta (todos de uma vez) ===== */
+async function tbCast(){
+ if(TB.run)return;if(!TMK()){tmKey();if(!TMK())return}
+ const L=(S.T||[]).filter(t=>!castGet(t.id).length);
+ if(!L.length)return alert('Todos os títulos já têm elenco.');
+ if(!confirm('Buscar o elenco de '+L.length+' título(s) que estão sem elenco? Capa, banner e o resto NÃO serão alterados.'))return;
+ TB.run=1;TB.stop=0;
+ {const g=$('#tb_go'),c=$('#tb_cast'),st=$('#tb_st');if(g)g.style.display='none';if(c)c.style.display='none';if(st)st.style.display=''}
+ const P=$('#tb_p'),show=m=>{if(P)P.textContent=m};
+ let ok=0,nf=[],err=0,i=0;
+ for(const t of L){
+  if(TB.stop)break;i++;
+  show(`🎭 ${i}/${L.length} · ${t.name}  (elenco preenchido ${ok} · não achados ${nf.length})`);
+  try{
+   const pref=(t.section=='movies')?'movie':'tv';
+   const d0=await tmF('/search/multi','&include_adult=false&query='+encodeURIComponent(t.name));
+   let l=(d0.results||[]).filter(x=>x.media_type=='movie'||x.media_type=='tv');
+   const nt=tbNorm(t.name),ok1=x=>{const a=tbNorm(x.title||x.name),b=tbNorm(x.original_title||x.original_name);return a==nt||b==nt||(nt.length>3&&(a.includes(nt)||nt.includes(a)||b.includes(nt)))};
+   l=l.filter(ok1);
+   const yr=x=>+(x.release_date||x.first_air_date||'').slice(0,4);
+   const r=l.find(x=>x.media_type==pref&&t.year&&yr(x)==+t.year)||l.find(x=>t.year&&yr(x)==+t.year)||l.find(x=>x.media_type==pref)||l[0];
+   if(!r){nf.push(t.name);continue}
+   const d=await tmF('/'+r.media_type+'/'+r.id,'&append_to_response=credits');
+   const cast=((d.credits&&d.credits.cast)||[]).filter(x=>x.name).slice(0,12).map(x=>({n:x.name,r:x.character||'',p:x.profile_path?TMI+'w185'+x.profile_path:''}));
+   if(!cast.length){nf.push(t.name+' (sem elenco no TMDB)');continue}
+   const v=JSON.stringify(cast),{error}=await sb.from('settings').upsert({key:'cast_'+t.id,value:v});
+   if(error)err++;else{S.set['cast_'+t.id]=v;ok++}
+  }catch(e){if(/inválida/i.test(e.message)){alert(e.message);break}err++}
+  await tbSleep(250)}
+ TB.run=0;
+ const msg=`${TB.stop?'Parado.':'Terminou!'} Elenco preenchido: ${ok} · não achados: ${nf.length} · erros: ${err}`+(nf.length?'\n\nNão achei (preencha na mão):\n'+nf.slice(0,40).join('\n')+(nf.length>40?'\n…':''):'');
  try{await load()}catch(e){}
  alert(msg);ad()}
 </script>
