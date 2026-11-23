@@ -735,7 +735,7 @@ function ready(){
 async function boot(){
  spOn();
  const{data:{session}}=await sb.auth.getSession();S.me=session?.user||null;
- const[st,sc]=await Promise.all([sb.from('settings').select('*').not('key','like','sub:%'),sb.from('sections').select('*').order('pos')]);
+ const[st,sc]=await Promise.all([sbAll(()=>sb.from('settings').select('*').not('key','like','sub:%').order('key')),sb.from('sections').select('*').order('pos')]);
  S.set={};(st.data||[]).forEach(x=>S.set[x.key]=x.value);S.secs=sc.data||[];
  S.kind=(S.secs.find(s=>s.enabled)||{}).key;applyUI();
  if(S.me){await prof();await load();go('home');await ready();spOff()}
@@ -748,11 +748,13 @@ async function prof(){
  await sb.from('profiles').update({last_seen:now(),...(old?{session_start:now()}:{})}).eq('id',S.me.id);
  setInterval(()=>sb.from('profiles').update({last_seen:now()}).eq('id',S.me.id).then(()=>{}),60000);
 }
+/* O Supabase devolve no máximo 1000 linhas por consulta: busca em páginas de 1000 até acabar */
+async function sbAll(mk){let all=[],from=0;for(;;){const r=await mk().range(from,from+999);if(r.error)return{data:all.length?all:null,error:r.error};const d=r.data||[];all=all.concat(d);if(d.length<1000)break;from+=1000}return{data:all,error:null}}
 async function load(){
- const[t,s,l]=await Promise.all([sb.from('titles').select('*').order('created_at',{ascending:false}),sb.from('seasons').select('*,episodes(*)'),sb.from('links').select('*').order('id')]);
+ const[t,s,l]=await Promise.all([sbAll(()=>sb.from('titles').select('*').order('created_at',{ascending:false}).order('id')),sbAll(()=>sb.from('seasons').select('*,episodes(*)').order('id')),sbAll(()=>sb.from('links').select('*').order('id'))]);
  S.TA=t.data||[];S.T=hidFilter();S.L=l.data||[];
  S.E=(s.data||[]).flatMap(x=>(x.episodes||[]).map(e=>({id:e.id,title_id:x.title_id,season:x.number,num:e.number,name:e.name,url:e.url}))).sort((a,b)=>a.season-b.season||a.num-b.num);
- if(S.me)S.F=new Set(((await sb.from('favorites').select('title_id')).data||[]).map(x=>x.title_id));
+ if(S.me)S.F=new Set(((await sbAll(()=>sb.from('favorites').select('title_id').order('title_id'))).data||[]).map(x=>x.title_id));
 }
 function login(msg){
  A.innerHTML=`<div class="lg"><img src="${S.set.logo_app||'logo.png'}" alt="CINE NOTFOR"><p class="mu">${esc(msg||'')}</p><input id="nm" placeholder="Nome (só para criar conta)"><input id="em" type="email" placeholder="E-mail"><input id="pw2" type="password" placeholder="Senha (6 ou mais caracteres)"><div class="row" style="margin-top:8px"><button class="btn" style="flex:1" onclick="auth(0)">Entrar</button><button class="btn o" style="flex:1" onclick="auth(1)">Criar conta</button></div>${gOn()?`<button class="btn o" style="width:100%;margin-top:10px" onclick="guest()">Entrar como visitante</button><p class="mu">Visitante disponível${S.set.guest_until?' até '+new Date(S.set.guest_until).toLocaleString('pt-BR'):''}</p>`:''}</div>`;
