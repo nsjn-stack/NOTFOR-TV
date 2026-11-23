@@ -776,8 +776,8 @@ function draw(){
  {const o=document.getElementById('ad');if(o&&S.adShown){(S.adC=S.adC||{})[S.adShown]={n:o,y:window.scrollY};o.remove()}S.adShown=null}
  if(S.tab!='play')S.pbd=S.vcd=null;
  if((S.bled||S.oved)&&S.tab!='play'){blEdClose();oEdClose()}
- S.ff=0;document.documentElement.style.overflow='';
- const t=S.tab,b={home:pHome,list:pList,search:pSearch,fav:pFav,me:pMe,admin:pAdmin,play:pPlay}[t]();document.body.classList.toggle('inplay',t=='play');
+ S.ff=0;document.body.classList.remove('ffo');document.documentElement.style.overflow='';
+ const t=S.tab,b={home:pHome,list:pList,search:pSearch,cat:pCat,fav:pFav,me:pMe,admin:pAdmin,play:pPlay}[t]();document.body.classList.toggle('inplay',t=='play');
  A.innerHTML=hdr()+b+nav();
  if(t=='play'){wire();ovWire();loadC();if(S.oved)oEdWire();sbInit()}if(t=='admin'){const c=kp&&S.adC&&S.adC[S.at],nd=document.getElementById('ad');
   if(c&&nd){nd.replaceWith(c.n);delete S.adC[S.at];S.adShown=S.at;const y=c.y;scrollTo(0,y);requestAnimationFrame(()=>scrollTo(0,y));setTimeout(()=>scrollTo(0,y),120)}
@@ -805,7 +805,7 @@ function draw(){
   go(tg)
  });
 })();
-const hdr=()=>S.tab=='play'?`<div class="top"><button class="ib" onclick="go(S.prev||'home')">${ic(I.b)}</button><img src="${LA()}" alt="CINE NOTFOR">${dl()||'<span class="ib" style="visibility:hidden"></span>'}</div>`:`<div class="top"><span></span><img src="${LA()}" alt="CINE NOTFOR"><div class="row" style="flex-wrap:nowrap"><button class="ib" onclick="go('search')">${ic(I.s)}</button><button class="ib" onclick="go('me')">${ic(I.u)}</button></div></div>`;
+const hdr=()=>S.tab=='play'?`<div class="top"><button class="ib" onclick="go(S.prev||'home')">${ic(I.b)}</button><img src="${LA()}" alt="CINE NOTFOR">${dl()||'<span class="ib" style="visibility:hidden"></span>'}</div>`:`<div class="top">${S.tab=='home'?`<button class="ib" style="justify-self:start" aria-label="Categorias" onclick="S.cg='';S.lim=36;go('cat')">${ic(I.m)}</button>`:'<span></span>'}<img src="${LA()}" alt="CINE NOTFOR"><div class="row" style="flex-wrap:nowrap"><button class="ib" onclick="go('search')">${ic(I.s)}</button><button class="ib" onclick="go('me')">${ic(I.u)}</button></div></div>`;
 const NI={home:'M3 11l9-8 9 8v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z',fav:'M12 21s-8-5.2-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.8-8 11-8 11z',me:'M12 12a4 4 0 100-8 4 4 0 000 8zM4 21c0-4 4-6 8-6s8 2 8 6',admin:'M12 15a3 3 0 100-6 3 3 0 000 6zM19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z'};
 const nav=()=>`<nav>${[['home','Início'],['fav','Favoritos'],['me','Perfil'],...(adm()?[['admin','Admin']]:[])].map(([k,n])=>`<button class="${S.tab==k?'on':''}" onclick="go('${k}')">${ic(NI[k])}${n}</button>`).join('')}</nav>`;
 const newOn=()=>S.set.new_on!=='false',newDays=()=>parseFloat(S.set.new_days)||7,isNew=t=>newOn()&&t.created_at&&Date.now()-new Date(t.created_at)<newDays()*864e5;
@@ -860,8 +860,20 @@ function pHome1(){
  return o;
 }
 let pl0=[];const pList=()=>`<div class="tabs">${S.secs.filter(s=>s.enabled).map(s=>`<button class="${S.kind==s.key?'on':''}" onclick="S.lim=36;go('list','${s.key}')">${esc(s.label)}</button>`).join('')}</div>${S.kind=='anime'?`<div class="tabs">${[['','Todos'],['dublado','Dublado'],['legendado','Legendado']].map(([k,n])=>`<button class="${(S.aud||'')==k?'on':''}" onclick="S.aud='${k}';draw()">${n}</button>`).join('')}</div>`:''}<div class="gr">${(pl0=S.T.filter(t=>t.section==S.kind&&(S.kind!='anime'||!S.aud||t.audio==S.aud))).slice(0,S.lim||36).map(card).join('')||'<p class="mu">Nada por aqui ainda.</p>'}</div>${pl0.length>(S.lim||36)?'<div class="row" style="justify-content:center;margin:12px 0"><button class="btn o s" onclick="S.lim=(S.lim||36)+36;draw()">Ver mais</button></div>':''}`;
-const pSearch=()=>`<div class="box"><input id="q" placeholder="Pesquisar título ou gênero..." oninput="sq(this.value)"></div><div class="gr" id="sr"></div>`;
-function sq(v){v=v.toLowerCase().trim();$('#sr').innerHTML=v?S.T.filter(t=>(t.name+' '+(t.genres||'')).toLowerCase().includes(v)).slice(0,60).map(card).join('')||'<p class="mu">Nada encontrado.</p>':''}
+I.m='M4 7h16M4 12h16M4 17h16';
+const nz=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+const srH=v=>{v=nz(v);return v?(S.T.filter(t=>nz(t.name+' '+(t.genres||'')+' '+(t.audio||'')).includes(v)).slice(0,60).map(card).join('')||'<p class="mu">Nada encontrado.</p>'):''};
+const pSearch=()=>`<div class="box"><input id="q" placeholder="Pesquisar título ou gênero..." value="${esc(S.q||'')}" oninput="sq(this.value)"></div><div class="gr" id="sr">${srH(S.q)}</div>`;
+function sq(v){S.q=v;$('#sr').innerHTML=srH(v)}
+/* categorias: montadas sozinhas a partir dos gêneros e do áudio (dublado/legendado) cadastrados em cada título */
+const gList=t=>(t.genres||'').split(/[,•/]/).map(a=>a.trim()).filter(Boolean);
+const catMatch=t=>{const g=S.cg||'';if(!g)return false;if(g[0]=='@')return nz(t.audio)==g.slice(1);return gList(t).some(a=>nz(a)==g)};
+function catSel(k){S.cg=(S.cg==k?'':k);S.lim=36;draw()}
+const pCat=()=>{const m={};S.T.forEach(t=>gList(t).forEach(g=>{const k=nz(g);(m[k]=m[k]||{k,n:g,c:0}).c++}));
+ const au=['dublado','legendado'].map(x=>({k:'@'+x,n:x[0].toUpperCase()+x.slice(1),c:S.T.filter(t=>nz(t.audio)==x).length})).filter(x=>x.c);
+ const all=[...au,...Object.values(m).sort((a,b)=>b.c-a.c||a.n.localeCompare(b.n)).map(x=>({k:x.k,n:x.n[0].toUpperCase()+x.n.slice(1),c:x.c}))];
+ const sel=S.cg||'',R=sel?S.T.filter(catMatch):[],lim=S.lim||36;
+ return `<h2>Categorias</h2><div class="tabs" style="flex-wrap:wrap;overflow:visible">${all.map(x=>`<button class="${sel==x.k?'on':''}" data-k="${esc(x.k)}" onclick="catSel(this.dataset.k)">${esc(x.n)} (${x.c})</button>`).join('')||'<p class="mu">Nenhuma categoria ainda.</p>'}</div>${sel?`<div class="gr">${R.slice(0,lim).map(card).join('')||'<p class="mu">Nada por aqui ainda.</p>'}</div>${R.length>lim?'<div class="row" style="justify-content:center;margin:12px 0"><button class="btn o s" onclick="S.lim=(S.lim||36)+36;draw()">Ver mais</button></div>':''}`:'<p class="mu" style="padding:6px 14px">Escolha uma categoria.</p>'}`};
 const pFav=()=>`<h2>Minha lista</h2><div class="gr">${S.T.filter(t=>S.F.has(t.id)).map(card).join('')||'<p class="mu">Nada salvo ainda. Toque em "+ Minha lista" dentro de um título.</p>'}</div>`;
 const fbt=id=>S.F.has(id)?'♥ Na minha lista':'♡ Minha lista';
 async function fv(id){
@@ -1298,7 +1310,7 @@ async function ad(f){
 <div class="box mf"><label class="k"><input type="checkbox" ${S.set.vcap_auto!='0'?'checked':''} onchange="cf('vcap_auto',this.checked?1:0)"> Se o vídeo não tiver capa própria, usar o banner do título (o do TMDB) na tela inicial do player</label><div class="mu" style="padding:2px 0">A capa aparece na tela inicial do vídeo e some quando ele começa. Para cada vídeo, cole o link da imagem no campo "Link da capa" abaixo do episódio/link.</div></div>
 <details class="box mf dt" ${mv?'':'open'}><summary>＋ Episódio</summary><div class="mfg2"><input id="e_s" type="number" placeholder="Temporada" value="1"><input id="e_n" type="number" placeholder="Episódio"></div><input id="e_m" placeholder="Nome (opcional)"><input id="e_u" placeholder="Link do vídeo"><button class="btn" style="width:100%;margin-top:4px" onclick="svE()">Adicionar episódio</button></details>
 <details class="box mf dt" ${mv?'open':''}><summary>＋ Link do filme</summary><input id="l_l" placeholder="Nome do link (ex.: Link 1)"><input id="l_u" placeholder="Link do vídeo"><button class="btn" style="width:100%;margin-top:4px" onclick="svL()">Adicionar link</button></details>
-<details class="box mf dt"><summary>＋ Vários episódios de uma vez</summary><div class="mu" style="padding:2px 0 4px">Um link por linha, em ordem.</div><div class="mfg2"><input id="m_s" type="number" placeholder="Temporada" value="1"><input id="m_n" type="number" placeholder="1º episódio" value="1"></div><textarea id="m_u" rows="5" placeholder="https://...&#10;https://..."></textarea><button class="btn" style="width:100%;margin-top:4px" onclick="svM()">Adicionar todos</button></details>`+S.E.filter(x=>x.title_id==et2&&(qm||(`t${x.season} e${x.num} ${x.name||''}`).toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>T${x.season} • E${x.num}</b><small class="mu">${esc(x.name||'')}</small></div><button class="btn o s" onclick="dE(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_e${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_e${x.id}','vc_e${x.id}')">Salvar capa</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="db_e${x.id}" placeholder="🎧 Link da dublagem (Drive ou .mp3/.m4a)" value="${esc(S.set['dub_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svDub('dub_e${x.id}','db_e${x.id}')">Salvar dublagem</button></div></div>${trBox('trim_e'+x.id,'tr_e'+x.id)}`).join('')+S.L.filter(x=>x.title_id==et2&&(qm||(x.label||x.url||'').toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>Link</b><small class="mu">${esc(x.label||x.url)}</small></div>${((T(x.title_id)||{}).section=='movies')?`<button class="btn o s" onclick="lMov(${x.id},-1)" aria-label="Subir">▲</button><button class="btn o s" onclick="lMov(${x.id},1)" aria-label="Descer">▼</button>`:''}<button class="btn o s" onclick="dL(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="ln_${x.id}" placeholder="Nome do player (ex.: vk.video, Player 2)" value="${esc(x.label||'')}" style="margin:0"><button class="btn o s" onclick="lRen(${x.id})">Salvar nome</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_l${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_l${x.id}','vc_l${x.id}')">Salvar capa</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="db_l${x.id}" placeholder="🎧 Link da dublagem (Drive ou .mp3/.m4a)" value="${esc(S.set['dub_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svDub('dub_l${x.id}','db_l${x.id}')">Salvar dublagem</button></div></div>${trBox('trim_l'+x.id,'tr_l'+x.id)}`).join(''):'<p class="mu">Cadastre um título primeiro.</p>';
+<details class="box mf dt"><summary>＋ Vários episódios de uma vez</summary><div class="mu" style="padding:2px 0 4px">Um link por linha, em ordem.</div><div class="mfg2"><input id="m_s" type="number" placeholder="Temporada" value="1"><input id="m_n" type="number" placeholder="1º episódio" value="1"></div><textarea id="m_u" rows="5" placeholder="https://...&#10;https://..."></textarea><button class="btn" style="width:100%;margin-top:4px" onclick="svM()">Adicionar todos</button></details>`+S.E.filter(x=>x.title_id==et2&&(qm||(`t${x.season} e${x.num} ${x.name||''}`).toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>T${x.season} • E${x.num}</b><small class="mu">${esc(x.name||'')}</small></div><button class="btn o s" onclick="dE(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_e${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_e${x.id}','vc_e${x.id}')">Salvar capa</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="db_e${x.id}" placeholder="🎧 Link da dublagem (Drive ou .mp3/.m4a)" value="${esc(S.set['dub_e'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svDub('dub_e${x.id}','db_e${x.id}')">Salvar dublagem</button></div></div>${trBox('trim_e'+x.id,'tr_e'+x.id)}`).join('')+(T(et2)?vids(T(et2)):S.L).filter(x=>x.title_id==et2&&(qm||(x.label||x.url||'').toLowerCase().includes(vq0))).map(x=>`<div class="box vbx trw"><div class="trn"><b>Link</b><small class="mu">${esc(x.label||x.url)}</small></div>${((T(x.title_id)||{}).section=='movies')?`<button class="btn o s" onclick="lMov(${x.id},-1)" aria-label="Subir">▲</button><button class="btn o s" onclick="lMov(${x.id},1)" aria-label="Descer">▼</button>`:''}<button class="btn o s" onclick="dL(${x.id})">Apagar</button></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="ln_${x.id}" placeholder="Nome do link (ex.: Dublado, Player 2)" value="${esc(x.label||'')}" style="margin:0"><button class="btn o s" onclick="lRen(${x.id})">Renomear</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="vc_l${x.id}" placeholder="Link da capa deste vídeo" value="${esc(S.set['vcap_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svVC('vcap_l${x.id}','vc_l${x.id}')">Salvar capa</button></div></div><div class="box vbx"><div class="row" style="flex-wrap:nowrap"><input id="db_l${x.id}" placeholder="🎧 Link da dublagem (Drive ou .mp3/.m4a)" value="${esc(S.set['dub_l'+x.id]||'')}" style="margin:0"><button class="btn o s" onclick="svDub('dub_l${x.id}','db_l${x.id}')">Salvar dublagem</button></div></div>${trBox('trim_l'+x.id,'tr_l'+x.id)}`).join(''):'<p class="mu">Cadastre um título primeiro.</p>';
   if(S.T.length)subAdm();
  }
  if(a=='l'){d.innerHTML=lyAdm();return}
@@ -1439,7 +1451,7 @@ async function tmPick(t,id){
 function tmSet(k,el){$('#f_'+k).value=el.dataset.u;el.parentNode.querySelectorAll('img').forEach(i=>i.classList.toggle('on',i===el));pvC()}
 
 const secOrd=()=>{const r=k=>k=='movies'?0:k=='series'?1:2;return S.secs.slice().sort((a,b)=>r(a.key)-r(b.key))};
-function tF(){const q=(($('#t_q')||{}).value||'').toLowerCase().trim(),rows=document.querySelectorAll('.tbx');rows.forEach((e,i)=>{e.style.display=q?(e.textContent.toLowerCase().includes(q)?'':'none'):(S.tAll||i<3?'':'none')});const b=$('#t_more');if(b){b.parentNode.style.display=(q||rows.length<=3)?'none':'';b.textContent=S.tAll?'▲ Mostrar só os 3 últimos':'▼ Ver todos ('+rows.length+')'}}
+function tF(){const q=nz(($('#t_q')||{}).value||''),rows=document.querySelectorAll('.tbx');rows.forEach((e,i)=>{e.style.display=q?(nz(e.textContent).includes(q)?'':'none'):(S.tAll||i<3?'':'none')});const b=$('#t_more');if(b){b.parentNode.style.display=(q||rows.length<=3)?'none':'';b.textContent=S.tAll?'▲ Mostrar só os 3 últimos':'▼ Ver todos ('+rows.length+')'}}
 function fq(id,sel){const q=($('#'+id).value||'').toLowerCase().trim();document.querySelectorAll(sel).forEach(e=>e.style.display=!q||e.textContent.toLowerCase().includes(q)?'':'none')}
 function vq(){S.vq=($('#v_q').value||'').trim();ad()}
 function tgBox(){const d=$('#ad');if(!d||$('#tgbx'))return;d.insertAdjacentHTML('beforeend',`<div class="box" id="tgbx"><b>Telegram: cortar faixa branca</b><div class="mu" style="padding:4px 0">Se ainda sobrar faixa branca no player do Telegram, aumente o corte do topo ou do rodapé.</div>${[['tg_t','Corte do topo',20,80,44],['tg_b','Corte do rodapé',20,80,46]].map(([k,n,a,b,df])=>`<div class="rg"><span>${n}</span><span class="mu" id="o_${k}" style="padding:0">${ovn(k,df)}px</span><input type="range" min="${a}" max="${b}" value="${ovn(k,df)}" oninput="S.set['${k}']=this.value;$('#o_${k}').textContent=this.value+'px';tgFit()" onchange="cf('${k}',this.value)"></div>`).join('')}</div>`)}
@@ -1582,7 +1594,7 @@ async function svM(){
 }
 async function svL(){const u=$('#l_u').value.trim();if(!u)return alert('Informe o link.');if(ok(await sb.from('links').insert({title_id:S.et,label:$('#l_l').value.trim()||null,url:u}))){await load();ad()}}
 async function dE(id){if(confirm('Apagar episódio?')){await sb.from('episodes').delete().eq('id',id);await load();ad()}}
-async function lRen(id){const v=($('#ln_'+id).value||'').trim();if(ok(await sb.from('links').update({label:v||null}).eq('id',id))){await load();ad();alert('Nome salvo.')}}
+async function lRen(id){const v=($('#ln_'+id).value||'').trim();const r=await sb.from('links').update({label:v||null}).eq('id',id).select();if(ok(r)){if(!r.data||!r.data.length)return alert('Não consegui renomear: o banco não aceitou a alteração (permissão?).');await load();ad();alert('Nome salvo.')}}
 async function lMov(id,d){const x=S.L.find(l=>l.id==id),t=x&&T(x.title_id);if(!t||t.section!='movies')return;const ids=vids(t).map(l=>l.id),i=ids.indexOf(id),j=i+d;if(i<0||j<0||j>=ids.length)return;[ids[i],ids[j]]=[ids[j],ids[i]];const k='lord_'+t.id,v=JSON.stringify(ids);if(ok(await sb.from('settings').upsert([{key:k,value:v}]))){S.set[k]=v;ad()}}
 async function dL(id){if(confirm('Apagar link?')){await sb.from('links').delete().eq('id',id);await load();ad()}}
 const secBox=()=>`<div class="box"><b>Seções (abas)</b><div class="mu" style="padding:4px 0">Marque para mostrar. Mude o nome e toque em Salvar. Use ▲ ▼ para a ordem. Só dá para apagar uma seção sem títulos.</div>${S.secs.map(x=>`<div class="row" style="align-items:center;flex-wrap:nowrap;gap:6px"><input type="checkbox" ${x.enabled?'checked':''} onchange="tSec('${x.key}',this.checked)" style="width:auto;margin:0;flex:none"><input id="sn_${x.key}" value="${esc(x.label)}" style="flex:1;min-width:0;margin:0"><button class="btn o s" onclick="secRen('${x.key}')">Salvar</button><button class="btn o s" onclick="secMv('${x.key}',-1)">▲</button><button class="btn o s" onclick="secMv('${x.key}',1)">▼</button><button class="btn o s" onclick="secDel('${x.key}')">🗑</button></div>`).join('')}<div class="row" style="margin-top:8px"><input id="sn_new" placeholder="Nome da nova seção (ex.: Documentários)" style="flex:1"><button class="btn s" onclick="secAdd()">Adicionar</button></div></div>`;
@@ -3245,7 +3257,7 @@ html.tv .cd.tvf{transform:scale(1.07);transition:transform .12s}
 .cnpad .ok{background:#E10600}
 .cnpad .mn{width:44px;height:44px;font-size:20px}
 .cnpad .r{display:flex;gap:6px}
-html.rot{position:fixed;top:0;left:0;width:100vh;height:100vw;transform-origin:0 0;transform:translateX(100vw) rotate(90deg);overflow:auto}
+html.cnrot{position:fixed;top:0;left:0;width:100vh;height:100vw;transform-origin:0 0;transform:translateX(100vw) rotate(90deg);overflow:auto}
 .cnpad.c .g{display:none}
 .cndev{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.94);display:grid;place-content:center;gap:20px;text-align:center;color:#fff;font:600 20px system-ui;padding:20px}
 .cndev .tvf{outline:4px solid #fff;outline-offset:4px;box-shadow:0 0 0 9px rgba(255,42,26,.95),0 0 34px 12px rgba(255,42,26,.75)}
@@ -3264,12 +3276,12 @@ function pad(){let p=document.querySelector('.cnpad');
  document.body.appendChild(p)}
 /* girar o app: tenta travar a orientação do aparelho; se o sistema/manifest não deixar, gira a tela por CSS */
 async function rot(){const L=H.classList;
- if(L.contains('rot')){L.remove('rot');scale();setTimeout(seat,100);return}
+ if(L.contains('cnrot')){L.remove('cnrot');scale();setTimeout(seat,100);return}
  const land=innerWidth>innerHeight;
  try{await screen.orientation.lock(land?'portrait':'landscape');return}catch(x){}
- if(!land){L.add('rot');scale();setTimeout(seat,100)}}
-const rm=d=>H.classList.contains('rot')?({r:'d',d:'l',l:'u',u:'r'})[d]:d;
-const scale=()=>{const w=H.classList.contains('rot')?innerHeight:innerWidth;H.style.setProperty('--tvs',w>=1700?1.45:w>=1300?1.3:w>=1000?1.15:1)};
+ if(!land){L.add('cnrot');scale();setTimeout(seat,100)}}
+const rm=d=>H.classList.contains('cnrot')?({r:'d',d:'l',l:'u',u:'r'})[d]:d;
+const scale=()=>{const w=H.classList.contains('cnrot')?innerHeight:innerWidth;H.style.setProperty('--tvs',w>=1700?1.45:w>=1300?1.3:w>=1000?1.15:1)};
 let cur=null;
 const clr=()=>{document.querySelectorAll('.tvf').forEach(e=>e.classList.remove('tvf'));cur=null};
 const apply=()=>{H.classList.toggle('tv',isTV());scale();pad();if(isTV())seat();else clr()};
@@ -3305,14 +3317,16 @@ addEventListener('keydown',e=>{
  if(isTxt(ae)){if(k=='Escape'||kc==27){ae.blur();return pd()}if((dir=='d'||dir=='u')&&ae.tagName=='INPUT')ae.blur();else return}
  if(ae&&ae.tagName=='SELECT')return;
  if(back){const ov=document.querySelector('.cndev');if(ov)return pd();
+  if(typeof S!='undefined'&&(S.ff||document.fullscreenElement||document.webkitFullscreenElement)){pd();try{fsExit()}catch(x){}return}
   if(typeof S!='undefined'){if(S.tab=='play'){pd();go(S.prev||'home')}else if(S.tab!='home'){pd();go('home')}}return}
  if((dir=='l'||dir=='r')&&cur&&cur.id=='pw'&&document.contains(cur)){const v=cur.querySelector('#vd');if(v){pd();try{v.currentTime=Math.max(0,v.currentTime+(dir=='r'?10:-10))}catch(x){}return}}
  if(dir){pd();if(!cur||!document.contains(cur)||!vis(cur))seat();const L=cands();if(!cur)return;
-  const n=pick(cur,rm(dir),L);if(n)setF(n,true);else if(dir=='d'||dir=='u')(H.classList.contains('rot')?H:window).scrollBy({top:(dir=='d'?1:-1)*innerHeight*.6,behavior:'smooth'});return}
+  const n=pick(cur,rm(dir),L);if(n)setF(n,true);else if(dir=='d'||dir=='u')(H.classList.contains('cnrot')?H:window).scrollBy({top:(dir=='d'?1:-1)*innerHeight*.6,behavior:'smooth'});return}
  if(ent&&cur){pd();const f=cur;
   if(f.id=='pw'){const v=f.querySelector('#vd');
    if(v){v.paused?v.play():v.pause()}
-   else{const b=document.getElementById('bp');if(b)b.click();else{try{vcTap()}catch(x){}}}
+   else{const b=document.getElementById('bp');if(b)b.click();else{try{vcTap()}catch(x){}}
+    try{const fr=f.querySelector('iframe');if(fr)fr.focus()}catch(x){}}
    return}
   if(isTxt(f)){f.focus();return}
   if(f.tagName=='SELECT'){f.focus();try{f.showPicker&&f.showPicker()}catch(x){}return}
