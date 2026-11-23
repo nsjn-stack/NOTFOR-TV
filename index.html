@@ -873,6 +873,7 @@ function pMe(){
  const s=S.set;
  let o=`<div class="box"><b>${esc(S.p?.name||'Visitante')}</b>${adm()?'<span class="bd">CRIADOR</span>':''}<div class="mu" style="padding:0">${esc(S.me?.email||'Modo visitante')}</div>${S.me?`<div class="row" style="margin-top:8px;flex-wrap:nowrap"><input id="nm" value="${esc(S.p?.name)}" style="margin:0"><button class="btn o s" onclick="saveN()">Salvar</button></div>`:''}</div>`;
  if(on('support_on'))o+=`<div class="box"><b>${esc(s.support_title||'Apoie')}</b><div class="mu" style="padding:4px 0 8px">${esc(s.pix_info)}</div><div class="row">${s.instagram?`<a class="btn s" href="${esc(ig(s.instagram))}" target="_blank">Instagram</a>`:''}${s.whatsapp?`<a class="btn s" href="${esc(wa(s.whatsapp))}" target="_blank">WhatsApp</a>`:''}${s.qr_text?`<button class="btn o s" onclick="qr()">QR code</button>`:''}</div><div id="qr" style="margin-top:10px"></div></div>`;
+ o+=`<div class="box"><b>Tipo de tela</b><div class="mu" style="padding:4px 0 8px">Escolha como o app aparece neste aparelho. No modo TV, use as setas e o OK do controle remoto.</div><div class="row"><button class="btn s${(window.cnIsTV&&cnIsTV())?' o':''}" onclick="cnDev('phone')">📱 Celular</button><button class="btn s${(window.cnIsTV&&cnIsTV())?'':' o'}" onclick="cnDev('tv')">📺 TV</button></div></div>`;
  o+=`<div class="box"><b>Preferências do player</b><label class="k"><input type="checkbox" ${pf('rs')?'checked':''} onchange="spf('rs',this.checked)"> Continuar de onde parei</label><label class="k"><input type="checkbox" ${pf('sn')?'checked':''} onchange="spf('sn',this.checked)"> Marcar episódios como assistidos</label><label class="k"><input type="checkbox" ${pf('nx')?'checked':''} onchange="spf('nx',this.checked)"> Próximo episódio automático</label></div>`;
  return o+`<div class="box"><button class="btn ${S.me?'o':''}" style="width:100%" onclick="out()">${S.me?'Sair':'Criar conta / Entrar'}</button></div>`;
 }
@@ -1264,7 +1265,7 @@ async function bl(u,now){let patch;if(now){patch={blocked:false,blocked_until:nu
  if(ok(await sb.from('profiles').update(patch).eq('id',u)))rf()}
 
 /* ---------- painel admin ---------- */
-const APP_V='2026-11-18 (60) · Mail.ru só com o player do próprio Mail.ru · (antes) Mail.ru aprende o comando · zoom centralizado no Rutube · botão de zoom/preencher no player · Rutube sem controles próprios · Rumble sem controles próprios · início/fim programável por vídeo · Rutube: toque por baixo + play automático · Rumble com controles do app · Mail.ru Vídeo · Rutube com controles do app · comentários não somem mais · olhinho p/ ocultar títulos · engrenagem VK/ok.ru avisa p/ usar o Player 2 · pausa 4s antes do fim · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
+const APP_V='2026-11-23 (61) · Modo TV: escolher Celular/TV + controle remoto · (antes) 2026-11-18 (60) · Mail.ru só com o player do próprio Mail.ru · (antes) Mail.ru aprende o comando · zoom centralizado no Rutube · botão de zoom/preencher no player · Rutube sem controles próprios · Rumble sem controles próprios · início/fim programável por vídeo · Rutube: toque por baixo + play automático · Rumble com controles do app · Mail.ru Vídeo · Rutube com controles do app · comentários não somem mais · olhinho p/ ocultar títulos · engrenagem VK/ok.ru avisa p/ usar o Player 2 · pausa 4s antes do fim · ok.ru Player 2: círculo "Carregando seu vídeo" · tela cheia na gaveta · fim do vídeo não pula';
 const pAdmin=()=>`<div class="mu" style="text-align:center;padding:2px 0;font-size:11px;opacity:.6">Versão do app: ${APP_V}</div><div class="tabs">${[['t','Títulos'],['v','Vídeos'],['c','Comentários'],['r','Avisos'],['l','Layout'],['s','Config']].map(([k,n])=>`<button class="${S.at==k?'on':''}" onclick="S.at='${k}';S.keep=1;if(!(S.adC&&S.adC['${k}']))S.ed=null;draw()">${n}</button>`).join('')}</div><div id="ad"></div>`;
 const FL=['name','synopsis','year','genres','country','cover','banner'];
 async function nr(){const c=S.cur;if(!S.me)return alert('Entre na sua conta para avisar.');const k=c.t.id+'_'+(c.e?c.e.id:0);S.rp=S.rp||new Set();if(S.rp.has(k))return alert('Você já avisou sobre este vídeo. Obrigado!');if(ok(await sb.from('reports').insert({title_id:c.t.id,episode_id:c.e?c.e.id:null}))){S.rp.add(k);alert('Aviso enviado ao administrador. Obrigado!')}}
@@ -3218,4 +3219,90 @@ async function tbCast(){
  alert(msg);ad()}
 </script>
 
+<script>
+/* ===== Modo TV: a pessoa escolhe Celular ou TV; na TV o app é navegado pelo controle remoto (setas + OK) ===== */
+(()=>{
+const H=document.documentElement,LS=k=>{try{return localStorage[k]}catch(e){return null}},SV=(k,v)=>{try{localStorage[k]=v}catch(e){}};
+try{const q=new URLSearchParams(location.search);if(q.get('tv')=='1')SV('cn_dev','tv');if(q.get('cel')=='1')SV('cn_dev','phone')}catch(e){}
+const isTV=()=>LS('cn_dev')=='tv';
+window.cnIsTV=isTV;
+const st=document.createElement('style');st.textContent=`
+html.tv body{max-width:1280px;margin:0 auto;font-size:calc(15px*var(--tvs,1));padding-bottom:calc(110px*var(--tvs,1))}
+html.tv .cd{flex:0 0 calc(130px*var(--tvs,1));width:calc(130px*var(--tvs,1))}
+html.tv .cd b{font-size:calc(14px*var(--tvs,1))}html.tv .cd small{font-size:calc(12px*var(--tvs,1))}
+html.tv .pl2{display:none}
+html.tv h2{font-size:calc(22px*var(--tvs,1))}
+html.tv .btn{font-size:calc(15px*var(--tvs,1))}
+html.tv nav{max-width:calc(700px*var(--tvs,1))}html.tv nav button{font-size:calc(12px*var(--tvs,1))}
+html.tv .sc{padding-top:16px;padding-bottom:20px;margin:-16px 0 -8px}
+html.tv .tvf{outline:4px solid #fff!important;outline-offset:4px!important;box-shadow:0 0 0 9px rgba(255,42,26,.95),0 0 34px 12px rgba(255,42,26,.75)!important;border-radius:14px;position:relative;z-index:6}
+html.tv .cd.tvf{transform:scale(1.07);transition:transform .12s}
+.cndev{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.94);display:grid;place-content:center;gap:20px;text-align:center;color:#fff;font:600 20px system-ui;padding:20px}
+.cndev .tvf{outline:4px solid #fff;outline-offset:4px;box-shadow:0 0 0 9px rgba(255,42,26,.95),0 0 34px 12px rgba(255,42,26,.75)}
+`;document.head.appendChild(st);
+const scale=()=>{const w=innerWidth;H.style.setProperty('--tvs',w>=1700?1.45:w>=1300?1.3:w>=1000?1.15:1)};
+let cur=null;
+const clr=()=>{document.querySelectorAll('.tvf').forEach(e=>e.classList.remove('tvf'));cur=null};
+const apply=()=>{H.classList.toggle('tv',isTV());scale();if(isTV())seat();else clr()};
+window.cnDev=d=>{SV('cn_dev',d==='tv'?'tv':'phone');const o=document.querySelector('.cndev');if(o)o.remove();apply();try{draw()}catch(e){}};
+
+const SEL='a[href],button,input:not([type=hidden]),select,textarea,summary,[onclick],[tabindex]:not([tabindex="-1"]),.cd,#pw';
+const vis=el=>{if(el.disabled)return 0;const r=el.getBoundingClientRect();if(r.width<10||r.height<10)return 0;const c=getComputedStyle(el);return c.visibility!='hidden'&&c.display!='none'&&c.pointerEvents!='none'};
+const cands=()=>{const ov=document.querySelector('.cndev'),root=ov||document;
+ return [...root.querySelectorAll(SEL)].filter(el=>!el.closest('#sp')&&el.tagName!='IFRAME'&&vis(el)&&(el.matches('.cd,#pw')||!el.querySelector(SEL)))};
+const setF=(el,smooth)=>{if(cur&&cur!==el)cur.classList.remove('tvf');cur=el;el.classList.add('tvf');try{el.scrollIntoView({block:'center',inline:'center',behavior:smooth?'smooth':'auto'})}catch(e){}};
+function seat(){if(!isTV())return;const ov=document.querySelector('.cndev');
+ if(cur&&document.contains(cur)&&vis(cur)&&(!ov||ov.contains(cur)))return;
+ const L=cands();if(!L.length)return;
+ let t=null;
+ if(ov)t=ov.querySelector('[data-d="'+(/SmartTV|Android TV|AFTT|AFTM|Tizen|Web0S|BRAVIA|CrKey|Fire TV/i.test(navigator.userAgent)?'tv':'phone')+'"]');
+ else if(typeof S!='undefined'&&S.tab=='play')t=L.find(e=>e.id=='pw');
+ if(!t)t=L.find(e=>e.matches('.cd')&&e.getBoundingClientRect().top>=0&&e.getBoundingClientRect().top<innerHeight);
+ if(!t)t=L[0];
+ setF(t,false)}
+function pick(from,dir,L){const r=from.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let best=null,bs=1e18;
+ for(const el of L){if(el===from||el.contains(from)||from.contains(el))continue;
+  const b=el.getBoundingClientRect(),dx=b.left+b.width/2-cx,dy=b.top+b.height/2-cy;let p,q;
+  if(dir=='r'){if(dx<=8)continue;p=dx;q=Math.abs(dy)}else if(dir=='l'){if(dx>=-8)continue;p=-dx;q=Math.abs(dy)}
+  else if(dir=='d'){if(dy<=8)continue;p=dy;q=Math.abs(dx)}else{if(dy>=-8)continue;p=-dy;q=Math.abs(dx)}
+  const sc=p+q*2.5;if(sc<bs){bs=sc;best=el}}
+ return best}
+const isTxt=e=>e&&((e.tagName=='INPUT'&&!/^(button|checkbox|radio|submit|range|file|color)$/i.test(e.type||''))||e.tagName=='TEXTAREA');
+addEventListener('keydown',e=>{
+ if(!isTV()||e.ctrlKey||e.altKey||e.metaKey)return;
+ const k=e.key,kc=e.keyCode,ae=document.activeElement,pd=()=>{e.preventDefault();e.stopPropagation()};
+ const dir=(k=='ArrowRight'||kc==39)?'r':(k=='ArrowLeft'||kc==37)?'l':(k=='ArrowDown'||kc==40)?'d':(k=='ArrowUp'||kc==38)?'u':'';
+ const ent=(k=='Enter'||kc==13),back=(k=='Escape'||kc==27||k=='GoBack'||kc==10009||kc==461||(kc==8&&!isTxt(ae)));
+ if(isTxt(ae)){if(k=='Escape'||kc==27){ae.blur();return pd()}if((dir=='d'||dir=='u')&&ae.tagName=='INPUT')ae.blur();else return}
+ if(ae&&ae.tagName=='SELECT')return;
+ if(back){const ov=document.querySelector('.cndev');if(ov)return pd();
+  if(typeof S!='undefined'){if(S.tab=='play'){pd();go(S.prev||'home')}else if(S.tab!='home'){pd();go('home')}}return}
+ if((dir=='l'||dir=='r')&&cur&&cur.id=='pw'&&document.contains(cur)){const v=cur.querySelector('#vd');if(v){pd();try{v.currentTime=Math.max(0,v.currentTime+(dir=='r'?10:-10))}catch(x){}return}}
+ if(dir){pd();if(!cur||!document.contains(cur)||!vis(cur))seat();const L=cands();if(!cur)return;
+  const n=pick(cur,dir,L);if(n)setF(n,true);else if(dir=='d'||dir=='u')scrollBy({top:(dir=='d'?1:-1)*innerHeight*.6,behavior:'smooth'});return}
+ if(ent&&cur){pd();const f=cur;
+  if(f.id=='pw'){const v=f.querySelector('#vd');
+   if(v){v.paused?v.play():v.pause()}
+   else{const b=document.getElementById('bp');if(b)b.click();else{try{vcTap()}catch(x){}}}
+   return}
+  if(isTxt(f)){f.focus();return}
+  if(f.tagName=='SELECT'){f.focus();try{f.showPicker&&f.showPicker()}catch(x){}return}
+  f.click()}
+},true);
+let mt=0;new MutationObserver(()=>{if(!isTV())return;clearTimeout(mt);mt=setTimeout(seat,200)}).observe(document.body,{childList:true,subtree:true});
+addEventListener('resize',scale);
+/* primeira abertura: pergunta onde a pessoa vai assistir */
+if(!LS('cn_dev')){const o=document.createElement('div');o.className='cndev';
+ o.innerHTML='<div>Onde você vai assistir?</div><div style="display:flex;gap:16px;justify-content:center"><button class="btn" data-d="phone" onclick="cnDev(\'phone\')">📱 Celular</button><button class="btn" data-d="tv" onclick="cnDev(\'tv\')">📺 TV</button></div><div style="font-size:14px;opacity:.6;font-weight:400">Dá para trocar depois em Perfil → Tipo de tela.</div>';
+ document.body.appendChild(o);
+ /* na TV o overlay precisa do foco por setas mesmo antes de existir modo TV: liga a navegação só para ele */
+ const mini=e=>{if(!document.querySelector('.cndev'))return removeEventListener('keydown',mini,true);
+  const b=[...o.querySelectorAll('button')],i=b.findIndex(x=>x.classList.contains('tvf'));
+  if(e.key=='ArrowLeft'||e.key=='ArrowRight'){e.preventDefault();b.forEach(x=>x.classList.remove('tvf'));b[(Math.max(i,0)+1)%b.length].classList.add('tvf')}
+  else if(e.key=='Enter'){const t=b[Math.max(i,0)];if(i<0)return;e.preventDefault();t.click()}};
+ addEventListener('keydown',mini,true);
+ const pre=o.querySelector('[data-d="'+(/SmartTV|Android TV|AFTT|AFTM|Tizen|Web0S|BRAVIA|CrKey|Fire TV/i.test(navigator.userAgent)?'tv':'phone')+'"]');pre&&pre.classList.add('tvf')}
+apply();
+})();
+</script>
 </body></html>
