@@ -2478,17 +2478,6 @@ const cnQ=(()=>{
   const lo=L.filter(x=>H(x)&&H(x)<t).sort((a,b)=>H(b)-H(a))[0];if(lo)return lo;
   const hi=L.filter(x=>H(x)>t).sort((a,b)=>H(a)-H(b))[0];return hi||L[0]};
  
-/* controle remoto virtual: só no celular (tela de toque) com o Modo TV ligado, para testar sem TV */
-function pad(){let p=document.querySelector('.cnpad');
- const want=isTV()&&navigator.maxTouchPoints>0&&matchMedia('(pointer:coarse)').matches;
- if(!want){if(p)p.remove();return}
- if(p)return;
- p=document.createElement('div');p.className='cnpad';
- p.innerHTML='<button class="mn" data-k="min">🎮</button><div class="g"><i></i><button data-k="ArrowUp" data-c="38">▲</button><i></i><button data-k="ArrowLeft" data-c="37">◀</button><button class="ok" data-k="Enter" data-c="13">OK</button><button data-k="ArrowRight" data-c="39">▶</button><button data-k="Escape" data-c="27">↩</button><button data-k="ArrowDown" data-c="40">▼</button><i></i></div>';
- p.addEventListener('pointerdown',e=>{const b=e.target.closest('button');if(!b)return;e.preventDefault();
-  if(b.dataset.k=='min'){p.classList.toggle('c');return}
-  const c=+b.dataset.c;window.dispatchEvent(new KeyboardEvent('keydown',{key:b.dataset.k,keyCode:c,which:c,bubbles:true,cancelable:true}))});
- document.body.appendChild(p)}
 const apply=()=>{const q=get();
   if(q!='auto')try{if(typeof YT!='undefined'&&YT.st&&document.contains(YT.st.f)&&YT.st.ps===1)YT.st.f.contentWindow.postMessage(JSON.stringify({event:'command',func:'setPlaybackQuality',args:[YTM[q]]}),'*')}catch(e){}
   try{if(typeof VM!='undefined'&&VM.st&&document.contains(VM.st.f)){VM.st.cmd('setQuality',q=='auto'?'auto':q=='480p'?'540p':q);if(q!='auto')VM.st.cmd('getQualities')}}catch(e){}};
@@ -3255,11 +3244,32 @@ html.tv .cd.tvf{transform:scale(1.07);transition:transform .12s}
 .cnpad button{width:54px;height:54px;border-radius:50%;border:2px solid #ff2a1a;background:rgba(0,0,0,.78);color:#fff;font-size:20px;font-weight:700;padding:0;touch-action:manipulation}
 .cnpad .ok{background:#E10600}
 .cnpad .mn{width:44px;height:44px;font-size:20px}
+.cnpad .r{display:flex;gap:6px}
+html.rot{position:fixed;top:0;left:0;width:100vh;height:100vw;transform-origin:0 0;transform:translateX(100vw) rotate(90deg);overflow:auto}
 .cnpad.c .g{display:none}
 .cndev{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.94);display:grid;place-content:center;gap:20px;text-align:center;color:#fff;font:600 20px system-ui;padding:20px}
 .cndev .tvf{outline:4px solid #fff;outline-offset:4px;box-shadow:0 0 0 9px rgba(255,42,26,.95),0 0 34px 12px rgba(255,42,26,.75)}
 `;document.head.appendChild(st);
-const scale=()=>{const w=innerWidth;H.style.setProperty('--tvs',w>=1700?1.45:w>=1300?1.3:w>=1000?1.15:1)};
+/* controle remoto virtual: só no celular (tela de toque) com o Modo TV ligado, para testar sem TV */
+function pad(){let p=document.querySelector('.cnpad');
+ const want=isTV()&&navigator.maxTouchPoints>0&&matchMedia('(pointer:coarse)').matches;
+ if(!want){if(p)p.remove();return}
+ if(p)return;
+ p=document.createElement('div');p.className='cnpad';
+ p.innerHTML='<div class="r"><button class="mn" data-k="min">🎮</button><button class="mn" data-k="rot">🔄</button></div><div class="g"><i></i><button data-k="ArrowUp" data-c="38">▲</button><i></i><button data-k="ArrowLeft" data-c="37">◀</button><button class="ok" data-k="Enter" data-c="13">OK</button><button data-k="ArrowRight" data-c="39">▶</button><button data-k="Escape" data-c="27">↩</button><button data-k="ArrowDown" data-c="40">▼</button><i></i></div>';
+ p.addEventListener('pointerdown',e=>{const b=e.target.closest('button');if(!b)return;e.preventDefault();
+  if(b.dataset.k=='min'){p.classList.toggle('c');return}
+  if(b.dataset.k=='rot'){rot();return}
+  const c=+b.dataset.c;window.dispatchEvent(new KeyboardEvent('keydown',{key:b.dataset.k,keyCode:c,which:c,bubbles:true,cancelable:true}))});
+ document.body.appendChild(p)}
+/* girar o app: tenta travar a orientação do aparelho; se o sistema/manifest não deixar, gira a tela por CSS */
+async function rot(){const L=H.classList;
+ if(L.contains('rot')){L.remove('rot');scale();setTimeout(seat,100);return}
+ const land=innerWidth>innerHeight;
+ try{await screen.orientation.lock(land?'portrait':'landscape');return}catch(x){}
+ if(!land){L.add('rot');scale();setTimeout(seat,100)}}
+const rm=d=>H.classList.contains('rot')?({r:'d',d:'l',l:'u',u:'r'})[d]:d;
+const scale=()=>{const w=H.classList.contains('rot')?innerHeight:innerWidth;H.style.setProperty('--tvs',w>=1700?1.45:w>=1300?1.3:w>=1000?1.15:1)};
 let cur=null;
 const clr=()=>{document.querySelectorAll('.tvf').forEach(e=>e.classList.remove('tvf'));cur=null};
 const apply=()=>{H.classList.toggle('tv',isTV());scale();pad();if(isTV())seat();else clr()};
@@ -3298,7 +3308,7 @@ addEventListener('keydown',e=>{
   if(typeof S!='undefined'){if(S.tab=='play'){pd();go(S.prev||'home')}else if(S.tab!='home'){pd();go('home')}}return}
  if((dir=='l'||dir=='r')&&cur&&cur.id=='pw'&&document.contains(cur)){const v=cur.querySelector('#vd');if(v){pd();try{v.currentTime=Math.max(0,v.currentTime+(dir=='r'?10:-10))}catch(x){}return}}
  if(dir){pd();if(!cur||!document.contains(cur)||!vis(cur))seat();const L=cands();if(!cur)return;
-  const n=pick(cur,dir,L);if(n)setF(n,true);else if(dir=='d'||dir=='u')scrollBy({top:(dir=='d'?1:-1)*innerHeight*.6,behavior:'smooth'});return}
+  const n=pick(cur,rm(dir),L);if(n)setF(n,true);else if(dir=='d'||dir=='u')(H.classList.contains('rot')?H:window).scrollBy({top:(dir=='d'?1:-1)*innerHeight*.6,behavior:'smooth'});return}
  if(ent&&cur){pd();const f=cur;
   if(f.id=='pw'){const v=f.querySelector('#vd');
    if(v){v.paused?v.play():v.pause()}
