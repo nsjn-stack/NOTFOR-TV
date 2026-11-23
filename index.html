@@ -2477,7 +2477,19 @@ const cnQ=(()=>{
   const ex=L.filter(x=>H(x)==t)[0];if(ex)return ex;
   const lo=L.filter(x=>H(x)&&H(x)<t).sort((a,b)=>H(b)-H(a))[0];if(lo)return lo;
   const hi=L.filter(x=>H(x)>t).sort((a,b)=>H(a)-H(b))[0];return hi||L[0]};
- const apply=()=>{const q=get();
+ 
+/* controle remoto virtual: só no celular (tela de toque) com o Modo TV ligado, para testar sem TV */
+function pad(){let p=document.querySelector('.cnpad');
+ const want=isTV()&&navigator.maxTouchPoints>0&&matchMedia('(pointer:coarse)').matches;
+ if(!want){if(p)p.remove();return}
+ if(p)return;
+ p=document.createElement('div');p.className='cnpad';
+ p.innerHTML='<button class="mn" data-k="min">🎮</button><div class="g"><i></i><button data-k="ArrowUp" data-c="38">▲</button><i></i><button data-k="ArrowLeft" data-c="37">◀</button><button class="ok" data-k="Enter" data-c="13">OK</button><button data-k="ArrowRight" data-c="39">▶</button><button data-k="Escape" data-c="27">↩</button><button data-k="ArrowDown" data-c="40">▼</button><i></i></div>';
+ p.addEventListener('pointerdown',e=>{const b=e.target.closest('button');if(!b)return;e.preventDefault();
+  if(b.dataset.k=='min'){p.classList.toggle('c');return}
+  const c=+b.dataset.c;window.dispatchEvent(new KeyboardEvent('keydown',{key:b.dataset.k,keyCode:c,which:c,bubbles:true,cancelable:true}))});
+ document.body.appendChild(p)}
+const apply=()=>{const q=get();
   if(q!='auto')try{if(typeof YT!='undefined'&&YT.st&&document.contains(YT.st.f)&&YT.st.ps===1)YT.st.f.contentWindow.postMessage(JSON.stringify({event:'command',func:'setPlaybackQuality',args:[YTM[q]]}),'*')}catch(e){}
   try{if(typeof VM!='undefined'&&VM.st&&document.contains(VM.st.f)){VM.st.cmd('setQuality',q=='auto'?'auto':q=='480p'?'540p':q);if(q!='auto')VM.st.cmd('getQualities')}}catch(e){}};
  /* Vimeo: a lista real de qualidades do vídeo chega aqui; escolhe a igual, senão a mais próxima abaixo, senão a mais próxima acima */
@@ -3237,19 +3249,26 @@ html.tv nav{max-width:calc(700px*var(--tvs,1))}html.tv nav button{font-size:calc
 html.tv .sc{padding-top:16px;padding-bottom:20px;margin:-16px 0 -8px}
 html.tv .tvf{outline:4px solid #fff!important;outline-offset:4px!important;box-shadow:0 0 0 9px rgba(255,42,26,.95),0 0 34px 12px rgba(255,42,26,.75)!important;border-radius:14px;position:relative;z-index:6}
 html.tv .cd.tvf{transform:scale(1.07);transition:transform .12s}
+.cnpad{position:fixed;left:8px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:99999;display:flex;flex-direction:column;align-items:flex-start;gap:6px;opacity:.92}
+.cnpad .g{display:grid;grid-template-columns:repeat(3,54px);gap:6px}
+.cnpad .g i{display:block}
+.cnpad button{width:54px;height:54px;border-radius:50%;border:2px solid #ff2a1a;background:rgba(0,0,0,.78);color:#fff;font-size:20px;font-weight:700;padding:0;touch-action:manipulation}
+.cnpad .ok{background:#E10600}
+.cnpad .mn{width:44px;height:44px;font-size:20px}
+.cnpad.c .g{display:none}
 .cndev{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.94);display:grid;place-content:center;gap:20px;text-align:center;color:#fff;font:600 20px system-ui;padding:20px}
 .cndev .tvf{outline:4px solid #fff;outline-offset:4px;box-shadow:0 0 0 9px rgba(255,42,26,.95),0 0 34px 12px rgba(255,42,26,.75)}
 `;document.head.appendChild(st);
 const scale=()=>{const w=innerWidth;H.style.setProperty('--tvs',w>=1700?1.45:w>=1300?1.3:w>=1000?1.15:1)};
 let cur=null;
 const clr=()=>{document.querySelectorAll('.tvf').forEach(e=>e.classList.remove('tvf'));cur=null};
-const apply=()=>{H.classList.toggle('tv',isTV());scale();if(isTV())seat();else clr()};
+const apply=()=>{H.classList.toggle('tv',isTV());scale();pad();if(isTV())seat();else clr()};
 window.cnDev=d=>{SV('cn_dev',d==='tv'?'tv':'phone');const o=document.querySelector('.cndev');if(o)o.remove();apply();try{draw()}catch(e){}};
 
 const SEL='a[href],button,input:not([type=hidden]),select,textarea,summary,[onclick],[tabindex]:not([tabindex="-1"]),.cd,#pw';
 const vis=el=>{if(el.disabled)return 0;const r=el.getBoundingClientRect();if(r.width<10||r.height<10)return 0;const c=getComputedStyle(el);return c.visibility!='hidden'&&c.display!='none'&&c.pointerEvents!='none'};
 const cands=()=>{const ov=document.querySelector('.cndev'),root=ov||document;
- return [...root.querySelectorAll(SEL)].filter(el=>!el.closest('#sp')&&el.tagName!='IFRAME'&&vis(el)&&(el.matches('.cd,#pw')||!el.querySelector(SEL)))};
+ return [...root.querySelectorAll(SEL)].filter(el=>!el.closest('#sp,.cnpad')&&el.tagName!='IFRAME'&&vis(el)&&(el.matches('.cd,#pw')||!el.querySelector(SEL)))};
 const setF=(el,smooth)=>{if(cur&&cur!==el)cur.classList.remove('tvf');cur=el;el.classList.add('tvf');try{el.scrollIntoView({block:'center',inline:'center',behavior:smooth?'smooth':'auto'})}catch(e){}};
 function seat(){if(!isTV())return;const ov=document.querySelector('.cndev');
  if(cur&&document.contains(cur)&&vis(cur)&&(!ov||ov.contains(cur)))return;
