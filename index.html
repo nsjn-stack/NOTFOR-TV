@@ -920,6 +920,7 @@ function embed(u){
  if(m=u.match(/(?:dailymotion\.com\/(?:embed\/)?video\/|dai\.ly\/|dailymotion\.com\/player[^?]*\?[^#]*video=)([a-z0-9]+)/i))return{t:'if',s:'https://www.dailymotion.com/embed/video/'+m[1],k:'dm'};
  if(m=u.match(/(?:t\.me|telegram\.me)\/(?!c\/|\+|joinchat)([A-Za-z0-9_]{4,})\/(\d+)/i))return{t:'if',s:'https://t.me/'+m[1]+'/'+m[2]+'?embed=1&mode=tme',k:'tg'};
  if(/(?:^|\/\/|\.)(?:vk\.com|vk\.ru|vkvideo\.ru)\//i.test(u)){let o,i,h;const q=u.match(/video_ext\.php\?([^#\s]*)/i);if(q){const g=n=>(q[1].match(new RegExp('(?:^|&)'+n+'=(-?[\\w]+)'))||[])[1];o=g('oid');i=g('id');h=g('hash')}else{const r=u.match(/video(-?\d+)_(\d+)/i);if(r){o=r[1];i=r[2];h=(u.match(/[?&]hash=([0-9a-f]+)/i)||[])[1]}}if(o&&i)return{t:'if',s:'https://'+(/vkvideo\.ru/i.test(u)?'vkvideo.ru':'vk.com')+'/video_ext.php?oid='+o+'&id='+i+'&hd='+vkHd()+'&js_api=1'+(h?'&hash='+h:''),k:'vk'}}
+ if(m=u.match(/tokyvideo\.com\/embed\/[^\s"'<>]+/i))return{t:'if',s:'https://www.'+m[0],k:'tk'};
  if(/\.(mp4|webm|m4v)(\?|$)/i.test(u))return{t:'v',s:u,k:'mp'};
  return{t:'x',s:u,k:'ot'};
 }
@@ -2517,9 +2518,9 @@ const apply=()=>{const q=get();
   v.addEventListener('loadedmetadata',()=>{try{v.currentTime=t}catch(e){}if(pl)v.play().catch(()=>{})},{once:true});return true};
  const close=()=>{const m=document.getElementById('qm');if(m)m.remove()};
  const open=()=>{const pw=document.getElementById('pw');if(!pw)return;if(document.getElementById('qm')){close();return}
-  const v=pw.querySelector('video'),cur=get(),nat=v&&!v._qs;
+  const v=pw.querySelector('video'),cur=get(),nat=v&&(!v._qs||new Set(v._qs.map(x=>x.h||0)).size<2);
   const m=document.createElement('div');m.id='qm';
-  m.innerHTML=(nat?'<small>Esta fonte tem qualidade única</small>'+(v&&v.dataset.o&&/drive\.google/.test(v.dataset.o)?'<button id="qdr">Usar player do Drive (várias qualidades)</button>':''):OPT.map(q=>`<button data-q="${q}" class="${q==cur?'on':''}">${q=='auto'?'Auto':q}</button>`).join(''));
+  m.innerHTML=(nat?'<small>Este vídeo tem resolução única</small>'+(v&&v.dataset.o&&/drive\.google/.test(v.dataset.o)?'<button id="qdr">Usar player do Drive (várias qualidades)</button>':''):OPT.map(q=>`<button data-q="${q}" class="${q==cur?'on':''}">${q=='auto'?'Auto':q}</button>`).join(''));
   pw.appendChild(m)};
  document.addEventListener('click',e=>{
   const g=e.target.closest&&e.target.closest('#qg');if(g){e.stopPropagation();if(window.cnVkSet&&window.cnVkSet())return;open();return}
