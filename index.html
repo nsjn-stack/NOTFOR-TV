@@ -2328,9 +2328,9 @@ window.addEventListener('message',e=>{try{const w=document.getElementById('pw'),
 setInterval(()=>{try{const c=document.getElementById('sbc'),w=document.getElementById('pw'),f=w&&w.querySelector('iframe[src*="ok.ru/videoembed"]');let n=document.getElementById('okdbg');
  const bb=document.getElementById('okprb');if(bb)bb.remove();
  if(!c||!f||S.tab!='play'){if(n)n.remove();return}
- let shw='0';try{shw=localStorage.cn_okdbg||'0'}catch(e){}if(shw!='1'){if(n)n.remove();return}
- if(!n){n=document.createElement('a');n.id='okdbg';n.className='mu';n.href='#';n.style.cssText='display:block;margin:0 14px 8px;font-size:11px;opacity:.6;text-decoration:underline';n.onclick=ev=>{ev.preventDefault();const r=w.classList.toggle('okraw');n.textContent=r?'✔️ Pronto, voltar aos controles do app':'⚙️ Desligar a ficha de informações do ok.ru'};n.textContent='⚙️ Desligar a ficha de informações do ok.ru';c.appendChild(n)}
- if(!w.classList.contains('okraw'))n.textContent='⚙️ Desligar a ficha de informações do ok.ru'}catch(e){}},1000);
+ 
+ if(!n){n=document.createElement('a');n.id='okdbg';n.className='mu';n.href='#';n.style.cssText='display:block;margin:0 14px 8px;font-size:13px;font-weight:700;opacity:1;text-decoration:underline;text-align:center';n.onclick=ev=>{ev.preventDefault();const r=w.classList.toggle('okraw');n.textContent=r?'↩️ Voltar aos controles do app':'⚙️ Player original do ok.ru (engrenagem / qualidade)'};n.textContent='⚙️ Player original do ok.ru (engrenagem / qualidade)';c.appendChild(n)}
+ if(!w.classList.contains('okraw'))n.textContent='⚙️ Player original do ok.ru (engrenagem / qualidade)'}catch(e){}},1000);
 
 /* ===== ok.ru no Player 2: círculo girando + "Carregando seu vídeo" (igual ao player do app) =====
    1) cobre de preto enquanto o iframe do ok.ru ainda está abrindo; 2) depois que você toca no vídeo, mostra o círculo até ele começar a tocar */
