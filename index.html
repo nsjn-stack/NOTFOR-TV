@@ -1161,14 +1161,13 @@ addEventListener('orientationchange',()=>setTimeout(fkApply,200));
 const arLand=()=>{const o=screen.orientation;if(o&&o.type)return o.type.startsWith('landscape');if(typeof window.orientation=='number')return Math.abs(window.orientation)==90;return innerWidth>innerHeight};
 S.arL=arLand();
 function arApply(){
- const l=arLand();if(l===S.arL)return;S.arL=l;
+ const l=arLand();if(l===S.arL)return;S.arL=l;clearTimeout(S.arX);
  if(S.ff||isFs())mvShow();
  if(!ovn('ov_ar',1)||!pf('ar')||!S.cur||S.tab!='play'||Date.now()-(S.fsT||0)<1500)return;
  const w=document.getElementById('pw');
  if(!w||S.oved||S.bled||document.getElementById('vzp')||!w.querySelector('iframe,video'))return;
  if(l){if(!S.ff&&!isFs())(fkOn()?fkEnter:fsEnter)()}
- else if(S.ff)fkExit();
- else if(isFs())fsExitReal();
+ else if(S.ff||isFs()){S.arX=setTimeout(()=>{if(arLand()||S.phL)return;if(S.ff)fkExit();else if(isFs())fsExitReal()},1000)}
 }
 /* celular travado em retrato (ex.: app instalado): detecta a posição física pelo sensor de inclinação */
 function phApply(l){
@@ -1176,6 +1175,7 @@ function phApply(l){
  if(!ovn('ov_ar',1)||!pf('ar')||!S.cur||S.tab!='play'||Date.now()-(S.fsT||0)<1500)return;
  const w=document.getElementById('pw');
  if(!w||S.oved||S.bled||document.getElementById('vzp')||!w.querySelector('iframe,video'))return;
+ if(!l&&arLand())return;
  if(S.ff){if(l){S.ffL=true;fkApply()}else fkExit()}
  else if(isFs()){if(l){if(S.showOv)S.showOv()}else fsExitReal()}
  else if(l)(fkOn()?fkEnter:fsEnter)();
@@ -1188,11 +1188,11 @@ addEventListener('deviceorientation',e=>{
  const b=e.beta,g=e.gamma;if(typeof b!='number'||typeof g!='number')return;
  const r=Math.PI/180,gx=Math.cos(b*r)*Math.sin(g*r),ax=Math.abs(gx);
  let l=S.phL===null?false:S.phL;
- if(ax>.72){l=true;const d=gx>0?1:-1;S.phD=d;}else if(ax<.5)l=false;
+ if(ax>.72){l=true;const d=gx>0?1:-1;S.phD=d;}else if(ax<.25)l=false;
  if(S.phL===null){S.phL=l;return}
  if(l===S.phL){clearTimeout(S.pht);S.phW=null;return}
  if(S.phW===l)return; /* já agendado: não reinicia o tempo a cada leitura do sensor */
- S.phW=l;clearTimeout(S.pht);S.pht=setTimeout(()=>{S.phW=null;S.phL=l;phApply(l)},250);
+ S.phW=l;clearTimeout(S.pht);S.pht=setTimeout(()=>{S.phW=null;S.phL=l;phApply(l)},l?250:1200);
 });
 try{screen.orientation.addEventListener('change',arApply)}catch(x){}
 addEventListener('orientationchange',()=>setTimeout(arApply,120));
