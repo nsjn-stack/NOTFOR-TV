@@ -197,7 +197,7 @@ label.k input{width:auto}
 /* Layout 9 - Retrato Cinema: banner de tela cheia em pé + capas grandes (botões continuam embaixo) */
 .l9{--h:84px}
 html:has(.L9) .top{position:fixed;left:0;right:0;background:linear-gradient(rgba(0,0,0,.75),transparent)}
-.L9 .hero{margin:0 0 4px!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:min(76vh,calc(var(--hh)*2.9));padding:76px 18px 24px;gap:10px;background:linear-gradient(transparent 38%,rgba(0,0,0,.88) 82%,#000),linear-gradient(90deg,rgba(0,0,0,.55),transparent 62%),var(--bg) center top/cover,#150000}
+.L9 .hero{margin:0 0 4px!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:min(76vh,calc(var(--hh)*2.9));padding:76px 18px 24px;gap:10px;background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.55) 40%,rgba(0,0,0,.92) 82%,#000),linear-gradient(90deg,rgba(0,0,0,.6),transparent 70%),var(--bg) center top/cover,#150000}
 .L9 .hero h1{font-size:clamp(30px,9.5vw,48px);max-width:88%;line-height:1.02}
 .L9 .hero .sy{margin:0;max-width:86%;font-size:14px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .L9 .cd:not(.w){flex:0 0 calc(var(--cw)*1.5);width:calc(var(--cw)*1.5)}
@@ -1894,8 +1894,9 @@ function pLy(n){
  if(n==6){const a=L.slice(0,6);o=`<div class="car">${a.map((t,i)=>`<div class="ci" onclick="play(${t.id})"><i>${im(t.cover||t.banner,'B',i<3)}</i><b>${esc(t.name)}</b></div>`).join('')}</div><div class="row" style="justify-content:center">${b1}</div><div class="dots">${a.map((x,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`+ct()+secs(card)}
  if(n==7)o=hero(syn,bw+bp)+rw('Mais como este',L.filter(t=>t.section==h.section&&t.id!=h.id).slice(0,12),wd)+ct()+secs(card);
  if(n==8)o=hero('',b1+bp)+rw('Lançamentos',nw.length?nw:L.slice(0,12),card,'<a onclick="go(\'search\')">Ver todos ›</a>')+ct()+rw('Mais assistidos',mv,card)+secs(card);
- if(n==9){const rk=mv.length?`<h2>Mais assistidos</h2><div class="sc">${mv.map((t,i)=>card(t).replace('<span class="pl2">▶</span>',`<span class="rk">${i+1}</span>`)).join('')}</div>`:'';
-  o=hero(syn,b1+bp)+ct()+rw('Recém-adicionados',nw,card)+rk+secs(card)}
+ if(n==9){const cb=t=>card(t).replace(/<i>[\s\S]*?<\/i>/,`<i>${im(t.cover||t.banner,'B')}</i>`);
+  const rk=mv.length?`<h2>Mais assistidos</h2><div class="sc">${mv.map((t,i)=>cb(t).replace('<span class="pl2">▶</span>',`<span class="rk">${i+1}</span>`)).join('')}</div>`:'';
+  o=hero(syn,b1+bp)+ct()+rw('Recém-adicionados',nw,cb)+rk+secs(cb)}
  return `<div class="L L${n}">${o}</div>`}
 const cfgOrg=()=>{const d=$('#ad'),bx=[...d.children].filter(e=>e.classList.contains('box'));bx.forEach((e,i)=>e.dataset.k=i);const o=(S.set.cfg_order||'').split(',').filter(x=>x!=='').map(Number),k=e=>{const j=o.indexOf(+e.dataset.k);return j<0?1e3+ +e.dataset.k:j};
  bx.sort((a,b)=>k(a)-k(b)).forEach(e=>{d.appendChild(e);e.insertAdjacentHTML('afterbegin','<span class="mv"><button onclick="cfgMv(this,-2)">⤒</button><button onclick="cfgMv(this,-1)">▲</button><button onclick="cfgMv(this,1)">▼</button></span>')})};
