@@ -194,6 +194,19 @@ label.k input{width:auto}
 .L2 .hero,.L3 .hero,.L5 .hero,.L7 .hero{margin:0 0 6px;border:0;border-radius:0;background:linear-gradient(transparent 30%,#000),var(--bg) center/cover,#150000}
 .L3 .hero{height:calc(var(--hh)*1.8);align-items:center;text-align:center}.L3 .chips,.L3 .row{justify-content:center}.L5 .hero{height:calc(var(--hh)*.9)}.L7 .hero{height:calc(var(--hh)*2.2)}.L8 .hero{height:calc(var(--hh)*.6)}
 .L4 .gr{grid-template-columns:repeat(3,1fr)}.L4 .cd{width:auto}
+/* Layout 9 - Retrato Cinema: banner de tela cheia em pé + capas grandes (botões continuam embaixo) */
+.l9{--h:84px}
+html:has(.L9) .top{position:fixed;left:0;right:0;background:linear-gradient(rgba(0,0,0,.75),transparent)}
+.L9 .hero{margin:0 0 4px!important;border:0!important;border-radius:0!important;box-shadow:none!important;height:min(76vh,calc(var(--hh)*2.9));padding:76px 18px 24px;gap:10px;background:linear-gradient(transparent 38%,rgba(0,0,0,.88) 82%,#000),linear-gradient(90deg,rgba(0,0,0,.55),transparent 62%),var(--bg) center top/cover,#150000}
+.L9 .hero h1{font-size:clamp(30px,9.5vw,48px);max-width:88%;line-height:1.02}
+.L9 .hero .sy{margin:0;max-width:86%;font-size:14px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.L9 .cd:not(.w){flex:0 0 calc(var(--cw)*1.5);width:calc(var(--cw)*1.5)}
+.L9 .cd.w{flex-basis:calc(var(--ww)*1.35);width:calc(var(--ww)*1.35)}
+.L9 .cd:not(.w) i{border-radius:12px}
+.L9 .cd b{font-size:14px;margin-top:6px}
+.L9 .cd:not(.w) .pl2{top:calc(var(--cw)*2.25 - 40px)}
+.L9 .rk{top:calc(var(--cw)*2.25 - 52px);font-size:46px}
+.L9 h2{font-size:22px;margin-top:22px}
 .eye{position:absolute;top:6px;right:6px;z-index:4;width:30px;height:30px;padding:0;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.65);display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
 .eye svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .eye.off{background:#e10600;border-color:#e10600}
@@ -1855,8 +1868,8 @@ async function gv(v){
 }
 
 /* ===== novidades: layouts, ordem da Config, excluir logos, cores dos botões ===== */
-const LY=['Moderno Escuro','Estilo Netflix','Banner Grande','Grade (Cards)','Estilo Disney+','Carrossel Vertical','Cinematográfico','Destaques Horizontais'];
-const lyN=()=>Math.min(8,Math.max(1,parseInt(S.set.ui_layout)||1));
+const LY=['Moderno Escuro','Estilo Netflix','Banner Grande','Grade (Cards)','Estilo Disney+','Carrossel Vertical','Cinematográfico','Destaques Horizontais','Retrato Cinema'];
+const lyN=()=>Math.min(9,Math.max(1,parseInt(S.set.ui_layout)||1));
 const lyAdm=()=>`<div class="box"><b>Layout da tela inicial</b><div class="mu" style="padding:4px 0">Toque no layout que quer usar. Vale para todos os usuários.</div><div class="lyg">${LY.map((n,i)=>`<button class="ly ${lyN()==i+1?'on':''}" onclick="lySet(${i+1})"><div class="lyp l${i+1}"><i></i><i></i><i></i><i></i><i></i></div><span>${i+1}. ${n}</span></button>`).join('')}</div><button class="btn s" onclick="go('home')">Ver na tela inicial</button></div>`;
 async function lySet(n){await cf('ui_layout',n);ad()}
 function pLy(n){
@@ -1881,6 +1894,8 @@ function pLy(n){
  if(n==6){const a=L.slice(0,6);o=`<div class="car">${a.map((t,i)=>`<div class="ci" onclick="play(${t.id})"><i>${im(t.cover||t.banner,'B',i<3)}</i><b>${esc(t.name)}</b></div>`).join('')}</div><div class="row" style="justify-content:center">${b1}</div><div class="dots">${a.map((x,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`+ct()+secs(card)}
  if(n==7)o=hero(syn,bw+bp)+rw('Mais como este',L.filter(t=>t.section==h.section&&t.id!=h.id).slice(0,12),wd)+ct()+secs(card);
  if(n==8)o=hero('',b1+bp)+rw('Lançamentos',nw.length?nw:L.slice(0,12),card,'<a onclick="go(\'search\')">Ver todos ›</a>')+ct()+rw('Mais assistidos',mv,card)+secs(card);
+ if(n==9){const rk=mv.length?`<h2>Mais assistidos</h2><div class="sc">${mv.map((t,i)=>card(t).replace('<span class="pl2">▶</span>',`<span class="rk">${i+1}</span>`)).join('')}</div>`:'';
+  o=hero(syn,b1+bp)+ct()+rw('Recém-adicionados',nw,card)+rk+secs(card)}
  return `<div class="L L${n}">${o}</div>`}
 const cfgOrg=()=>{const d=$('#ad'),bx=[...d.children].filter(e=>e.classList.contains('box'));bx.forEach((e,i)=>e.dataset.k=i);const o=(S.set.cfg_order||'').split(',').filter(x=>x!=='').map(Number),k=e=>{const j=o.indexOf(+e.dataset.k);return j<0?1e3+ +e.dataset.k:j};
  bx.sort((a,b)=>k(a)-k(b)).forEach(e=>{d.appendChild(e);e.insertAdjacentHTML('afterbegin','<span class="mv"><button onclick="cfgMv(this,-2)">⤒</button><button onclick="cfgMv(this,-1)">▲</button><button onclick="cfgMv(this,1)">▼</button></span>')})};
@@ -3376,6 +3391,11 @@ html.tv body.inplay #app>.top{grid-column:1/-1}
 html.tv body.inplay #app>.pw:not(.ff){grid-column:1;grid-row:2/span 40;position:sticky;top:calc(8px*var(--tvs,1));margin:0}
 html.tv body.inplay #app>*:not(.top):not(.pw):not(nav){grid-column:2;min-width:0}
 html.tv body.inplay #app>.tvfs{grid-row:2}
+html.tv #rt,html.tv body.inplay .cnpad [data-k=rot]{visibility:hidden}
+html.tv .pw .ov.cnp .cnp-bot{border-color:transparent!important;box-shadow:none!important}
+html.tv .pw:has(.cnp){border-color:transparent!important}
+html.tv .pw:has(.cnp):not(.tvf){box-shadow:none!important}
+html.tv body.inplay #app>.tvfs{grid-column:1!important;grid-row:2/span 40!important;align-self:start;position:sticky;top:calc(8px*var(--tvs,1) + var(--tvpwh,0px) + 12px);margin:0;z-index:6}
 .cnpad{position:fixed;left:8px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:99999;display:flex;flex-direction:column;align-items:flex-start;gap:6px;opacity:.92}
 .cnpad .g{display:grid;grid-template-columns:repeat(3,54px);gap:6px}
 .cnpad .g i{display:block}
@@ -3460,6 +3480,7 @@ addEventListener('keydown',e=>{
 },true);
 let mt=0;new MutationObserver(()=>{if(!isTV())return;clearTimeout(mt);mt=setTimeout(seat,200)}).observe(document.body,{childList:true,subtree:true});
 addEventListener('resize',scale);
+setInterval(()=>{const w=document.getElementById('pw');H.style.setProperty('--tvpwh',(w&&isTV()?w.offsetHeight:0)+'px')},400);
 /* primeira abertura: pergunta onde a pessoa vai assistir */
 if(!LS('cn_dev')){const o=document.createElement('div');o.className='cndev';
  o.innerHTML='<div>Onde você vai assistir?</div><div style="display:flex;gap:16px;justify-content:center"><button class="btn" data-d="phone" onclick="cnDev(\'phone\')">📱 Celular</button><button class="btn" data-d="tv" onclick="cnDev(\'tv\')">📺 TV</button></div><div style="font-size:14px;opacity:.6;font-weight:400">Dá para trocar depois em Perfil → Tipo de tela.</div>';
