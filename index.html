@@ -1101,7 +1101,7 @@ function pPlay(){
   bar=mf==0||mc==0?`<div class="${rw?'bar2 ':''}pbar" ${rw?'':'style="display:flex;flex-direction:column;gap:8px;margin:0 14px 8px"'}>${mf==0?pF(0):''}${mc==0?pC(0):''}</div>`:'';
  return `<div class="pw${S.cur.pk=='tg'?' tgw':''}${p.includes('ytsh')?' ytfull':''}${S.cur.nd?' nvp':''}${S.cur.nd&&S.cur.pk=='dr'?' ndd':''}${S.cur.p2?' p2':''}" id="pw">${p}${vch}${ycv}<div class="sbt" id="sbt"></div>${ovh}${S.bled&&S.bled==S.cur.pk?`<div id="blEd" style="position:absolute;inset:0;z-index:90;pointer-events:none">${blPrevH(S.cur.pk,1)}</div>`:blh(S.cur.pk)}</div><button type="button" class="btn tvfs" id="tvfs" onclick="fs()">⛶ Entrar em tela cheia</button><div id="sbc"></div>${u&&(S.cur.pk=='vk'||S.cur.pk=='ok')&&hasV&&ovn('vk_pm',0)==0?`<div class="pmt"><button type="button" class="pmb${S.cur.p2?'':' on'}" onclick="setPm(1)">Player 1</button><button type="button" class="pmb${S.cur.p2?' on':''}" onclick="setPm(2)">Player 2</button></div>`:''}
  ${!e&&vs.length>1?`<div class="tabs">${vs.map((l,i)=>`<button class="${i==li?'on':''}" onclick="play(${t.id},0,${i})">${esc(l.label||'Link '+(i+1))}</button>`).join('')}</div>`:''}
- <div class="hd2">${t.cover?`<img class="pcv" alt="" src="${esc(gd(t.cover,'M'))}" onerror="this.remove()">`:''}<div class="hdm"><div class="pt"><h1>${esc(t.name)}</h1><p>${e?`Temporada ${e.season} • ${t.section=='novela'?'Capítulo':'Episódio'} ${e.num}${e.name?' — '+esc(e.name):''}`:esc([t.year,t.country,t.audio].filter(Boolean).join(' • '))}</p></div>
+ <div class="hd2">${(t.cover||t.banner)?`<img class="pcv" alt="" src="${esc(gd(t.cover||t.banner,'M'))}"${t.cover&&t.banner?` data-fb="${esc(gd(t.banner,'M'))}"`:''} onerror="if(this.dataset.fb){this.src=this.dataset.fb;delete this.dataset.fb}else{this.outerHTML='<div class=pcn>🎬</div>'}">`:'<div class="pcn">🎬</div>'}<div class="hdm"><div class="pt"><h1>${esc(t.name)}</h1><p>${e?`Temporada ${e.season} • ${t.section=='novela'?'Capítulo':'Episódio'} ${e.num}${e.name?' — '+esc(e.name):''}`:esc([t.year,t.country,t.audio].filter(Boolean).join(' • '))}</p></div>
  <div class="chips pchips" style="margin:10px 14px"><span class="chip">HD</span><span class="chip r">${esc(t.rating||'Livre')}</span>${rtV(t)?`<span class="chip">⭐ ${rtV(t)}</span>`:''}${t.genres?`<span class="chip">${esc(t.genres)}</span>`:''}</div></div></div>
  <div class="qa">${bar}${pf('rs')&&getPos(ckey())>10?`<div class="row prow" style="margin:0 14px 8px"><button class="btn pcont" style="flex:1" onclick="play(${t.id},${e?e.id:0},${li})"><svg viewBox="0 0 24 24"><path d="M7 5l11 7-11 7z"/></svg><span>Continuar <b>${Math.floor(getPos(ckey())/60)}:${String(getPos(ckey())%60).padStart(2,'0')}</b></span></button></div>`:''}<div class="row prow" style="margin:0 14px"><button class="btn" style="flex:1" onclick="pn(${t.id}${e?','+(n||e).id:''},${n?1:0})">${n?'<svg viewBox="0 0 24 24"><path d="M7 5l11 7-11 7z"/></svg>':'<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 11-2.6-5.9"/><path d="M20 4v5h-5"/></svg>'}<span>${n?'Próximo episódio':'Recomeçar'}</span>${!n&&(prog()[t.id+'_'+(e?e.id:0)]||0)>0?`<i class="pbr"><u style="width:${Math.round(prog()[t.id+'_'+(e?e.id:0)]*100)}%"></u></i>`:''}</button>${pf('sn')?`<button class="btn o" id="mkb" style="flex:1" onclick="mk()"><svg viewBox="0 0 24 24"><path d="${SP}"/></svg><span>${isSeen(t.id,e?e.id:0)?'Assistido (desmarcar)':'Marcar como assistido'}</span></button>`:''}</div><button type="button" class="wpb" onclick="var f=document.getElementById('pty-fab');if(f)f.click()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 20v-1.5a3.5 3.5 0 00-3.5-3.5h-6A3.5 3.5 0 004 18.5V20"/><circle cx="10.5" cy="8" r="3.2"/><path d="M20 20v-1.5a3.5 3.5 0 00-2.4-3.3"/><path d="M15.6 4.9a3.2 3.2 0 010 6.2"/></svg><span><b>Assista com outras pessoas</b><small>Criar sala</small></span></button></div>
  ${es.length?seasH(t,es,e):''}${u&&S.me?`<p class="mu" style="text-align:center;padding:0;font-size:11px;opacity:.55">Não carregou? <a href="#" onclick="nr();return false" style="color:inherit;text-decoration:underline">Avisar o administrador</a></p>`:''}${castH(t)}${t.synopsis?`<p class="mu">${esc(t.synopsis)}</p>`:''}
@@ -2833,6 +2833,7 @@ setInterval(tick,400);
 .sgh{margin:10px 2px 4px;font-weight:800}.ech{display:inline-block;margin:3px 4px 3px 0;padding:7px 11px;border:1.5px solid var(--nc,#f33);border-radius:10px;background:#050000;color:#fff;font-size:12px;font-weight:800}.ech.on{background:linear-gradient(#ff1a0f,#b00500)}.epp{display:none}.epp.open,#epw.eall .epp{display:block}
 #sbc{display:none!important}
 .hd2{display:flex;gap:12px;align-items:flex-start;margin:6px 14px 0}.hd2 .hdm{flex:1;min-width:0}.hd2 .pt{margin:0}.hd2 .pchips{margin:8px 0 0!important}
+.pcn{width:84px;aspect-ratio:2/3;border-radius:12px;border:1.5px solid var(--nc,#f33);flex:none;display:grid;place-items:center;font-size:28px;background:#1a0a0a}
 .pcv{width:84px;aspect-ratio:2/3;object-fit:cover;border-radius:12px;border:1.5px solid var(--nc,#f33);flex:none}
 .qa{display:flex;flex-wrap:wrap;gap:8px;margin:12px 14px 8px}
 html body .qa .pbar,html body .qa .prow{display:contents!important}
@@ -3546,5 +3547,13 @@ try{if(isTV()&&typeof S!='undefined'&&S.tab=='home'&&S.T&&S.T.length&&typeof dra
 </script>
 <script>
 new MutationObserver(()=>{const l=document.getElementById('epl');if(l&&!l.dataset.s)epSeek()}).observe(document.body,{childList:true,subtree:true});
+</script>
+<script>
+/* "Carregando seu vídeo" no player do app (Archive, Drive...): aparece enquanto o vídeo abre ou trava para carregar */
+setInterval(()=>{try{const w=document.getElementById('pw'),v=w&&w.querySelector('video#vd');let L=w&&w.querySelector('.p2ld[data-nv]');
+ if(!w||!v){if(L)L.remove();return}
+ if(!L){L=document.createElement('div');L.className='p2ld';L.dataset.nv=1;L.innerHTML='<i></i><b>Carregando seu vídeo</b>';w.appendChild(L)}
+ const cv=document.getElementById('vcap'),busy=!v.error&&((!v.paused&&v.readyState<3)||(!cv&&v.readyState===0&&v.networkState===2&&!!v.getAttribute('src')));
+ L.classList.toggle('on',busy)}catch(e){}},250);
 </script>
 </body></html>
