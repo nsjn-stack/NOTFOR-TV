@@ -717,7 +717,7 @@ html body #pw,html body #pw *{font-family:Roboto,-apple-system,"Segoe UI","Helve
 .cph i{font:800 24px system-ui;color:#888;font-style:normal}.cph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .cst.ed{padding:6px 0}.cst.ed>div{width:96px}.cst.ed input{width:96px;font-size:12px;padding:5px 6px;margin:0;text-align:center}
 #cast_ed .nmw{margin:4px 0}
-</style><style>.pw .vcap.ld i{display:none}.pw .vcap.ld::after{content:"";width:46px;height:46px;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:vcsp .8s linear infinite}@keyframes vcsp{to{transform:rotate(360deg)}}</style></head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
+</style><style>.pw .vcap.ld i{display:none}.pw .vcap.ld::after{content:"";width:50px;height:50px;border:4px solid rgba(255,255,255,.22);border-top-color:#fff;border-radius:50%;animation:vcsp 1.8s linear infinite}.pw .vcap.ld b,.p2ld[data-nv] b{position:absolute;left:0;right:0;top:calc(50% + 46px);text-align:center;font:700 13px system-ui,sans-serif;letter-spacing:.3px;color:#fff;text-shadow:0 1px 4px #000,0 0 8px #000;pointer-events:none}.p2ld[data-nv] i{background:transparent}.p2ld[data-nv] i::after{animation-duration:1.8s}@keyframes vcsp{to{transform:rotate(360deg)}}</style></head><body><div id="sp"><div class="w"><div class="r"></div><img src="icon-512.png" alt=""></div></div><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
@@ -1007,7 +1007,7 @@ const vcUrl=(t,e,li)=>{const k=vcKey(t,e,li);return (k&&S.set[k])||(S.set.vcap_a
 const vcId=()=>S.cur?S.cur.t.id+':'+(S.cur.e?S.cur.e.id:'')+':'+S.cur.li:'';
 function vcHide(){clearTimeout(S.vcT);S.vcd=vcId();const c=document.getElementById('vcap');if(c)c.remove()}
 /* a capa fica até o vídeo realmente abrir; enquanto carrega mostra uma rodinha. Se o player não avisar, sai sozinha depois de um tempo */
-function vcLoad(){const c=document.getElementById('vcap');if(!c)return;c.classList.add('ld');clearTimeout(S.vcT);const nat=!!document.querySelector('#pw video');S.vcT=setTimeout(vcHide,nat?25000:9000)}
+function vcLoad(){const c=document.getElementById('vcap');if(!c)return;c.classList.add('ld');if(!c.querySelector('b')){const b=document.createElement('b');b.textContent='Carregando seu vídeo';c.appendChild(b)}clearTimeout(S.vcT);const nat=!!document.querySelector('#pw video');S.vcT=setTimeout(vcHide,nat?25000:9000)}
 function vcTap(){vcLoad();pbGo();try{const w=document.getElementById('pw');if(w&&w._cnplay&&S.cur&&(S.cur.pk=='ok'||S.cur.pk=='vk'))w._cnplay()}catch(e){}}
 document.addEventListener('playing',e=>{if(e.target&&e.target.id=='vd')vcHide()},true);
 document.addEventListener('timeupdate',e=>{const v=e.target;if(v&&v.id=='vd'&&!v.paused&&v.currentTime>.05)vcHide()},true);
@@ -3549,11 +3549,12 @@ try{if(isTV()&&typeof S!='undefined'&&S.tab=='home'&&S.T&&S.T.length&&typeof dra
 new MutationObserver(()=>{const l=document.getElementById('epl');if(l&&!l.dataset.s)epSeek()}).observe(document.body,{childList:true,subtree:true});
 </script>
 <script>
-/* "Carregando seu vídeo" no player do app (Archive, Drive...): aparece enquanto o vídeo abre ou trava para carregar */
+/* "Carregando seu vídeo" no player do app (Archive, Drive...): só no início, até o vídeo começar a tocar */
+document.addEventListener('playing',e=>{if(e.target&&e.target.id=='vd')e.target._pl=1},true);
 setInterval(()=>{try{const w=document.getElementById('pw'),v=w&&w.querySelector('video#vd');let L=w&&w.querySelector('.p2ld[data-nv]');
  if(!w||!v){if(L)L.remove();return}
  if(!L){L=document.createElement('div');L.className='p2ld';L.dataset.nv=1;L.innerHTML='<i></i><b>Carregando seu vídeo</b>';w.appendChild(L)}
- const cv=document.getElementById('vcap'),busy=!v.error&&((!v.paused&&v.readyState<3)||(!cv&&v.readyState===0&&v.networkState===2&&!!v.getAttribute('src')));
+ const cv=document.getElementById('vcap'),busy=!v._pl&&!v.error&&((!v.paused&&v.readyState<3)||(!cv&&v.readyState===0&&v.networkState===2&&!!v.getAttribute('src')));
  L.classList.toggle('on',busy)}catch(e){}},250);
 </script>
 </body></html>
