@@ -1059,10 +1059,15 @@ function ndWire(v){
  const nx=()=>{let a=[];try{a=JSON.parse(v.dataset.alt||'[]')}catch(e){}const n=a.shift();if(!n)return 0;v.dataset.alt=JSON.stringify(a);v.src=n;try{v.load()}catch(e){}return 1};
  const fail=c=>{if(!document.contains(v))return;const pw=document.getElementById('pw');if(!pw||pw.querySelector('#ndm'))return;const k=v.error?v.error.code:0,dr=/drive\.google/.test(o||''),d=document.createElement('div');d.id='ndm';d.style.cssText='position:absolute;inset:0;z-index:200;display:grid;place-content:center;gap:10px;padding:16px;text-align:center;background:rgba(0,0,0,.9);color:#fff;font:600 13px system-ui';d.innerHTML='<div>'+(dr?'O Google Drive não liberou este vídeo para o player do app':'O vídeo não carregou no player do app')+' ('+(c||'erro '+k)+').'+(dr?'<br><small>Confira se o arquivo está como “Qualquer pessoa com o link” e cole a chave do Drive no Admin.</small>':'')+'</div><div style="display:flex;gap:8px;justify-content:center"><button class="btn s" id="ndr">Tentar de novo</button><button class="btn o s" id="ndo">Player original</button></div>';pw.appendChild(d);d.querySelector('#ndr').onclick=()=>{draw()};d.querySelector('#ndo').onclick=fb};
  const drv=/drive\.google/.test(o||'');
- let rt=0;v.addEventListener('error',()=>{if(ok)return;if(nx())return;if(drv&&rt<2){rt++;setTimeout(()=>{if(!ok&&document.contains(v)){try{v.load()}catch(e){}}},1500*rt);return}fb()});
+ const arc=/archive\.org/.test(o||'');let rt=0;
+ const retry=()=>{const mx=drv?2:arc?4:0;if(rt>=mx)return 0;rt++;setTimeout(()=>{if(!ok&&document.contains(v)){try{v.load()}catch(e){}}},1500*rt);return 1};
+ v.addEventListener('error',()=>{if(ok)return;if(nx())return;if(retry())return;fb()});
+ if(arc){const rs=()=>{if(!ok&&document.contains(v)&&v.readyState<1&&v.getAttribute('src')){try{v.load()}catch(e){}}};
+  [12000,24000,36000].forEach(ms=>setTimeout(rs,ms));
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)rs()});addEventListener('online',rs)}
  setTimeout(()=>{if(!ok&&document.contains(v)&&v.readyState<1)nx()},12000);
- setTimeout(()=>{if(!ok&&document.contains(v)&&v.readyState<1)fb()},drv?25000:20000);
- if(v.dataset.aid&&!v.getAttribute('src'))fetch('https://archive.org/metadata/'+encodeURIComponent(v.dataset.aid)).then(r=>r.json()).then(j=>{
+ setTimeout(()=>{if(!ok&&document.contains(v)&&v.readyState<1)fb()},drv?25000:/archive\.org/.test(o||'')?55000:20000);
+ if(v.dataset.aid&&!v.getAttribute('src'))(async()=>{for(let i=0;;i++){try{const r=await fetch('https://archive.org/metadata/'+encodeURIComponent(v.dataset.aid));return await r.json()}catch(e){if(i>=2)throw e;await new Promise(z=>setTimeout(z,1500))}}})().then(j=>{
   const L=(j.files||[]).filter(x=>/\.(mp4|m4v|webm)$/i.test(x.name)&&!/_(thumb|small|preview)\./i.test(x.name)).sort((a,b)=>(+b.size||0)-(+a.size||0));v._qs=L.map(x=>({h:+x.height||0,n:x.name,id:j.metadata.identifier}));const f=cnQ.pick(L);
   if(!f)throw 0;if(!document.contains(v))return;
   v.src='https://archive.org/download/'+j.metadata.identifier+'/'+f.name.split('/').map(encodeURIComponent).join('/')}).catch(fb);
